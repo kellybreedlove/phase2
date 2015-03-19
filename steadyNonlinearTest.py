@@ -2,17 +2,16 @@ from PyCamellia import *
 from SolutionFns import *
 
 spaceDim = 2
+re = 1000
 dims = [1.0,1.0]
 numElements = [2,2]
 polyOrder = 3
-dt = 0.1
-totalTime = 2.0
 
-form = transientLinearInit(spaceDim, dims, numElements, polyOrder, dt)
+form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
 
 topBoundary = SpatialFilter.matchingY(1.0)
 notTopBoundary = SpatialFilter.negatedFilter(topBoundary)
-timeRamp = TimeRamp.timeRamp(form.getTimeFunction(),1.0)
+
 x = Function.xn(1)
 rampWidth = 1./64
 H_left = Function.heaviside(rampWidth)
@@ -22,8 +21,12 @@ ramp = (1-H_right) * H_left + (1./rampWidth) * (1-H_left) * x + (1./rampWidth) *
 zero = Function.constant(0)
 topVelocity = Function.vectorize(ramp,zero)
 
-
 form = addWall(form, notTopBoundary)
-form = addInflow(form, topBoundary, timeRamp * topVelocity)
+form = addInflow(form, topBoundary, topVelocity)
 
-form = transientLinearSolve(form, totalTime, dt)
+maxSteps = 10
+threshold = .01
+maxRefs = 3
+form = steadyNonlinearSolve(form, maxSteps)
+form = steadyNonlinearRefine(form, threshold, maxRefs, maxSteps)
+steadyNonlinearExport(form)

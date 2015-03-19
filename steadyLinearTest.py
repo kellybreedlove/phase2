@@ -2,12 +2,11 @@ from PyCamellia import *
 from SolutionFns import *
 
 spaceDim = 2
-Re = 800
 dims = [1.0,1.0]
 numElements = [2,2]
 polyOrder = 3
 
-form = steadyLinearInit(spaceDim, Re, dims, numElements, polyOrder)
+form = steadyLinearInit(spaceDim, dims, numElements, polyOrder)
 
 topBoundary = SpatialFilter.matchingY(1.0)
 notTopBoundary = SpatialFilter.negatedFilter(topBoundary)
