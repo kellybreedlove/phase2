@@ -47,6 +47,7 @@ class CreateState:
 			return InitState.Instance()
 		else:
 			print("Sorry, input does not match any known commands.")
+			return self
 
 @Singleton
 class StokesState:
@@ -91,6 +92,7 @@ class NavierStokesState:
 				return InitState.Instance()
 		else:
 			if self.promptnum < len(self.prompts):
+			    #save data or act appropriately
 				self.promptnum += 1
 				return self
 			else:
@@ -101,26 +103,103 @@ class NavierStokesState:
 class PostSolveState:
 	def prompt(self):
 		print("You can now: plot, refine, save, load, or exit.")
+	def act(self, command):
+		if command == "plot":
+			return PlotState.Instance()
+		elif command == "refine":
+			return RefineState.Instance()
+		elif command == "save":
+			return SaveState.Instance()
+		elif command == "load":
+			return LoadState.Instance()
+		elif command == "exit" or command == "quit":
+			return self
+		else:
+			print("Sorry, input does not match any known commands.")
+			return self
 
 @Singleton
 class PlotState:
-	pass
+	def prompt(self):
+	    print("What would you like to plot?")
+	    print("Possible choices are: u1, u2, p, stream function, mesh, and error.")
+	def act(self, command):
+		if command == "u1":
+		    print("Ploting " + command + "...")
+		    #plot
+		elif command == "u2":
+		    print("Ploting " + command + "...")
+		    #plot
+		elif command == "p":
+		    print("Ploting " + command + "...")
+			#plot
+		elif command == "stream function":
+		    print("Solving for stream function...")
+		    #solve
+		    print("Ploting " + command + "...")
+			#refine
+		elif command == "mesh":
+			print("Ploting " + command + "...")
+			#refine
+		elif command == "error":
+		    print("Ploting " + command + "...")
+			#refine
+		else:
+			print("Sorry, input does not match any known commands.")
+			print("Please select h or p auto or manual.")
+			return self
 
 @Singleton
 class RefineState:
-	pass
+	def prompt(self):
+	    print("What would you like to refine?")
+	def act(self, command):
+		if command == "h auto":
+		    print("Automatically refining in h . . .")
+		    #refine
+		    #print "New mesh has __ elements and __ degrees of freedom"
+		    #solve
+		    #print "Solve completed in _ minutes 
+		elif command == "h manual":
+		    #refine
+			pass
+		elif command == "p auto":
+			print("Automatically refining in p . . .")
+		    #refine
+		    #print "New mesh has __ elements and __ degrees of freedom"
+		    #solve
+		    #print "Solve completed in _ minutes 
+		elif command == "p manual":
+			#refine
+			pass
+		else:
+			print("Sorry, input does not match any known commands.")
+			print("Please select h or p auto or manual.")
+			return self
 
 @Singleton
 class LoadState:
 	def prompt(self):
 		print("What solution would you like to load?")
+	def act(self, command):
+	    #load
+	    pass
 
 @Singleton
 class SaveState:
+    def prompt(self):
+		print("What would you like to call the solution and mesh files?")
+    def act(self, command):
+	    #save file
+	    print ("Saving... saved.")
+	    return PostsolveState.Instance()
 
+#run solver
 phase2 = Solver()
-command = "input"
+#command = "input"
+phase2.state.prompt()
+command = str(input())
 while command != "exit":
-	phase2.state.prompt()
-	command = input()
 	phase2.state = phase2.state.act(command)
+	phase2.state.prompt()
+	command = str(input())
