@@ -1,4 +1,20 @@
 from Singleton import *
+from PyCamellia import *
+import pickle # may not get used, we'll see
+
+class SolverMemento(Object):
+	def __init__(self, filename, soln, meshy):
+		self.filename = filename
+		self.soln = soln
+		self.meshy = meshy
+	def getSolution(self):
+		pass
+	def getMesh(self):
+		pass
+	def setSolution(self):
+		pass
+	def setMesh(self):
+		pass
 
 class Solver:
 	def __init__(self):
@@ -11,7 +27,7 @@ class Solver:
 			self.state.act(command)
 	def createMemento(self):
 		pass
-	def setMemento(self,memento):
+	def setMemento(self, memento):
 		pass
 
 @Singleton
@@ -179,27 +195,41 @@ class RefineState:
 
 @Singleton
 class LoadState:
+	self.filename
 	def prompt(self):
-		print("What solution would you like to load?")
+		filename = input("What solution would you like to load?")
 	def act(self, command):
-	    #load
-	    pass
+	    	# load
+		print ("Loading...")
+		file = open(filename, 'rb') # open for reading
+		memento = pickle.load(file) # may not use pickle, just a place holder
+		file.close()
+		Solver.setMemento(memento)
+		print("loaded."
 
 @Singleton
 class SaveState:
-    def prompt(self):
-		print("What would you like to call the solution and mesh files?")
-    def act(self, command):
-	    #save file
-	    print ("Saving... saved.")
-	    return PostsolveState.Instance()
+	self.filename
+	def prompt(self):
+		filename = input("What would you like to call the solution and mesh files?")
+	def act(self, command):
+		# save file
+		print ("Saving...")
+		memento = Solver.createMemento()
+		file = open(fileName, 'wb') # open for writing
+		pickle.dump(memento, file) # may not use pickle, just a place holder
+		file.close()
+		print ("saved.")
+	    	    
+		return PostsolveState.Instance()
 
 #run solver
-phase2 = Solver()
-#command = "input"
-phase2.state.prompt()
-command = str(input())
-while command != "exit":
-	phase2.state = phase2.state.act(command)
+if __name__ == '__main__':
+	phase2 = Solver()
+	# command = "input"
 	phase2.state.prompt()
 	command = str(input())
+	while command != "exit":
+		phase2.state = phase2.state.act(command)
+		phase2.state.prompt()
+		command = str(input())
