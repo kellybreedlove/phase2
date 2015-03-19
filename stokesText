@@ -1,0 +1,8 @@
+What Reynolds number?
+Transient or steady state?
+This solver handles rectangular meshes with lower-left corner at the origin./nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")
+How many elements in the initial mesh? (E.g. "3 x 5")
+What polynomial order? (1 to 9)
+How many inflow conditions?
+How many outflow conditions?
+How many wall conditions?"
