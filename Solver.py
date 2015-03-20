@@ -73,13 +73,13 @@ class CreateState:
 @Singleton
 class StokesState:
 	def __init__(self):
-		self.inputState = Reynolds.Instance()
+		self.inputState = State.Instance()
 	def prompt(self):
 		self.inputState.prompt()
 	def act(self, data):
 		if data == "undo":
-			if type(self.inputState) is Reynolds:
-				return InitState.Instance()
+			if self.inputState.type == "State":
+				return CreateState.Instance()
 			else:
 				self.inputState = self.inputState.undo()
 				return self
@@ -97,18 +97,18 @@ class StokesState:
 @Singleton
 class NavierStokesState:
 	def __init__(self):
-		self.inputState = State.Instance()
+		self.inputState = Reynolds.Instance()
 	def prompt(self):
-		inputState.prompt()
+		self.inputState.prompt()
 	def act(self, data):
 		if data == "undo":
-			if type(self.inputState) is State:
-				return InitState.Instance()
+			if self.inputState.type == "Reynolds":
+				return CreateState.Instance()
 			else:
 				self.inputState = self.inputState.undo()
 				return self
 		else:
-			if self.inputState.act(data):
+			if self.inputState.store(data):
 				if self.inputState.hasNext():
 					self.inputState = self.inputState.next()
 					return self
