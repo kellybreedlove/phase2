@@ -2,19 +2,23 @@ from Singleton import *
 from PyCamellia import *
 import pickle # may not get used, we'll see
 
-class SolverMemento(Object):
-	def __init__(self, filename, soln, meshy):
-		self.filename = filename
-		self.soln = soln
-		self.meshy = meshy
+class SolverMemento:
+	def __init__(self, form):
+		self.form = form
+		#self.soln = soln
+		#self.meshy = meshy
 	def getSolution(self):
 		pass
+#return self.soln
 	def getMesh(self):
 		pass
-	def setSolution(self):
+		#return self.meshy
+	def setSolution(self, soln):
 		pass
-	def setMesh(self):
+		#self.soln = soln
+	def setMesh(self, meshy):
 		pass
+		#self.meshy = meshy
 
 class Solver:
 	def __init__(self):
@@ -26,7 +30,7 @@ class Solver:
 		else:
 			self.state.act(command)
 	def createMemento(self):
-		pass
+		return SolverMemento(self.form) # find soln, meshy
 	def setMemento(self, memento):
 		pass
 
@@ -68,7 +72,8 @@ class CreateState:
 @Singleton
 class StokesState:
 	def __init__(self):
-		self.prompts = ["What Reynolds number?", "Transient or steady state?", 'This solver handles rectangular meshes with lower-left corner at the origin./nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")', 'How many elements in the initial mesh? (E.g. "3 x 5")',"What polynomial order? (1 to 9)", "How many inflow conditions?", "How many outflow conditions?","How many wall conditions?"]
+		with open('stokesText') as f: self.prompts = f.readlines()
+		f.close()
 		self.promptnum = 1
 	def prompt(self):
 		print(self.prompts[self.promptnum-1])
@@ -95,7 +100,8 @@ class StokesState:
 @Singleton
 class NavierStokesState:
 	def __init__(self):
-		self.prompts = ["What Reynolds number?", "Transient or steady state?", 'This solver handles rectangular meshes with lower-left corner at the origin./nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")', 'How many elements in the initial mesh? (E.g. "3 x 5")',"What polynomial order? (1 to 9)", "How many inflow conditions?", "How many outflow conditions?","How many wall conditions?"]
+		with open('navierStokesText') as f: self.prompts = f.readlines()
+		f.close()
 		self.promptnum = 0
 	def prompt(self):
 		print(self.prompts[self.promptnum])
@@ -195,31 +201,29 @@ class RefineState:
 
 @Singleton
 class LoadState:
-	self.filename
 	def prompt(self):
 		filename = input("What solution would you like to load?")
 	def act(self, command):
 	    	# load
-		print ("Loading...")
-		file = open(filename, 'rb') # open for reading
+		file = open(filename) # open for reading
 		memento = pickle.load(file) # may not use pickle, just a place holder
 		file.close()
 		Solver.setMemento(memento)
-		print("loaded."
+		print "...loaded. Mesh has %s elements and %s degrees of freedom" % (numEL, numDeg)
+		return PostsolveState.Instance()
 
 @Singleton
 class SaveState:
-	self.filename
 	def prompt(self):
 		filename = input("What would you like to call the solution and mesh files?")
 	def act(self, command):
 		# save file
-		print ("Saving...")
+		print "Saving..."
 		memento = Solver.createMemento()
-		file = open(fileName, 'wb') # open for writing
+		file = open(fileName) # open for writing
 		pickle.dump(memento, file) # may not use pickle, just a place holder
 		file.close()
-		print ("saved.")
+		print "saved."
 	    	    
 		return PostsolveState.Instance()
 
