@@ -1,8 +1,8 @@
 from Singleton import *
-from PyCamellia import *
+#from PyCamellia import *
 import pickle # may not get used, we'll see
 
-class SolverMemento(Object):
+class SolverMemento:
 	def __init__(self, filename, soln, meshy):
 		self.filename = filename
 		self.soln = soln
@@ -195,9 +195,8 @@ class RefineState:
 
 @Singleton
 class LoadState:
-	self.filename
 	def prompt(self):
-		filename = input("What solution would you like to load?")
+		self.filename = input("What solution would you like to load?")
 	def act(self, command):
 	    	# load
 		print ("Loading...")
@@ -205,18 +204,17 @@ class LoadState:
 		memento = pickle.load(file) # may not use pickle, just a place holder
 		file.close()
 		Solver.setMemento(memento)
-		print("loaded."
+		print("loaded.")
 
 @Singleton
 class SaveState:
-	self.filename
 	def prompt(self):
-		filename = input("What would you like to call the solution and mesh files?")
+		print("What would you like to call the solution and mesh files?")
 	def act(self, command):
 		# save file
 		print ("Saving...")
 		memento = Solver.createMemento()
-		file = open(fileName, 'wb') # open for writing
+		file = open(command, 'wb') # open for writing
 		pickle.dump(memento, file) # may not use pickle, just a place holder
 		file.close()
 		print ("saved.")
