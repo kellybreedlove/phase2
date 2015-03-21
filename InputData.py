@@ -1,17 +1,17 @@
 from Singleton import *
+from InflowParser import *
 
 @Singleton
-class Reynolds:
+class Reynolds: #only used for Navier-Stokes
 	def __init__(self):
 	    self.type = "Reynolds"
 	def prompt(self):
 		print("What Reynolds number?")
 	def store(self, data):
-	    if type(int(data)) == type(800):
-	        self.Re = data
+	    try:
+	        self.Re = int(data)
 	        return True
-	    else:
-	        print(type(data))
+	    except ValueError:
 	        return False
 	def hasNext(self):
 	    return True
@@ -25,18 +25,24 @@ class State:
 	def prompt(self):
 		print("Transient or steady state?")
 	def store(self, data):
-	    return True
+	    if data.lower() == "transient" or data.lower() == "steady state":
+	        self.state = data.lower()
+	        return True
+	    else:
+	        return False
 	def hasNext(self):
 	    return True
 	def next(self):
 	    return MeshDimensions.Instance()
+	def undo(self):
+	    return Reynolds.Instance()
 	    
 @Singleton
 class MeshDimensions:
 	def __init__(self):
 	     self.type = "MeshDimensions"
 	def prompt(self):
-		print('This solver handles rectangular meshes with lower-left corner at the origin./nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")')
+		print('This solver handles rectangular meshes with lower-left corner at the origin.\nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")')
 	def store(self, data):
 	    return True
 	def hasNext(self):
@@ -68,7 +74,14 @@ class PolyOrder:
 	def prompt(self):
 		print("What polynomial order? (1 to 9)")
 	def store(self, data):
-	    return True
+	    try:
+	        self.order = int(data)
+	        if self.order <= 9 and self.order >= 1:
+	            return True
+	        else:
+	            return False
+	    except ValueError:
+	        return False
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -82,23 +95,86 @@ class Inflow:
 	     self.type = "Inflow"
 	def prompt(self):
 		print("How many inflow conditions?")
-	def store(self, data):
-	    return True
+	def store(self, data): #returns True, False, or "undo"
+	    self.inflowRegions = []
+	    self.inflowX = []
+	    self.inflowY = []
+	    try:
+	        self.numInflows = int(data)
+	        i = 1
+	        while i <= self.numInflows*3:
+	        	x = self.obtainData(i)
+	        	if not str(x) == "False":
+	        	    i += 1
+	        	    if str(x) == "undo":
+	        	        i -= 2
+	        	    if i < 1
+	        	        return "undo"
+	        	else:
+	        	    print("Sorry, input does not match expected format.")
+	        return True
+	    except ValueError:
+	        return False
+	def obtainData(self, i):
+	    if (i+2)%3 == 0:
+	        data = raw_input("For inflow condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
+	        if data.lower() == "undo":
+	            return "undo"
+	        else:
+	            self.inflowRegions.append(data)
+	            return True
+	    elif (i+1)%3 == 0:
+	        data = raw_input("For inflow condition " + str((i+1)/3) + ", what is the x component of the velocity?\n")
+	        if data.lower() == "undo":
+	            return "undo"
+	        else:
+	            self.inflowX.append(data)
+	            return True
+	    elif i%3 == 0:
+	        data = raw_input("For inflow condition " + str(i/3) + ", what is the y component of the velocity?\n")
+	        if data.lower() == "undo":
+	            return "undo"
+	        else:
+	            self.inflowY.append(data)
+	            return True
+	    else:
+	        return False
 	def hasNext(self):
 	    return True
 	def next(self):
-	    return OutFlow.Instance()
+	    return Outflow.Instance()
 	def undo(self):
 	    return PolyOrder.Instance()
 	    
 @Singleton
-class OutFlow:
+class Outflow:
 	def __init__(self):
-	     self.type = "OutFlow"
+	     self.type = "Outflow"
 	def prompt(self):
 		print("How many outflow conditions?")
 	def store(self, data):
-	    return True
+	    self.outflowRegions = []
+	    try:
+	        self.numOutflows = int(data)
+	        i = 1
+	        while i <= self.numOutflows:
+	        	x = self.obtainData(i)
+	        	if not str(x) == "False":
+	        	    i += 1
+	        	    if str(x) == "undo":
+	        	        i -= 2
+	        	else:
+	        	    print("Sorry, input does not match expected format.")
+	        return True
+	    except ValueError:
+	        return False
+	def obtainData(self, i):
+	    data = raw_input("For outflow condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
+	    if data.lower() == "undo":
+	            return "undo"
+	    else:
+	        self.outflowRegions.append(data)
+	        return True
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -113,7 +189,28 @@ class Walls:
 	def prompt(self):
 		print("How many wall conditions?")
 	def store(self, data):
-	    return True
+	    self.wallRegions =  []
+	    try:
+	        self.numWalls = int(data)
+	        i = 1
+	        while i <= self.numWalls:
+	        	x = self.obtainData(i)
+	        	if not str(x) == "False":
+	        	    i += 1
+	        	    if str(x) == "undo":
+	        	        i -= 2
+	        	else:
+	        	    print("Sorry, input does not match expected format.")
+	        return True
+	    except ValueError:
+	        return False
+	def obtainData(self, i):
+	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")')
+	    if data == "undo":
+	        return "undo"
+	    else:
+	        self.wallRegions.append(data)
+	        return True
 	def hasNext(self):
 	    return False
 	def undo(self):
