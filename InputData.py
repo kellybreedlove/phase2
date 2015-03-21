@@ -95,7 +95,7 @@ class Inflow:
 	     self.type = "Inflow"
 	def prompt(self):
 		print("How many inflow conditions?")
-	def store(self, data): #returns True, False, or "undo"
+	def store(self, data): #returns True (proceed to Outflow), False (wrong input, try again), or "undo" (go bak to PolyOrder)
 	    self.inflowRegions = []
 	    self.inflowX = []
 	    self.inflowY = []
@@ -107,19 +107,21 @@ class Inflow:
 	        	if not str(x) == "False":
 	        	    i += 1
 	        	    if str(x) == "undo":
-	        	        i -= 2
-	        	    if i < 1
-	        	        return "undo"
+	        	        i -= 2 #go back to last input
+	        	    if i < 1:
+	        	        return "undo"#already at last input, go back to PolyOrder
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
 	        return True
 	    except ValueError:
 	        return False
-	def obtainData(self, i):
+	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    if (i+2)%3 == 0:
 	        data = raw_input("For inflow condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
 	        if data.lower() == "undo":
 	            return "undo"
+	        elif data.lower() == "exit" or data.lower() == "quit":
+	            quit()
 	        else:
 	            self.inflowRegions.append(data)
 	            return True
@@ -127,6 +129,8 @@ class Inflow:
 	        data = raw_input("For inflow condition " + str((i+1)/3) + ", what is the x component of the velocity?\n")
 	        if data.lower() == "undo":
 	            return "undo"
+	        elif data.lower() == "exit" or data.lower() == "quit":
+	            quit()
 	        else:
 	            self.inflowX.append(data)
 	            return True
@@ -134,6 +138,8 @@ class Inflow:
 	        data = raw_input("For inflow condition " + str(i/3) + ", what is the y component of the velocity?\n")
 	        if data.lower() == "undo":
 	            return "undo"
+	        elif data.lower() == "exit" or data.lower() == "quit":
+	            quit()
 	        else:
 	            self.inflowY.append(data)
 	            return True
@@ -152,7 +158,7 @@ class Outflow:
 	     self.type = "Outflow"
 	def prompt(self):
 		print("How many outflow conditions?")
-	def store(self, data):
+	def store(self, data): #returns True (proceed to Walls), False (wrong input, try again), or "undo" (go bak to Inflow)
 	    self.outflowRegions = []
 	    try:
 	        self.numOutflows = int(data)
@@ -162,16 +168,20 @@ class Outflow:
 	        	if not str(x) == "False":
 	        	    i += 1
 	        	    if str(x) == "undo":
-	        	        i -= 2
+	        	        i -= 2 #go back to last input
+	        	    if i < 1:
+	        	        return "undo"#already at last input, go back to Inflow
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
 	        return True
 	    except ValueError:
 	        return False
-	def obtainData(self, i):
+	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    data = raw_input("For outflow condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
 	    if data.lower() == "undo":
 	            return "undo"
+	    elif data.lower() == "exit" or data.lower() == "quit":
+	        quit()
 	    else:
 	        self.outflowRegions.append(data)
 	        return True
@@ -188,7 +198,7 @@ class Walls:
 	     self.type = "Walls"
 	def prompt(self):
 		print("How many wall conditions?")
-	def store(self, data):
+	def store(self, data):#returns True (proceed), False (wrong input, try again), or "undo" (go bak to Outflow)
 	    self.wallRegions =  []
 	    try:
 	        self.numWalls = int(data)
@@ -198,16 +208,20 @@ class Walls:
 	        	if not str(x) == "False":
 	        	    i += 1
 	        	    if str(x) == "undo":
-	        	        i -= 2
+	        	        i -= 2 #go back to last input
+	        	    if i < 1:
+	        	        return "undo"#already at last input, go back to Outflow
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
 	        return True
 	    except ValueError:
 	        return False
-	def obtainData(self, i):
+	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")')
 	    if data == "undo":
 	        return "undo"
+	    elif data.lower() == "exit" or data.lower() == "quit":
+	        quit()
 	    else:
 	        self.wallRegions.append(data)
 	        return True

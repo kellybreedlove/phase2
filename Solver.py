@@ -25,6 +25,7 @@ class Solver:
 	def __init__(self):
 		self.commands = []
 		self.state = InitState.Instance()
+		#self.state = StokesState.Instance() #FOR TESTING
 	def readCommand(self, command):
 		if " " in command:
 			self.readCommand(self, command[command.index(" "):])
@@ -42,13 +43,13 @@ class InitState:
 	def prompt(self):
 		print("You can now: create or load.")
 	def act(self, command):
-		if command == "create":
+		if command.lower() == "create":
 			print("Before we solve, I need to ask you some setup questions.")
 			return CreateState.Instance()
-		elif command == "load":
+		elif command.lower() == "load":
 			return LoadState.Instance()
-		elif command == "exit" or command == "quit":
-			return self
+		elif command.lower() == "exit" or command.lower() == "quit":
+			quit()
 		else:
 			print("Sorry, input does not match any known commands.")
 			return self
@@ -59,12 +60,12 @@ class CreateState:
 		pass
 	def prompt(self):
 		print("Would you like to solve Stokes or Navier-Stokes?")
-	def act(self, type):
-		if type == "Stokes":
+	def act(self, sns):
+		if sns.lower() == "stokes" or sns.lower() == "s":
 			return StokesState.Instance()
-		elif type == "Navier-Stokes":
+		elif sns.lower() == "navier-stokes" or sns.lower() == "ns":
 			return NavierStokesState.Instance()
-		elif type == "undo":
+		elif sns.lower() == "undo":
 			return InitState.Instance()
 		else:
 			print("Sorry, input does not match any known commands.")
@@ -77,15 +78,21 @@ class StokesState:
 	def prompt(self):
 		self.inputState.prompt()
 	def act(self, data):
-		if data == "undo":
+		if data.lower() == "undo":
 			if self.inputState.type == "State":
 				return CreateState.Instance()
 			else:
 				self.inputState = self.inputState.undo()
 				return self
 		else:
-			if self.inputState.store(data):
-				if self.inputState.hasNext():
+			x = self.inputState.store(data)
+			if not str(x) == "False":
+				if str(x).lower() == "undo":
+					self.inputState = self.inputState.undo()
+					return self
+				elif str(x).lower() == "exit" or str(x).lower() == "quit":
+					quit()
+				elif self.inputState.hasNext():
 					self.inputState = self.inputState.next()
 					return self
 				else:
@@ -101,15 +108,21 @@ class NavierStokesState:
 	def prompt(self):
 		self.inputState.prompt()
 	def act(self, data):
-		if data == "undo":
+		if data.lower() == "undo":
 			if self.inputState.type == "Reynolds":
 				return CreateState.Instance()
 			else:
 				self.inputState = self.inputState.undo()
 				return self
 		else:
-			if self.inputState.store(data):
-				if self.inputState.hasNext():
+			x = self.inputState.store(data)
+			if not str(x) == "False":
+				if str(x).lower() == "undo":
+					self.inputState = self.inputState.undo()
+					return self
+				elif str(x).lower() == "exit" or str(x).lower() == "quit":
+					quit()
+				elif self.inputState.hasNext():
 					self.inputState = self.inputState.next()
 					return self
 				else:
@@ -124,15 +137,15 @@ class PostSolveState:
 	def prompt(self):
 		print("You can now: plot, refine, save, load, or exit.")
 	def act(self, command):
-		if command == "plot":
+		if command.lower() == "plot":
 			return PlotState.Instance()
-		elif command == "refine":
+		elif command.lower() == "refine":
 			return RefineState.Instance()
-		elif command == "save":
+		elif command.lower() == "save":
 			return SaveState.Instance()
-		elif command == "load":
+		elif command.lower() == "load":
 			return LoadState.Instance()
-		elif command == "exit" or command == "quit":
+		elif command.lower() == "exit" or command.lower() == "quit":
 			return self
 		else:
 			print("Sorry, input does not match any known commands.")
@@ -144,24 +157,24 @@ class PlotState:
 		print("What would you like to plot?")
 		print("Possible choices are: u1, u2, p, stream function, mesh, and error.")
 	def act(self, command):
-		if command == "u1":
+		if command.lower() == "u1":
 			print("Ploting " + command + "...")
 			#plot
-		elif command == "u2":
+		elif command.lower() == "u2":
 			print("Ploting " + command + "...")
 			#plot
-		elif command == "p":
+		elif command.lower() == "p":
 			print("Ploting " + command + "...")
 			#plot
-		elif command == "stream function":
+		elif command.lower() == "stream function":
 			print("Solving for stream function...")
 			#solve
 			print("Ploting " + command + "...")
 			#refine
-		elif command == "mesh":
+		elif command.lower() == "mesh":
 			print("Ploting " + command + "...")
 			#refine
-		elif command == "error":
+		elif command.lower() == "error":
 			print("Ploting " + command + "...")
 			#refine
 		else:
@@ -174,24 +187,26 @@ class RefineState:
 	def prompt(self):
 		print("What would you like to refine?")
 	def act(self, command):
-		if command == "h auto":
+		if command.lower() == "h auto":
 			print("Automatically refining in h . . .")
 			#refine
 			#print "New mesh has __ elements and __ degrees of freedom"
 			#solve
-			#print "Solve completed in _ minutes 
-		elif command == "h manual":
+			#print "Solve completed in _ minutes
+			return PostSolveState.Instance()
+		elif command.lower() == "h manual":
 			#refine
-			pass
-		elif command == "p auto":
+			return PostSolveState.Instance()
+		elif command.lower() == "p auto":
 			print("Automatically refining in p . . .")
 			#refine
 			#print "New mesh has __ elements and __ degrees of freedom"
 			#solve
 			#print "Solve completed in _ minutes 
-		elif command == "p manual":
+			return PostSolveState.Instance()
+		elif command.lower() == "p manual":
 			#refine
-			pass
+			return PostSolveState.Instance()
 		else:
 			print("Sorry, input does not match any known commands.")
 			print("Please select h or p auto or manual.")
@@ -208,7 +223,7 @@ class LoadState:
 		file.close()
 		Solver.setMemento(memento)
 		#print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (numEL, numDeg))
-		return PostsolveState.Instance()
+		return PostSolveState.Instance()
 
 
 @Singleton
@@ -232,7 +247,7 @@ if __name__ == '__main__':
 	# command = "input"
 	phase2.state.prompt()
 	command = raw_input()
-	while str(command) != "exit":
+	while str(command).lower() != "exit" and str(command).lower() != "quit":
 		phase2.state = phase2.state.act(command)
 		phase2.state.prompt()
 		command = raw_input()
