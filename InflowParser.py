@@ -1,46 +1,45 @@
-String input //contains the input for the condition
+#String inputstr contains the input for the condition
 
 
-def 
+def parse():
+    i = 0
+    xFirst = True
+    for c in inputstr:
+        if c == ',':
+         break
+        i+=1
+    firstHalf = inputstr[:i]
+    secondHalf = inputstr[i+1:] #add error handling in case there is no comma
 
-i = 0
-xFirst = True
-for c in input:
-    if c == ',':
-        break
-    i++
-firstHalf = input[:i]
-secondHalf = input[i+1:] #add error handling in case there is no comma
-
-c = firstHalf[0]
-if c == 'x':
-    xBounds = setXBoundary(firstHalf)
-elif c == 'y':
-    yBounds = setYBoundary(firstHalf)
-    xFirst = False
-else:
-    reject()
-c = secondHalf[0]
-if c == 'x':
-    if xFirst:
+    c = firstHalf[0]
+    if c == 'x':
+        xBounds = setXBoundary(firstHalf)
+    elif c == 'y':
+        yBounds = setYBoundary(firstHalf)
+        xFirst = False
+    else:
         reject()
-    xBounds = setXBoundary(secondHalf)
-elif c == 'y':
-    if !xFirst:
+    c = secondHalf[0]
+    if c == 'x':
+        if xFirst:
+            reject()
+        xBounds = setXBoundary(secondHalf)
+    elif c == 'y':
+        if not xFirst:
+            reject()
+        yBounds = setYBoundary(secondHalf)
+    else:
         reject()
-    yBounds = setYBoundary(secondHalf)
-else:
-    reject()
 
 
 
 
 
 
-def setXBoundary(input):
-    digits = input[2:]
-    c = input[1]
-    if !digits.isdigit(): #Need to change to isLong or something similar
+def setXBoundary(inputstr):
+    digits = inputstr[2:]
+    c = inputstr[1]
+    if not digits.isdigit(): #Need to change to isLong or something similar
         reject()
     if c == '=':
         return SpatialFilter.matchingX(digits)
@@ -48,17 +47,17 @@ def setXBoundary(input):
         return SpatialFilter.lessThanX(digits)
     elif c == '>':
         return SpatialFilter.greaterThanX(digits)
-    else :
-        break
+    else:
+        reject()
     
 
 
 
 
-def setYBoundary(input):
-    digits = input[2:]
-    c = input[1]
-    if !digits.isdigit(): #Need to change to isLong or something similar
+def setYBoundary(inputstr):
+    digits = inputstr[2:]
+    c = inputstr[1]
+    if not digits.isdigit(): #Need to change to isLong or something similar
         reject()
     if c == '=':
         return SpatialFilter.matchingY(digits)
@@ -66,8 +65,8 @@ def setYBoundary(input):
         return SpatialFilter.lessThanY(digits)
     elif c == '>':
         return SpatialFilter.greaterThanY(digits)
-    else :
-        break
+    else:
+        reject()
 
 
 
