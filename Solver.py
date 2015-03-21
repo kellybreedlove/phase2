@@ -1,40 +1,18 @@
 from Singleton import *
 from InputData import *
 #from PyCamellia import *
-import pickle # may not get used, we'll see
-
-class SolverMemento:
-	def __init__(self, form):
-		self.form = form
-		#self.soln = soln
-		#self.meshy = meshy
-	def getSolution(self):
-		pass
-#return self.soln
-	def getMesh(self):
-		pass
-		#return self.meshy
-	def setSolution(self, soln):
-		pass
-		#self.soln = soln
-	def setMesh(self, meshy):
-		pass
-		#self.meshy = meshy
 
 class Solver:
 	def __init__(self):
 		self.commands = []
 		self.state = InitState.Instance()
+		self.inputData = None # initally null until some input is known
 		#self.state = StokesState.Instance() #FOR TESTING
 	def readCommand(self, command):
 		if " " in command:
 			self.readCommand(self, command[command.index(" "):])
 		else:
 			self.state.act(command)
-	def createMemento(self):
-		return SolverMemento(self.form) # find soln, meshy
-	def setMemento(self, memento):
-		pass
 
 @Singleton
 class InitState:
@@ -62,8 +40,10 @@ class CreateState:
 		print("Would you like to solve Stokes or Navier-Stokes?")
 	def act(self, sns):
 		if sns.lower() == "stokes" or sns.lower() == "s":
+			inputData = InputData("stokes")
 			return StokesState.Instance()
 		elif sns.lower() == "navier-stokes" or sns.lower() == "ns":
+			inputData = InputData("nStokes")
 			return NavierStokesState.Instance()
 		elif sns.lower() == "undo":
 			return InitState.Instance()
@@ -218,10 +198,10 @@ class LoadState:
 		self.filename = input("What solution would you like to load?")
 	def act(self, command):
 		# load
-		file = open(filename) # open for reading
+		file = open(self.filename) # open for reading
 		memento = pickle.load(file) # may not use pickle, just a place holder
 		file.close()
-		Solver.setMemento(memento)
+		inputData.setMemento(memento)
 		#print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (numEL, numDeg))
 		return PostSolveState.Instance()
 
@@ -233,7 +213,7 @@ class SaveState:
 	def act(self, command):
 		# save file
 		print "Saving..."
-		memento = Solver.createMemento()
+		memento = inputData.createMemento()
 		file = open(command, 'wb') # open for writing
 		pickle.dump(memento, file) # may not use pickle, just a place holder
 		file.close()
