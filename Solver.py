@@ -40,10 +40,10 @@ class CreateState:
 		print("Would you like to solve Stokes or Navier-Stokes?")
 	def act(self, sns):
 		if sns.lower() == "stokes" or sns.lower() == "s":
-			inputData = InputData("stokes")
+			inputData = InputData(True)
 			return StokesState.Instance()
 		elif sns.lower() == "navier-stokes" or sns.lower() == "ns":
-			inputData = InputData("nStokes")
+			inputData = InputData(False)
 			return NavierStokesState.Instance()
 		elif sns.lower() == "undo":
 			return InitState.Instance()
@@ -65,7 +65,7 @@ class StokesState:
 				self.inputState = self.inputState.undo()
 				return self
 		else:
-			x = self.inputState.store(data)
+			x = self.inputState.store(inputData, data)
 			if not str(x) == "False":
 				if str(x).lower() == "undo":
 					self.inputState = self.inputState.undo()
