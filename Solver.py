@@ -65,7 +65,7 @@ class StokesState:
 				self.inputState = self.inputState.undo()
 				return self
 		else:
-			x = self.inputState.store(inputData, data)
+			x = self.inputState.store(inputData, datum)
 			if not str(x) == "False":
 				if str(x).lower() == "undo":
 					self.inputState = self.inputState.undo()
@@ -95,7 +95,7 @@ class NavierStokesState:
 				self.inputState = self.inputState.undo()
 				return self
 		else:
-			x = self.inputState.store(data)
+			x = self.inputState.store(inputData, datum)
 			if not str(x) == "False":
 				if str(x).lower() == "undo":
 					self.inputState = self.inputState.undo()
