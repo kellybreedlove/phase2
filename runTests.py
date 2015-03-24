@@ -1,7 +1,8 @@
-from TestLoadSave import * 
+from TestFunctionParser import *
+#from TestMementoExc import * 
 import unittest
 
-testSuite = unittest.makeSuite(TestLoadSave)
+testSuite = unittest.makeSuite(TestFunctionParser)
 #testSuite.addTest(unittest.makeSuite(Test))
 
 testRunner = unittest.TextTestRunner()
