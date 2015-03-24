@@ -175,7 +175,6 @@ class Inflow:
 	            quit()
 	        else:
 	            try:
-	                #parse data, create function
 	                x = stringToFunction(data)
 	                self.inflowX.append(x)
 	                return True
@@ -189,7 +188,6 @@ class Inflow:
 	            quit()
 	        else:
 	            try:
-	                #parse data, create function
 	                y = stringToFunction(data)
 	                self.inflowY.append(y)
 	                return True
