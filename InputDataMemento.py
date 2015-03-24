@@ -1,7 +1,7 @@
 from PyCamellia import *
 import pickle
 
-class StokesMemento:
+class StokesMemento: # call set state, leave variables in tuple
     def __init__(self, form, dataTuple):
         self.form = form
         self.soln = form.solution()

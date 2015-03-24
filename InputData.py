@@ -5,7 +5,7 @@ import Solver
 class InputData:
 	def __init__(self, stokesOrNStokes):
 		self.form = None #initialized to null value
-		self.stokes = stokesOrNStokes #true if stokes, false if NavierStokes
+		self.stokes = (stokesOrNStokes,) #true if stokes, false if NavierStokes
 		self.vars = (stokesOrNStokes,) # to collect all the variables
 		# Stokes: stokes, reNum, transient, dims, numElements, 
 		# polyOrder, inflow tuple, outflow tuple, wall tuple
@@ -16,12 +16,12 @@ class InputData:
 	def addVariable(self, var):
 		self.vars += (var,)
 	def createMemento(self, form):
-		if self.stokes:
+		if self.stokes: # try to eliminate the if else
 			return StokesMemento(self.form, self.vars)
 		else:
 			return NavierStokesMemento(self.form, self.vars)
-	def setMemento(self, memento):
-		data = memento.get()
+	def setMemento(self, memento): # get rid of solution, mesh
+		data = memento.get() # figure out stokes navier, pull out numbers into vars, initialize form here, use inflow and wall conditions to add to the initialized solution again.
 		self.form = data[0]
 		self.vars = data[3:]
 
