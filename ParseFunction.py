@@ -4,6 +4,9 @@ from SolutionFns import *
 import sys
 import math
 
+####### Debug variable, for debug output
+debug = True
+
 # states represent accept states
 class State:
     __implementation = None
@@ -89,7 +92,10 @@ class lParen:
         if len(context.parenStack) == 0:
             context.currState.changeImp(reject())
         else:
-            context.parenStack.pop()
+            if len(context.parenStack) != 0:
+                context.parenStack.pop()
+            else:
+                context.currState.changeImp(reject())
             context.currState.changeImp(rParen()) 
             
 
@@ -154,7 +160,10 @@ class numPreDec:
             context.fnStack.append(Function_constant(float(context.currNum)))
             context.currNum = ''
             operate(context)
-            context.parenStack.pop()
+            if len(context.parenStack) != 0:
+                context.parenStack.pop()
+            else:
+                context.currState.changeImp(reject())
             context.currState.changeImp(rParen()) 
 
 
@@ -218,7 +227,10 @@ class numPostDec:
             context.fnStack.append(Function_constant(float(context.currNum)))
             context.currNum = ''
             operate(context)
-            context.parenStack.pop()
+            if len(context.parenStack) != 0:
+                context.parenStack.pop()
+            else:
+                context.currState.changeImp(reject())
             context.currState.changeImp(rParen()) 
 
 
@@ -247,7 +259,10 @@ class inX:
     def x(self,context):
         context.currState.changeImp(reject())
     def y(self,context):
-        preFn = context.fnStack.pop()
+        if len(context.fnStack) != 0:
+            preFn = context.fnStack.pop()
+        else:
+            context.currState.changeImp(reject())
         y1 = Function_yn(1)
         fn = y1*preFn
         context.fnStack.append(fn)
@@ -261,7 +276,10 @@ class inX:
             context.currState.changeImp(reject())
         else:
             operate(context)
-            context.parenStack.pop()
+            if len(context.parenStack) != 0:
+                context.parenStack.pop()
+            else:
+                context.currState.changeImp(reject())
             context.currState.changeImp(rParen()) 
 
 # inY
@@ -299,7 +317,10 @@ class inY:
             context.currState.changeImp(reject())
         else:
             operate(context)
-            context.parenStack.pop()
+            if len(context.parenStack) != 0:
+                context.parenStack.pop()
+            else:
+                context.currState.changeImp(reject())
             context.currState.changeImp(rParen()) 
 
 # needs Op
@@ -358,13 +379,19 @@ class rParen:
         context.opStack.append('^')
         context.currState.changeImp(inOp())
     def x(self,context):
-        preFn = context.fnStack.pop()
+        if len(context.fnStack) != 0:
+            preFn = context.fnStack.pop()
+        else:
+            context.currState.changeImp(reject())
         x1 = Function_xn(1)
         fn = x1*preFn
         context.fnStack.append(fn)
         context.currState.changeImp(inX())
     def y(self,context):
-        preFn = context.fnStack.pop()
+        if len(context.fnStack) != 0:
+            preFn = context.fnStack.pop()
+        else:
+            context.currState.changeImp(reject())
         y1 = Function_yn(1)
         fn = y1*preFn
         context.fnStack.append(fn)
@@ -377,8 +404,11 @@ class rParen:
         if len(context.parenStack) == 0:
             context.currState.changeImp(reject())
         else:
-            operate(context)           
-            context.parenStack.pop()
+            operate(context)
+            if len(context.parenStack) != 0:
+                context.parenStack.pop()
+            else:
+                context.currState.changeImp(reject())
             context.currState.changeImp(rParen()) 
 
     
@@ -409,12 +439,20 @@ class reject:
         return
 
 def operate(context):
-    oper = context.opStack.pop()
-    print oper
-    fn2 = context.fnStack.pop()
-    print fn2
-    fn1 = context.fnStack.pop()
-    print fn1
+    if len(context.opStack) != 0:
+        oper = context.opStack.pop()
+        if debug:
+            print oper
+    else:
+        raise ValueError
+    if len(context.fnStack) > 1:
+        fn2 = context.fnStack.pop()
+        fn1 = context.fnStack.pop()
+        if debug:
+            print fn2
+            print fn1
+    else:
+        raise ValueError
     fn = None
     if(oper == '+'):
         fn = fn1 + fn2
@@ -488,12 +526,16 @@ def stringToFunction(toFunction):
             currContext.currState.rp(currContext)
         else:
             currContext.currState.changeImpt(reject())
-        
+    
+
+    if len(currContext.fnStack) == 0:
+        currContext.fnStack.append(Function_constant(float(currContext.currNum)))    
+
     fn = currContext.fnStack.pop()
     if len(currContext.parenStack) != 0:
-        return "parenStack not empty"
+        raise ValueError
     elif currContext.currState.name == 'reject':
-        return "in reject state"
+        raise ValueError
     return fn
 
 def addParen(toFunction):
@@ -505,20 +547,25 @@ def addParen(toFunction):
             toReturn += c
 
             if c == '(':
-                l = i
+                l = i + 1
                 parenStack = []
 
-                while toFunction[l] != ')' and len(parenStack) == 0:
+                while toFunction[l] != ')' or len(parenStack) != 0:
                     curr = toFunction[l]
                     if curr == '(':
                         parenStack.append('(')
                     if curr == ')':
-                        parenStack.pop()
+                        if len(parenStack) != 0:
+                            parenStack.pop()
+                        else:
+                            raise ValueError
                     l += 1
                     if l == len(toFunction):
                         break
 
                 substring = toFunction[i+1:l]
+                if debug:
+                    print "substring in paren is: "+substring
                 inside = addParen(substring)
                 toReturn += inside[1:-1]     #get rid of extra parens
 
@@ -527,12 +574,14 @@ def addParen(toFunction):
     toReturn = multDiv(toReturn)
 
     toReturn = addSub(toReturn)            
-            
-    print toReturn
+    
+    if debug:
+        print toReturn
     return toReturn
 
 def expon(toFunction):
-    print toFunction
+    if debug:
+        print toFunction
     toReturn = ""
     l = 0
     mainParen = []
@@ -542,7 +591,10 @@ def expon(toFunction):
             mainParen.append('(')
 
         if c == ')':
-            mainParen.pop()
+            if len(mainParen) != 0:
+                mainParen.pop()
+            else:
+                raise ValueError
 
         if i >= l:
             toReturn += c
@@ -562,7 +614,10 @@ def expon(toFunction):
                     if curr == ')':
                         parenStack.append(')',k)
                     if curr == '(':
-                        parenStack.pop()
+                        if len(parenStack) != 0:
+                            parenStack.pop()
+                        else:
+                            raise ValueError
                         
                     k -= 1
                     if k == -1:
@@ -601,7 +656,10 @@ def multDiv(toFunction):
             mainParen.append('(')
 
         if c == ')':
-            mainParen.pop()
+            if len(mainParen) != 0:
+                mainParen.pop()
+            else:
+                raise ValueError
 
         if i >= l:
             toReturn += c
@@ -623,7 +681,10 @@ def multDiv(toFunction):
                         if curr == ')':
                             parenStack.append(')')
                         if curr == '(':
-                            parenStack.pop()
+                            if len(parenStack) != 0:
+                                parenStack.pop()
+                            else:
+                                raise ValueError
                         k -= 1
                         if k == -1:
                             break   
@@ -636,7 +697,10 @@ def multDiv(toFunction):
                         if curr == '(':
                             parenStack.append('(')
                         if curr == ')':
-                            parenStack.pop()
+                            if len(parenStack) != 0:
+                                parenStack.pop()
+                            else:
+                                raise ValueError
                         l += 1
                         if l == len(toFunction):
                             break         
@@ -658,7 +722,10 @@ def multDiv(toFunction):
                         if curr == '(':
                             parenStack.append('(')
                         if curr == ')':
-                            parenStack.pop()
+                            if len(parenStack) != 0:
+                                parenStack.pop()
+                            else:
+                                raise ValueError
                         l += 1
                         if l == len(toFunction):
                             break          
@@ -671,7 +738,7 @@ def multDiv(toFunction):
                     return multDiv(recurRet)
                     
 
-            if c == '*' or c == '/' and len(mainParen) == 0:
+            if (c == '*' or c == '/') and len(mainParen) == 0:
                 k = i - 1
                 l = i + 1
                 parenStack = []
@@ -687,7 +754,10 @@ def multDiv(toFunction):
                     if curr == ')':
                         parenStack.append(')')
                     if curr == '(':
-                        parenStack.pop()
+                        if len(parenStack) != 0:
+                            parenStack.pop()
+                        else:
+                            raise ValueError
                     k -= 1
                     if k == -1:
                         break
@@ -721,7 +791,10 @@ def addSub(toFunction):
             mainParen.append('(')
 
         if c == ')':
-            mainParen.pop()
+            if len(mainParen) != 0:
+                mainParen.pop()
+            else:
+                raise ValueError
 
         if i >= l:
             toReturn += c
@@ -742,7 +815,10 @@ def addSub(toFunction):
                     if curr == ')':
                         parenStack.append(')')
                     if curr == '(':
-                        parenStack.pop()
+                        if len(parenStack) != 0:
+                            parenStack.pop()
+                        else:
+                            raise ValueError
                     k -= 1
                     if k == -1:
                         break
@@ -753,7 +829,10 @@ def addSub(toFunction):
                     if curr == '(':
                         parenStack.append('(')
                     if curr == ')':
-                        parenStack.pop()
+                        if len(parenStack) != 0:
+                            parenStack.pop()
+                        else:
+                            raise ValueError
                     l += 1
                     if l == len(toFunction):
                         break
@@ -765,7 +844,7 @@ def addSub(toFunction):
                 recurRet = toReturn + toFunction[l:len(toFunction)] 
                 return addSub(recurRet)
 
-            if (c == '-' and not(i == 0 or (toFunction[i-1] != '(' and toFunction[i-1] != '+' and toFunction[i-1] != '-' and toFunction[i-1] != '*' and toFunction[i-1] != '/' and toFunction[i-1] != '^'))) and len(mainParen) == 0:
+            if (c == '-' and not(i == 0 or not(toFunction[i-1] == '(' or toFunction[i-1] == '+' or toFunction[i-1] == '-' or toFunction[i-1] == '*' or toFunction[i-1] == '/' or toFunction[i-1] != '^'))) and len(mainParen) == 0:
                 k = i - 1
                 l = i + 1
                 parenStack = []
@@ -774,7 +853,10 @@ def addSub(toFunction):
                     if curr == ')':
                         parenStack.append(')')
                     if curr == '(':
-                        parenStack.pop()
+                        if len(parenStack) != 0:
+                            parenStack.pop()
+                        else:
+                            raise ValueError
                     k -= 1
                     if k == -1:
                         break
@@ -784,7 +866,10 @@ def addSub(toFunction):
                     if curr == '(':
                         parenStack.append('(')
                     if curr == ')':
-                        parenStack.pop()
+                        if len(parenStack) != 0:
+                            parenStack.pop()
+                        else:
+                            raise ValueError
                     l += 1
                     if l == len(toFunction):
                         break
