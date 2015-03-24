@@ -1,5 +1,6 @@
 from Singleton import *
 from InflowParser import *
+from ParseFunction import *
 import Solver
 
 class InputData:
@@ -8,9 +9,10 @@ class InputData:
 		self.stokes = stokesOrNStokes #true if stokes, false if NavierStokes
 		self.vars = (stokesOrNStokes,) # to collect all the variables
 		# Stokes: stokes, reNum, transient, dims, numElements, 
-		# polyOrder, inflow tuple, outflow tuple, wall tuple
+		#   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
+		#   outflow tuple (numOutflows, [outflow regions]), wall tuple (numWalls, [wall regions])
 		# Navier Stokes: nStokes, transient, dims, numElements, polyOrder, 
-		# inflow tuple, outflow tuple, wall tuple
+		#   inflow tuple, outflow tuple, wall tuple
 	def setForm(self, form,):
 		self.form = form
 	def addVariable(self, var):
@@ -33,9 +35,8 @@ class Reynolds: #only used for Navier-Stokes
 		print("What Reynolds number?")
 	def store(self, inputData, datum):
 	    try:
-	        self.Re = int(datum)
 	        inputData.addVariable(int(datum))
-		return True
+	        return True
 	    except ValueError:
 	        return False
 	def hasNext(self):
@@ -51,8 +52,7 @@ class State:
 		print("Transient or steady state?")
 	def store(self, inputData, datum):
 	    if datum.lower() == "transient" or datum.lower() == "steady state":
-	        self.state = datum.lower()
-		inputData.addVariable(datum.lower())
+	        inputData.addVariable(datum.lower())
 	        return True
 	    else:
 	        return False
@@ -70,15 +70,19 @@ class MeshDimensions:
 	def prompt(self):
 		print('This solver handles rectangular meshes with lower-left corner at the origin.\nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")')
 	def store(self, inputData, datum):
-		inputData.addVariable(datum)
-		return True
+		try:
+		    #check data, create mesh
+		    inputData.addVariable(datum)
+		    return True
+		except ValueError:
+		    return False
 	def hasNext(self):
 		return True
 	def next(self):
 		return Elements.Instance()
 	def undo(self):
 		return State.Instance()
-	    
+		
 @Singleton
 class Elements:
 	def __init__(self):
@@ -86,8 +90,12 @@ class Elements:
 	def prompt(self):
 		print('How many elements in the initial mesh? (E.g. "3 x 5")')
 	def store(self, inputData, datum):
-		inputData.addVariable(datum)
-		return True
+		try:
+		    #check data
+		    inputData.addVariable(datum)
+		    return True
+		except ValueError:
+		    return False
 	def hasNext(self):
 		return True
 	def next(self):
@@ -103,14 +111,14 @@ class PolyOrder:
 		print("What polynomial order? (1 to 9)")
 	def store(self, inputData, datum):
 	    try:
-	        self.order = int(datum)
-	        if self.order <= 9 and self.order >= 1:
-			inputData.addVariable(datum)
-			return True
-	        else:
-			return False
+	        order = int(datum)
+	    	if order <= 9 and order >= 1:
+			    inputData.addVariable(order)
+			    return True
+	    	else:
+			    return False
 	    except ValueError:
-	        return False
+	    	return False
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -141,8 +149,8 @@ class Inflow:
 	        	        return "undo"#already at last input, go back to PolyOrder
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
-		inputData.addVariable((datum, inflowRegions, inflowX, inflowY))
-		return True
+	        inputData.addVariable((datum, self.inflowRegions, self.inflowX, self.inflowY))
+	        return True
 	    except ValueError:
 	        return False
 	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
@@ -153,8 +161,12 @@ class Inflow:
 	        elif data.lower() == "exit" or data.lower() == "quit":
 	            quit()
 	        else:
-	            self.inflowRegions.append(data)
-	            return True
+	            try:
+	                #parse data, create spatialFilter
+	                self.inflowRegions.append(data)
+	                return True
+	            except ValueError:
+	                return False
 	    elif (i+1)%3 == 0:
 	        data = raw_input("For inflow condition " + str((i+1)/3) + ", what is the x component of the velocity?\n")
 	        if data.lower() == "undo":
@@ -162,8 +174,13 @@ class Inflow:
 	        elif data.lower() == "exit" or data.lower() == "quit":
 	            quit()
 	        else:
-	            self.inflowX.append(data)
-	            return True
+	            try:
+	                #parse data, create function
+	                x = stringToFunction(data)
+	                self.inflowX.append(x)
+	                return True
+	            except ValueError:
+	                return False
 	    elif i%3 == 0:
 	        data = raw_input("For inflow condition " + str(i/3) + ", what is the y component of the velocity?\n")
 	        if data.lower() == "undo":
@@ -171,8 +188,13 @@ class Inflow:
 	        elif data.lower() == "exit" or data.lower() == "quit":
 	            quit()
 	        else:
-	            self.inflowY.append(data)
-	            return True
+	            try:
+	                #parse data, create function
+	                y = stringToFunction(data)
+	                self.inflowY.append(y)
+	                return True
+	            except ValueError:
+	                return False
 	    else:
 	        return False
 	def hasNext(self):
@@ -191,9 +213,9 @@ class Outflow:
 	def store(self, inputData, datum): #returns True (proceed to Walls), False (wrong input, try again), or "undo" (go bak to Inflow)
 	    self.outflowRegions = []
 	    try:
-	        self.numOutflows = int(datum)
+	        numOutflows = int(datum)
 	        i = 1
-	        while i <= self.numOutflows:
+	        while i <= numOutflows:
 	        	x = self.obtainData(i)
 	        	if not str(x) == "False":
 	        	    i += 1
@@ -203,7 +225,7 @@ class Outflow:
 	        	        return "undo"#already at last input, go back to Inflow
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
-		inputData.addVariable((datum, outflowRegions)) 
+	        inputData.addVariable((datum, self.outflowRegions))
 	        return True
 	    except ValueError:
 	        return False
@@ -214,8 +236,12 @@ class Outflow:
 	    elif data.lower() == "exit" or data.lower() == "quit":
 	        quit()
 	    else:
-	        self.outflowRegions.append(data)
-	        return True
+	        try:
+	            #parse data, make spatialFilter
+	            self.outflowRegions.append(data)
+	            return True
+	        except ValueError:
+	            return False
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -232,9 +258,9 @@ class Walls:
 	def store(self, inputData, datum):#returns True (proceed), False (wrong input, try again), or "undo" (go bak to Outflow)
 	    self.wallRegions =  []
 	    try:
-	        self.numWalls = int(datum)
+	        numWalls = int(datum)
 	        i = 1
-	        while i <= self.numWalls:
+	        while i <= numWalls:
 	        	x = self.obtainData(i)
 	        	if not str(x) == "False":
 	        	    i += 1
@@ -244,7 +270,7 @@ class Walls:
 	        	        return "undo"#already at last input, go back to Outflow
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
-		inputData.addVariable((datum, wallRegions))
+	        inputData.addVariable((datum, self.wallRegions))
 	        return True
 	    except ValueError:
 	        return False
@@ -255,8 +281,12 @@ class Walls:
 	    elif data.lower() == "exit" or data.lower() == "quit":
 	        quit()
 	    else:
-	        self.wallRegions.append(data)
-	        return True
+	        try:
+	            #parse data, create SpatialFilter
+	            self.wallRegions.append(data)
+	            return True
+	        except ValueError:
+	            return False
 	def hasNext(self):
 	    return False
 	def undo(self):
