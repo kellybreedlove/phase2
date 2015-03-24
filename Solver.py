@@ -9,10 +9,13 @@ class Solver:
 		self.inputData = None # initally null until some input is known
 		#self.state = StokesState.Instance() #FOR TESTING
 	def readCommand(self, command):
-		if " " in command:
-			self.readCommand(self, command[command.index(" "):])
-		else:
-			self.state.act(command)
+		#if " " in command: #add functionality for multiple commands at once (?)
+		#	self.readCommand(self, command[:command.index(" ")])
+		#	self.readCommand(self, command[command.index(" ")+1:])
+		#else:
+			self.state = self.state.act(command, self)
+	def prompt(self):
+		self.state.prompt()
 
 @Singleton
 class InitState:
@@ -20,7 +23,7 @@ class InitState:
 		print("Welcome to the PyCamellia incompressible flow solver!")
 	def prompt(self):
 		print("You can now: create or load.")
-	def act(self, command):
+	def act(self, command, context):
 		if command.lower() == "create":
 			print("Before we solve, I need to ask you some setup questions.")
 			return CreateState.Instance()
@@ -38,12 +41,12 @@ class CreateState:
 		pass
 	def prompt(self):
 		print("Would you like to solve Stokes or Navier-Stokes?")
-	def act(self, sns):
+	def act(self, sns, context):
 		if sns.lower() == "stokes" or sns.lower() == "s":
-			inputData = InputData(True)
+			context.inputData = InputData(True)
 			return StokesState.Instance()
 		elif sns.lower() == "navier-stokes" or sns.lower() == "ns":
-			inputData = InputData(False)
+			context.inputData = InputData(False)
 			return NavierStokesState.Instance()
 		elif sns.lower() == "undo":
 			return InitState.Instance()
@@ -57,15 +60,15 @@ class StokesState:
 		self.inputState = State.Instance()
 	def prompt(self):
 		self.inputState.prompt()
-	def act(self, data):
-		if data.lower() == "undo":
+	def act(self, datum, context):
+		if datum.lower() == "undo":
 			if self.inputState.type == "State":
 				return CreateState.Instance()
 			else:
 				self.inputState = self.inputState.undo()
 				return self
 		else:
-			x = self.inputState.store(inputData, data)
+			x = self.inputState.store(context.inputData, datum)
 			if not str(x) == "False":
 				if str(x).lower() == "undo":
 					self.inputState = self.inputState.undo()
@@ -87,15 +90,15 @@ class NavierStokesState:
 		self.inputState = Reynolds.Instance()
 	def prompt(self):
 		self.inputState.prompt()
-	def act(self, data):
-		if data.lower() == "undo":
+	def act(self, datum, context):
+		if datum.lower() == "undo":
 			if self.inputState.type == "Reynolds":
 				return CreateState.Instance()
 			else:
 				self.inputState = self.inputState.undo()
 				return self
 		else:
-			x = self.inputState.store(inputData, data)
+			x = self.inputState.store(context.inputData, datum)
 			if not str(x) == "False":
 				if str(x).lower() == "undo":
 					self.inputState = self.inputState.undo()
@@ -116,7 +119,7 @@ class NavierStokesState:
 class PostSolveState:
 	def prompt(self):
 		print("You can now: plot, refine, save, load, or exit.")
-	def act(self, command):
+	def act(self, command, context):
 		if command.lower() == "plot":
 			return PlotState.Instance()
 		elif command.lower() == "refine":
@@ -136,7 +139,7 @@ class PlotState:
 	def prompt(self):
 		print("What would you like to plot?")
 		print("Possible choices are: u1, u2, p, stream function, mesh, and error.")
-	def act(self, command):
+	def act(self, command, context):
 		if command.lower() == "u1":
 			print("Ploting " + command + "...")
 			#plot
@@ -166,7 +169,7 @@ class PlotState:
 class RefineState:
 	def prompt(self):
 		print("What would you like to refine?")
-	def act(self, command):
+	def act(self, command, context):
 		if command.lower() == "h auto":
 			print("Automatically refining in h . . .")
 			#refine
@@ -196,12 +199,12 @@ class RefineState:
 class LoadState:
 	def prompt(self):
 		self.filename = input("What solution would you like to load?")
-	def act(self, command):
+	def act(self, command, context):
 		# load
 		file = open(self.filename) # open for reading
 		memento = pickle.load(file) # may not use pickle, just a place holder
 		file.close()
-		inputData.setMemento(memento)
+		context.inputData.setMemento(memento)
 		#print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (numEL, numDeg))
 		return PostSolveState.Instance()
 
@@ -210,10 +213,10 @@ class LoadState:
 class SaveState:
 	def prompt(self):
 		print("What would you like to call the solution and mesh files?")
-	def act(self, command):
+	def act(self, command, context):
 		# save file
 		print "Saving..."
-		memento = inputData.createMemento()
+		memento = context.inputData.createMemento()
 		file = open(command, 'wb') # open for writing
 		pickle.dump(memento, file) # may not use pickle, just a place holder
 		file.close()
@@ -225,9 +228,10 @@ class SaveState:
 if __name__ == '__main__':
 	phase2 = Solver()
 	# command = "input"
-	phase2.state.prompt()
+	phase2.prompt()
 	command = raw_input()
 	while str(command).lower() != "exit" and str(command).lower() != "quit":
-		phase2.state = phase2.state.act(command)
-		phase2.state.prompt()
+		phase2.readCommand(command)
+		#phase2.state = phase2.state.act(command)
+		phase2.prompt()
 		command = raw_input()
