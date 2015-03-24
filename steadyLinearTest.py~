@@ -1,13 +1,13 @@
 from PyCamellia import *
-from SolutionFns import *
+import SolutionFns
 
 spaceDim = 2
-re = 1000
+Re = 800
 dims = [1.0,1.0]
 numElements = [2,2]
 polyOrder = 3
 
-form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
+form = steadyLinearSolutionInit(spaceDim, Re, dims, numElements, polyOrder)
 
 topBoundary = SpatialFilter.matchingY(1.0)
 notTopBoundary = SpatialFilter.negatedFilter(topBoundary)
@@ -21,13 +21,10 @@ ramp = (1-H_right) * H_left + (1./rampWidth) * (1-H_left) * x + (1./rampWidth) *
 zero = Function.constant(0)
 topVelocity = Function.vectorize(ramp,zero)
 
-form = addWall(form, notTopBoundary)
-form = addInflow(form, topBoundary, topVelocity)
+form.addWallCondition(notTopBoundary)
+form.addInflowCondition(topBoundary,topVelocity)
 
-maxSteps = 10
-threshold = .01
-maxRefs = 3
-form = steadyNonlinearSolve(form, maxSteps)
-form = steadyNonlinearHRefine(form, threshold, maxRefs, maxSteps)
-exporter = steadyNonlinearExport(form)
+form = steadyLinearAddWall(form, notTopBoundary)
+form = steadyLinearAddInflow(form, topBoundary, topVelocity)
 
+form = steadyLinearSolve(form)

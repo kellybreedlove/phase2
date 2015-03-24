@@ -1,0 +1,88 @@
+<?xml version="1.0" ?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="2" xmlns:xi="http://www.w3.org/2003/XInclude">
+<Domain>
+<Grid CollectionType="Temporal" GridType="Collection" Name="Trace Grids">
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0">
+<Time TimeType="Single" Value="0.00000000000000000e+00"/>
+<xi:include href="XMF/trace-part0-time0.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.1">
+<Time TimeType="Single" Value="1.00000000000000006e-01"/>
+<xi:include href="XMF/trace-part0-time0.1.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.2">
+<Time TimeType="Single" Value="2.00000000000000011e-01"/>
+<xi:include href="XMF/trace-part0-time0.2.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.3">
+<Time TimeType="Single" Value="3.00000000000000044e-01"/>
+<xi:include href="XMF/trace-part0-time0.3.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.4">
+<Time TimeType="Single" Value="4.00000000000000022e-01"/>
+<xi:include href="XMF/trace-part0-time0.4.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.5">
+<Time TimeType="Single" Value="5.00000000000000000e-01"/>
+<xi:include href="XMF/trace-part0-time0.5.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.6">
+<Time TimeType="Single" Value="5.99999999999999978e-01"/>
+<xi:include href="XMF/trace-part0-time0.6.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.7">
+<Time TimeType="Single" Value="6.99999999999999956e-01"/>
+<xi:include href="XMF/trace-part0-time0.7.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.8">
+<Time TimeType="Single" Value="7.99999999999999933e-01"/>
+<xi:include href="XMF/trace-part0-time0.8.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time0.9">
+<Time TimeType="Single" Value="8.99999999999999911e-01"/>
+<xi:include href="XMF/trace-part0-time0.9.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1">
+<Time TimeType="Single" Value="9.99999999999999889e-01"/>
+<xi:include href="XMF/trace-part0-time1.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.1">
+<Time TimeType="Single" Value="1.09999999999999987e+00"/>
+<xi:include href="XMF/trace-part0-time1.1.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.2">
+<Time TimeType="Single" Value="1.19999999999999996e+00"/>
+<xi:include href="XMF/trace-part0-time1.2.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.3">
+<Time TimeType="Single" Value="1.30000000000000004e+00"/>
+<xi:include href="XMF/trace-part0-time1.3.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.4">
+<Time TimeType="Single" Value="1.40000000000000013e+00"/>
+<xi:include href="XMF/trace-part0-time1.4.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.5">
+<Time TimeType="Single" Value="1.50000000000000022e+00"/>
+<xi:include href="XMF/trace-part0-time1.5.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.6">
+<Time TimeType="Single" Value="1.60000000000000031e+00"/>
+<xi:include href="XMF/trace-part0-time1.6.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.7">
+<Time TimeType="Single" Value="1.70000000000000040e+00"/>
+<xi:include href="XMF/trace-part0-time1.7.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.8">
+<Time TimeType="Single" Value="1.80000000000000049e+00"/>
+<xi:include href="XMF/trace-part0-time1.8.xmf"/>
+</Grid>
+<Grid CollectionType="Spatial" GridType="Collection" Name="Time1.9">
+<Time TimeType="Single" Value="1.90000000000000058e+00"/>
+<xi:include href="XMF/trace-part0-time1.9.xmf"/>
+</Grid>
+</Grid>
+</Domain>
+</Xdmf>

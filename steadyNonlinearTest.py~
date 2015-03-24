@@ -21,13 +21,12 @@ ramp = (1-H_right) * H_left + (1./rampWidth) * (1-H_left) * x + (1./rampWidth) *
 zero = Function.constant(0)
 topVelocity = Function.vectorize(ramp,zero)
 
-form = addWall(form, notTopBoundary)
-form = addInflow(form, topBoundary, topVelocity)
+form = addWall(notTopBoundary)
+form = addInflow(topBoundary, topVelocity)
 
-maxSteps = 10
+maxSteps = 20
 threshold = .01
 maxRefs = 3
-form = steadyNonlinearSolve(form, maxSteps)
-form = steadyNonlinearHRefine(form, threshold, maxRefs, maxSteps)
-exporter = steadyNonlinearExport(form)
-
+form = steadyNonlinearSolve(form, 10)
+form = steadyNonlinearRefine(form, threshold, maxRefs)
+steadyNonlinearExport(form)
