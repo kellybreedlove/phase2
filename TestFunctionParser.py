@@ -33,8 +33,8 @@ class TestFunctionParser(unittest.TestCase):
 
     """Test Exonent"""
     def test_exponent(self):
-        func = stringToFunction("2^x")
-        answ = 2 ^ x
+        func = stringToFunction("2^3")
+        answ = 2 ** 3
         self.assertEqual(answ, func.evaluate(x))
 
     """Test Negative"""
