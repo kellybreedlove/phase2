@@ -5,7 +5,7 @@ import sys
 import math
 
 ####### Debug variable, for debug output
-debug = True
+nDebug = True
 
 # states represent accept states
 class State:
@@ -133,6 +133,8 @@ class numPreDec:
         context.currNum = ''
         context.currState.changeImp(inOp())
     def x(self,context):
+        if context.currNum == '-':
+            context.currNum += '1'
         const = Function_constant(float(context.currNum))
         context.currNum = ""
         x1 = Function_xn(1)
@@ -140,6 +142,8 @@ class numPreDec:
         context.fnStack.append(fn)
         context.currState.changeImp(inX())
     def y(self,context):
+        if context.currNum == '-':
+            context.currNum += '1'
         const = Function_constant(float(context.currNum))
         context.currNum = ""
         y1 = Function_yn(1)
@@ -441,14 +445,14 @@ class reject:
 def operate(context):
     if len(context.opStack) != 0:
         oper = context.opStack.pop()
-        if debug:
+        if not nDebug:
             print oper
     else:
         raise ValueError
     if len(context.fnStack) > 1:
         fn2 = context.fnStack.pop()
         fn1 = context.fnStack.pop()
-        if debug:
+        if not nDebug:
             print fn2
             print fn1
     else:
@@ -564,23 +568,45 @@ def addParen(toFunction):
                         break
 
                 substring = toFunction[i+1:l]
-                if debug:
+                if not nDebug:
                     print "substring in paren is: "+substring
                 inside = addParen(substring)
                 toReturn += inside[1:-1]     #get rid of extra parens
 
+    toReturn = hasOp(toReturn)
+
     toReturn = expon(toReturn)
+
+    toReturn = negSign(toReturn)
+
+    toReturn = parenMult(toReturn)
             
     toReturn = multDiv(toReturn)
 
     toReturn = addSub(toReturn)            
     
-    if debug:
-        print toReturn
+    if not nDebug:
+        print "paren: " +toReturn
     return toReturn
 
+def hasOp(toFunction):
+    mainParen = []
+    for c in enumerate(toFunction):
+        if c == '(':
+            mainParen.append('(')
+
+        if c == ')':
+            if len(mainParen) != 0:
+                mainParen.pop()
+            else:
+                raise ValueError
+        if len(mainParen) == 0 and (c == '^' or c == '*' or c == '/' or c == '+' or c == '-'):
+            return toFunction
+
+    return "1*"+toFunction
+
 def expon(toFunction):
-    if debug:
+    if not nDebug:
         print toFunction
     toReturn = ""
     l = 0
@@ -603,11 +629,14 @@ def expon(toFunction):
                 k = i - 1
                 l = i + 1
                 parenStack = []
-                while not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0:
-                    if(toFunction[k] == '-'):
+                while (not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0) and k >= 0:
+                    if(toFunction[k] == '-') and len(parenStack) == 0:
                         if(k == 0 or (toFunction[k-1] == '(' or toFunction[k-1] == '+' or toFunction[k-1] == '-' or toFunction[k-1] == '*' or toFunction[k-1] == '/' or toFunction[k-1] == '^')):
-                            k -= 1
-                            
+                            k -= 1                            
+                        break
+
+                    if toFunction[k] == 'x' or toFunction[k] == 'y':
+                        k -= 1
                         break
 
                     curr = toFunction[k]
@@ -622,7 +651,7 @@ def expon(toFunction):
                     k -= 1
                     if k == -1:
                         break
-                if toFunction[l] != '(':
+                if toFunction[l] != '(' and l != len(toFunction):
                     while toFunction[l].isdigit() or (l == i+1 and toFunction[l] == '-'):
                         l += 1
                         if l == len(toFunction):
@@ -644,12 +673,80 @@ def expon(toFunction):
 
     return toReturn
 
-
-
-def multDiv(toFunction):
+def negSign(toFunction):
     toReturn = ""
     l = 0
     mainParen = []
+    for i,c in enumerate(toFunction):
+
+        if c == '(':
+            mainParen.append('(')
+
+        if c == ')':
+            if len(mainParen) != 0:
+                mainParen.pop()
+            else:
+                raise ValueError
+        if i >= l:
+            toReturn += c
+
+            if c == '-'  and len(mainParen) == 0:
+                if i != 0:
+                    d = toFunction[i-1]
+                    if d == '(' or d == '*' or d == '/' or d == '+' or d == '-':
+                        l = i + 1
+                        parenStack = []
+                        while (not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '*' or toFunction[l] == '-' or toFunction[l] == '/' or toFunction[l] == '0') or len(parenStack) != 0) and l != len(toFunction):
+
+                            curr = toFunction[l]
+                            if curr == '(':
+                                parenStack.append('(')
+                            if curr == ')':
+                                if len(parenStack) != 0:
+                                    parenStack.pop()
+                                else:
+                                    raise ValueError
+                            l += 1
+                            if l == len(toFunction):
+                                break   
+
+                        substring = toFunction[i:l]
+                        pSubstring = '(0'+substring+')'                       
+                        toReturn = toReturn[:i]+pSubstring
+
+                        recurRet = toReturn + toFunction[l:len(toFunction)]
+                        return negSign(recurRet)
+                if i == 0:
+                    l = i + 1
+                    parenStack = []
+                    while (not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '*' or toFunction[l] == '-' or toFunction[l] == '/' or toFunction[l] == '0') or len(parenStack) != 0) and l != len(toFunction):
+
+                        curr = toFunction[l]
+                        if curr == '(':
+                            parenStack.append('(')
+                        if curr == ')':
+                            if len(parenStack) != 0:
+                                parenStack.pop()
+                            else:
+                                raise ValueError
+                        l += 1
+                        if l == len(toFunction):
+                            break   
+
+                    substring = toFunction[1:l]
+                    pSubstring = '(0-'+substring+')'                       
+                    toReturn = pSubstring
+
+                    recurRet = toReturn + toFunction[l:len(toFunction)]
+                    return negSign(recurRet)
+
+    return toReturn
+
+def parenMult(toFunction):
+    toReturn = ""
+    l = 0
+    mainParen = []
+
     for i,c in enumerate(toFunction):
 
         if c == '(':
@@ -669,12 +766,11 @@ def multDiv(toFunction):
                     k = i - 1
                     l = i + 1
                     parenStack = []
-                    while not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0:
+                    while (not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0) and k >= 0:
 
-                        if(toFunction[k] == '-'):
+                        if(toFunction[k] == '-') and len(parenStack) == 0:
                             if(k == 0 or (toFunction[k-1] == '(' or toFunction[k-1] == '+' or toFunction[k-1] == '-' or toFunction[k-1] == '*' or toFunction[k-1] == '/' or toFunction[k-1] == '^')):
-                                k -= 1
-                                
+                                k -= 1                               
                                 break
 
                         curr = toFunction[k]
@@ -691,7 +787,7 @@ def multDiv(toFunction):
 
                     parenStack = []
 
-                    while not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '-' or toFunction[l] == '*' or toFunction[l] == '/') or len(parenStack) != 0:
+                    while (not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '-' or toFunction[l] == '*' or toFunction[l] == '/') or len(parenStack) != 0) and l != len(toFunction):
 
                         curr = toFunction[l]
                         if curr == '(':
@@ -703,7 +799,7 @@ def multDiv(toFunction):
                                 raise ValueError
                         l += 1
                         if l == len(toFunction):
-                            break         
+                            break     
 
                     substring = toFunction[k+1:l]
                     pSubstring = '('+substring+')'
@@ -736,15 +832,34 @@ def multDiv(toFunction):
 
                     recurRet = toReturn + toFunction[l:len(toFunction)] 
                     return multDiv(recurRet)
-                    
+
+    return toReturn
+
+def multDiv(toFunction):
+    toReturn = ""
+    l = 0
+    mainParen = []
+    for i,c in enumerate(toFunction):
+
+        if c == '(':
+            mainParen.append('(')
+
+        if c == ')':
+            if len(mainParen) != 0:
+                mainParen.pop()
+            else:
+                raise ValueError
+
+        if i >= l:
+            toReturn += c
 
             if (c == '*' or c == '/') and len(mainParen) == 0:
                 k = i - 1
                 l = i + 1
                 parenStack = []
-                while not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0:
+                while (not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0) and k >= 0:
 
-                    if(toFunction[k] == '-'):
+                    if(toFunction[k] == '-') and len(parenStack) == 0:
                         if(k == 0 or (toFunction[k-1] == '(' or toFunction[k-1] == '+' or toFunction[k-1] == '-' or toFunction[k-1] == '*' or toFunction[k-1] == '/' or toFunction[k-1] == '^')):
                             k -= 1
 
@@ -762,7 +877,7 @@ def multDiv(toFunction):
                     if k == -1:
                         break
 
-                while not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '-' or toFunction[l] == '*' or toFunction[l] == '/') or len(parenStack) != 0:
+                while (not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '-' or toFunction[l] == '*' or toFunction[l] == '/') or len(parenStack) != 0) and l != len(toFunction):
                     curr = toFunction[l]
                     if curr == '(':
                         parenStack.append('(')
@@ -782,6 +897,8 @@ def multDiv(toFunction):
     return toReturn
 
 def addSub(toFunction):
+    if not nDebug:
+        print toFunction
     toReturn = ""
     l = 0
     mainParen = []
@@ -803,12 +920,11 @@ def addSub(toFunction):
                 k = i - 1
                 l = i + 1
                 parenStack = []
-                while not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0:
+                while (not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0) and k >= 0:
 
-                    if(toFunction[k] == '-'):
+                    if(toFunction[k] == '-') and len(parenStack) == 0:
                         if(k == 0 or (toFunction[k-1] == '(' or toFunction[k-1] == '+' or toFunction[k-1] == '-' or toFunction[k-1] == '*' or toFunction[k-1] == '/' or toFunction[k-1] == '^')):
                             k -= 1
-
                         break
 
                     curr = toFunction[k]
@@ -822,8 +938,8 @@ def addSub(toFunction):
                     k -= 1
                     if k == -1:
                         break
-
-                while not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '-' or toFunction[l] == '*' or toFunction[l] == '/') or len(parenStack) != 0:
+                parenStack = []
+                while (not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '-' or toFunction[l] == '*' or toFunction[l] == '/') or len(parenStack) != 0) and l != len(toFunction):
 
                     curr = toFunction[l]
                     if curr == '(':
@@ -848,7 +964,7 @@ def addSub(toFunction):
                 k = i - 1
                 l = i + 1
                 parenStack = []
-                while not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '-' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0:
+                while (not(toFunction[k] == '(' or toFunction[k] == '+' or toFunction[k] == '-' or toFunction[k] == '*' or toFunction[k] == '/') or len(parenStack) != 0) and k >= 0:
                     curr = toFunction[k]
                     if curr == ')':
                         parenStack.append(')')
@@ -860,8 +976,8 @@ def addSub(toFunction):
                     k -= 1
                     if k == -1:
                         break
-
-                while not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '-' or toFunction[l] == '*' or toFunction[l] == '/') or len(parenStack) != 0:
+                parenStack = []
+                while (not(toFunction[l] == ')' or toFunction[l] == '+' or toFunction[l] == '-' or toFunction[l] == '*' or toFunction[l] == '/') or len(parenStack) != 0) and l != len(toFunction):
                     curr = toFunction[l]
                     if curr == '(':
                         parenStack.append('(')

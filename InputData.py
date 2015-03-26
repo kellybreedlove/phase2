@@ -3,29 +3,43 @@ from InflowParser import *
 from ParseFunction import *
 import Solver
 
+# The memento doesn't care about any of the data, it just passes it around
+class Memento:
+    def __init__(self, dataTuple):
+        self.set(dataTuple)
+    def get(self):
+        return self.dataTuple
+    def set(self, dataTuple):
+        self.dataTuple = dataTuple
+
 class InputData:
-	def __init__(self, stokesOrNStokes):
+	def __init__(self, stokesOrNot):
 		self.form = None #initialized to null value
-		self.stokes = stokesOrNStokes #true if stokes, false if NavierStokes
-		self.vars = (stokesOrNStokes,) # to collect all the variables
-		# Stokes: stokes, reNum, transient, dims, numElements, 
+		self.stokes = stokesOrNot #true if stokes, false if NavierStokes
+		self.vars = () # to collect all the variables
+
+		# Stokes: stokesTrue, reNum, transient, dims, numElements, 
 		#   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
 		#   outflow tuple (numOutflows, [outflow regions]), wall tuple (numWalls, [wall regions])
-		# Navier Stokes: nStokes, transient, dims, numElements, polyOrder, 
+		# Navier Stokes: nStokesFalse, transient, dims, numElements, polyOrder, 
 		#   inflow tuple, outflow tuple, wall tuple
+
 	def setForm(self, form,):
 		self.form = form
 	def addVariable(self, var):
 		self.vars += (var,)
-	def createMemento(self, form):
-		if self.stokes:
-			return StokesMemento(self.form, self.vars)
-		else:
-			return NavierStokesMemento(self.form, self.vars)
+	def createMemento(self):
+		return Memento((self.form, self.stokes) + self.vars) # shove it all into one tuple to hold onto
 	def setMemento(self, memento):
 		data = memento.get()
-		self.form = data[0]
-		self.vars = data[3:]
+		self.form = data[0]	
+		self.stokes = data[1]
+		self.vars = data[2:]
+		if stokes:
+			polyOrder = self.vars[5]
+		#self.form.initializeSolution(meshTopo,polyOrder, delta_k)
+		# initialize solution from here & use inflow and wall
+		# conditions to add to the initialized solution again
 
 @Singleton
 class Reynolds: #only used for Navier-Stokes
