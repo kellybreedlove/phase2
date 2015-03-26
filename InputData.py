@@ -297,7 +297,7 @@ class Walls:
 	        numWalls = int(datum)
 	        i = 1
 	        while i <= numWalls:
-	        	x = self.obtainData(i)
+	        	x = self.obtainData(i,inputData)
 	        	if not str(x) == "False":
 	        	    i += 1
 	        	    if str(x) == "undo":
@@ -310,7 +310,7 @@ class Walls:
 	        return True
 	    except ValueError:
 	        return False
-	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
+	def obtainData(self, i, inputData):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")')
 	    if data == "undo":
 	        return "undo"
@@ -319,6 +319,7 @@ class Walls:
 	    else:
 	        try:
 	            region = stringToFilter(data.replace(" ", ""))
+	            inputData.form.addWallCondition(region)
 	            self.wallRegions.append(region)
 	            return True
 	        except ValueError:
