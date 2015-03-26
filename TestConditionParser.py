@@ -4,7 +4,7 @@ import unittest
 
 Points = [0.,1.,2.,-1.,-2.]
 
-class TestFunctionParser(unittest.TestCase):
+class TestConditionParser(unittest.TestCase):
 
     """Test Only X Equals"""
     def test_OnlyXEquals(self):
