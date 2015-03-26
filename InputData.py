@@ -17,17 +17,23 @@ class InputData:
 		self.form = None #initialized to null value
 		self.stokes = stokesOrNot #true if stokes, false if NavierStokes
 		self.vars = () # to collect all the variables
+		self.vars.append(self.stokes)
+		if stokesOrNot: #no more info needed to create Stokes formulation
+		    spaceDim = 2
+		    useConformingTraces = True
+		    mu = 1.0
+		    self.form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
 
-		# Stokes: stokesTrue, reNum, transient, dims, numElements, 
+		# Stokes: stokesTrue, transient, dims [], numElements[], mesh, 
 		#   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
 		#   outflow tuple (numOutflows, [outflow regions]), wall tuple (numWalls, [wall regions])
-		# Navier Stokes: nStokesFalse, transient, dims, numElements, polyOrder, 
+		# Navier Stokes: nStokesFalse, Reynolds, transient, dims[], numElements[], mesh, polyOrder, 
 		#   inflow tuple, outflow tuple, wall tuple
 
-	def setForm(self, form,):
+	def setForm(self, form):
 		self.form = form
 	def addVariable(self, var):
-		self.vars += (var,)
+		self.vars.append(var)
 	def createMemento(self):
 		return Memento((self.form, self.stokes) + self.vars) # shove it all into one tuple to hold onto
 	def setMemento(self, memento):
@@ -85,8 +91,8 @@ class MeshDimensions:
 		print('This solver handles rectangular meshes with lower-left corner at the origin.\nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")')
 	def store(self, inputData, datum):
 		try:
-		    #check data, create mesh
-		    inputData.addVariable(datum)
+		    dims = stringToDims(datum)
+		    inputData.addVariable(dims)
 		    return True
 		except ValueError:
 		    return False
@@ -103,10 +109,21 @@ class Elements:
 	     self.type = "Elements"
 	def prompt(self):
 		print('How many elements in the initial mesh? (E.g. "3 x 5")')
-	def store(self, inputData, datum):
+	def store(self, inputData, datum): #enough info to create mesh
 		try:
-		    #check data
-		    inputData.addVariable(datum)
+		    numElements = stringToElements(datum)
+		    inputData.addVariable(numElements)
+		    if inputData.vars[0]:
+		        dims = inputData.vars[2]
+		    else:
+		        dims = inputData.vars[3]
+		    x0 = [0.,0.]
+		    print(inputData.vars[0])
+		    print(inputData.vars[1])
+		    print(inputData.vars[2])
+		    print(dims)
+		    meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+		    inputData.addVariable(meshTopo)
 		    return True
 		except ValueError:
 		    return False
@@ -123,11 +140,18 @@ class PolyOrder:
 	     self.type = "PolyOrder"
 	def prompt(self):
 		print("What polynomial order? (1 to 9)")
-	def store(self, inputData, datum):
+	def store(self, inputData, datum): #enough info to create NS form or initialize S solution
 	    try:
 	        order = int(datum)
 	    	if order <= 9 and order >= 1:
 			    inputData.addVariable(order)
+			    if not inputData.vars[0]:
+			        Re = inputData.vars[1]
+			        meshTopo = inputData.vars[5]
+			        inputData.form = NavierStokesVGPFormulation(meshTopo,Re,order,delta_k)
+			    else:
+			        meshTopo = inputData.vars[4]
+			        form.initializeSolution(meshTopo,order,delta_k)
 			    return True
 	    	else:
 			    return False
@@ -176,8 +200,8 @@ class Inflow:
 	            quit()
 	        else:
 	            try:
-	                #parse data, create spatialFilter
-	                self.inflowRegions.append(data)
+	                region = stringToFilter(data.replace(" ", ""))
+	                self.inflowRegions.append(region)
 	                return True
 	            except ValueError:
 	                return False
@@ -249,8 +273,8 @@ class Outflow:
 	        quit()
 	    else:
 	        try:
-	            #parse data, make spatialFilter
-	            self.outflowRegions.append(data)
+	            region = stringToFilter(data.replace(" ", ""))
+	            self.outflowRegions.append(region)
 	            return True
 	        except ValueError:
 	            return False
@@ -294,8 +318,8 @@ class Walls:
 	        quit()
 	    else:
 	        try:
-	            #parse data, create SpatialFilter
-	            self.wallRegions.append(data)
+	            region = stringToFilter(data.replace(" ", ""))
+	            self.wallRegions.append(region)
 	            return True
 	        except ValueError:
 	            return False

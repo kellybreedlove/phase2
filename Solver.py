@@ -8,12 +8,17 @@ class Solver:
 		self.state = InitState.Instance()
 		self.inputData = None # initally null until some input is known
 		#self.state = StokesState.Instance() #FOR TESTING
-	def readCommand(self, command):
-		#if " " in command: #add functionality for multiple commands at once (?)
-		#	self.readCommand(self, command[:command.index(" ")])
-		#	self.readCommand(self, command[command.index(" ")+1:])
-		#else:
-			self.state = self.state.act(command, self)
+	def readCommand(self, userinput):
+		command = userinput.lower()
+		if command[0] == " ":
+		    self.readCommand(command[1:])
+		else:
+		    if " " in command and not command[0:6] == "steady" and not "x" in command:
+		    	self.readCommand(command[:command.index(" ")])
+		    	self.readCommand(command[(command.index(" ")+1):])
+		    else:
+		    	#print(command) #for testing
+		    	self.state = self.state.act(command, self)
 	def prompt(self):
 		self.state.prompt()
 
