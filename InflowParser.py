@@ -34,17 +34,17 @@ def stringToFilter(inputstr):
             xFirst = False
         else:
             reject()
-            c = secondHalf[0]
-            if c == 'x':
-                if xFirst:
-                    reject()
-                    xBounds = setXBoundary(secondHalf)
-            elif c == 'y':
-                if not xFirst:
-                    reject()
-                    yBounds = setYBoundary(secondHalf)
-                else:
-                    reject()
+        c = secondHalf[0]
+        if c == 'x':
+            if xFirst:
+                reject()
+            xBounds = setXBoundary(secondHalf)
+        elif c == 'y':
+            if not xFirst:
+                reject()
+            yBounds = setYBoundary(secondHalf)
+        else:
+            reject()
         
         return xBounds and yBounds
 
