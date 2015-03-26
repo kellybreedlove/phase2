@@ -16,7 +16,7 @@ class InputData:
 	def __init__(self, stokesOrNot):
 		self.form = None #initialized to null value
 		self.stokes = stokesOrNot #true if stokes, false if NavierStokes
-		self.vars = () # to collect all the variables
+		self.vars = [] # to collect all the variables
 		self.vars.append(self.stokes)
 		if stokesOrNot: #no more info needed to create Stokes formulation
 		    spaceDim = 2
@@ -118,10 +118,10 @@ class Elements:
 		    else:
 		        dims = inputData.vars[3]
 		    x0 = [0.,0.]
-		    print(inputData.vars[0])
-		    print(inputData.vars[1])
-		    print(inputData.vars[2])
-		    print(dims)
+		    #print(inputData.vars[0])
+		    #print(inputData.vars[1])
+		    #print(inputData.vars[2])
+		    #print(dims)
 		    meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 		    inputData.addVariable(meshTopo)
 		    return True
@@ -151,7 +151,7 @@ class PolyOrder:
 			        inputData.form = NavierStokesVGPFormulation(meshTopo,Re,order,delta_k)
 			    else:
 			        meshTopo = inputData.vars[4]
-			        form.initializeSolution(meshTopo,order,delta_k)
+			        inputData.form.initializeSolution(meshTopo,order,delta_k)
 			    return True
 	    	else:
 			    return False
