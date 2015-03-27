@@ -29,13 +29,13 @@ class begin:
         context.currNum += '-'
         context.currState.changeImp(numPreDec())
     def add(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot begin input with +."))
     def div(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot begin input with /."))
     def mult(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot begin input with *."))
     def exp(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot begin input with ^."))
     def x(self,context):
         fn = Function_xn(1)
         context.fnStack.append(fn)
@@ -51,7 +51,7 @@ class begin:
         context.parenStack.append('(')
         context.currState.changeImp(lParen())       
     def rp(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot begin input with )."))
 
 # directly after a left paren
 class lParen:
@@ -66,13 +66,13 @@ class lParen:
         context.currNum += '-'
         context.currState.changeImp(numPreDec())
     def add(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Invalid use of +."))
     def div(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Invalid use of /."))
     def mult(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Invalid use of *."))
     def exp(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Invalid use of ^."))
     def x(self,context):
         fn = Function_xn(1)
         context.fnStack.append(fn)
@@ -89,12 +89,12 @@ class lParen:
         context.currState.changeImp(lParen())       
     def rp(self,context):
         if len(context.parenStack) == 0:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         else:
             if len(context.parenStack) != 0:
                 context.parenStack.pop()
             else:
-                context.currState.changeImp(reject())
+                context.currState.changeImp(reject("Invalid input."))
             context.currState.changeImp(rParen()) 
             
 
@@ -158,7 +158,7 @@ class numPreDec:
         context.currState.changeImp(lParen())       
     def rp(self,context):
         if len(context.parenStack) == 0:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         else:
             context.fnStack.append(Function_constant(float(context.currNum)))
             context.currNum = ''
@@ -166,7 +166,7 @@ class numPreDec:
             if len(context.parenStack) != 0:
                 context.parenStack.pop()
             else:
-                context.currState.changeImp(reject())
+                context.currState.changeImp(reject("Invalid input."))
             context.currState.changeImp(rParen()) 
 
 
@@ -225,7 +225,7 @@ class numPostDec:
         context.currState.changeImp(lParen())       
     def rp(self,context):
         if len(context.parenStack) == 0:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         else:
             context.fnStack.append(Function_constant(float(context.currNum)))
             context.currNum = ''
@@ -233,7 +233,7 @@ class numPostDec:
             if len(context.parenStack) != 0:
                 context.parenStack.pop()
             else:
-                context.currState.changeImp(reject())
+                context.currState.changeImp(reject("Invalid input."))
             context.currState.changeImp(rParen()) 
 
 
@@ -241,9 +241,9 @@ class numPostDec:
 class inX:
     name = 'inX'
     def num(self,context,d):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have a number following an x, use *."))
     def dec(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have a . following an x, use *."))
     def minus(self,context):
         context.opStack.append('-')
         context.currState.changeImp(inOp())
@@ -260,12 +260,12 @@ class inX:
         context.opStack.append('^')
         context.currState.changeImp(inOp())
     def x(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have an x following an x, use ^."))
     def y(self,context):
         if len(context.fnStack) != 0:
             preFn = context.fnStack.pop()
         else:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         y1 = Function_yn(1)
         fn = y1*preFn
         context.fnStack.append(fn)
@@ -276,22 +276,22 @@ class inX:
         context.currState.changeImp(lParen())       
     def rp(self,context):
         if len(context.parenStack) == 0:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         else:
             operate(context)
             if len(context.parenStack) != 0:
                 context.parenStack.pop()
             else:
-                context.currState.changeImp(reject())
+                context.currState.changeImp(reject("Invalid input."))
             context.currState.changeImp(rParen()) 
 
 # inY
 class inY:
     name = 'inY'
     def num(self,context,d):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have a number following a y, use *."))
     def dec(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have a decimal following a y, use *."))
     def minus(self,context):
         context.opStack.append('-')
         context.currState.changeImp(inOp())
@@ -308,22 +308,22 @@ class inY:
         context.opStack.append('^')
         context.currState.changeImp(inOp())
     def x(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have an x following a y, place in the other order."))
     def y(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have a y following a y, use ^."))
     def lp(self,context):
         context.opStack.append('*')
         context.parenStack.append('(')
         context.currState.changeImp(lParen())       
     def rp(self,context):
         if len(context.parenStack) == 0:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         else:
             operate(context)
             if len(context.parenStack) != 0:
                 context.parenStack.pop()
             else:
-                context.currState.changeImp(reject())
+                context.currState.changeImp(reject("Invalid input."))
             context.currState.changeImp(rParen()) 
 
 # needs Op
@@ -339,13 +339,13 @@ class inOp:
         context.currNum += '-'
         context.currState.changeImp(numPreDec())
     def add(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have two operations next to each other."))
     def div(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have two operations next to each other."))
     def mult(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have two operations next to each other."))
     def exp(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have two operations next to each other."))
     def x(self,context):
         fn = Function_xn(1)
         context.fnStack.append(fn)
@@ -358,14 +358,14 @@ class inOp:
         context.parenStack.append('(')
         context.currState.changeImp(lParen())       
     def rp(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Invalid input."))
 
 class rParen:
     name = 'rParen'
     def num(self,context,d):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have a number directly behind a ), use *."))
     def dec(self,context):
-        context.currState.changeImp(reject())
+        context.currState.changeImp(reject("Cannot have a . directly behind a ), use *."))
     def minus(self,context):
         context.opStack.append('-')
         context.currState.changeImp(inOp())
@@ -385,7 +385,7 @@ class rParen:
         if len(context.fnStack) != 0:
             preFn = context.fnStack.pop()
         else:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         x1 = Function_xn(1)
         fn = x1*preFn
         context.fnStack.append(fn)
@@ -394,7 +394,7 @@ class rParen:
         if len(context.fnStack) != 0:
             preFn = context.fnStack.pop()
         else:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         y1 = Function_yn(1)
         fn = y1*preFn
         context.fnStack.append(fn)
@@ -405,19 +405,22 @@ class rParen:
         context.currState.changeImp(lParen())       
     def rp(self,context):
         if len(context.parenStack) == 0:
-            context.currState.changeImp(reject())
+            context.currState.changeImp(reject("Invalid input."))
         else:
             operate(context)
             if len(context.parenStack) != 0:
                 context.parenStack.pop()
             else:
-                context.currState.changeImp(reject())
+                context.currState.changeImp(reject("Invalid input."))
             context.currState.changeImp(rParen()) 
 
     
 # set to reject string
 class reject:
     name = 'reject'
+    msg = ''
+    def __init__(self, msg):
+        self.msg = msg
     def num(self,context,d):
         return
     def dec(self,context):
@@ -447,7 +450,7 @@ def operate(context):
         if not nDebug:
             print oper
     else:
-        raise ValueError
+        raise ValueError("Input does not have a valid amount of operations.")
     if len(context.fnStack) > 1:
         fn2 = context.fnStack.pop()
         fn1 = context.fnStack.pop()
@@ -455,7 +458,7 @@ def operate(context):
             print fn2
             print fn1
     else:
-        raise ValueError
+        raise ValueError("Input does not have valid parentheses.")
     fn = None
     if(oper == '+'):
         fn = fn1 + fn2
@@ -528,17 +531,17 @@ def stringToFunction(toFunction):
         elif c == ')':
             currContext.currState.rp(currContext)
         else:
-            currContext.currState.changeImpt(reject())
+            raise ValueError("The character "+c+" is not a valid character.");
     
 
     if len(currContext.fnStack) == 0:
         currContext.fnStack.append(Function_constant(float(currContext.currNum)))    
 
     fn = currContext.fnStack.pop()
-    if len(currContext.parenStack) != 0:
-        raise ValueError
-    elif currContext.currState.name == 'reject':
-        raise ValueError
+    if currContext.currState.name == 'reject':
+        raise ValueError(currContext.currState.msg)
+    elif len(currContext.parenStack) != 0:
+        raise ValueError("Parentheses do not match.")   
     return fn
 
 def addParen(toFunction):
@@ -561,7 +564,7 @@ def addParen(toFunction):
                         if len(parenStack) != 0:
                             parenStack.pop()
                         else:
-                            raise ValueError
+                            raise ValueError("Parentheses do not match.")
                     l += 1
                     if l == len(toFunction):
                         break
@@ -598,7 +601,7 @@ def hasOp(toFunction):
             if len(mainParen) != 0:
                 mainParen.pop()
             else:
-                raise ValueError
+                raise ValueError("Parentheses do not match")
         if len(mainParen) == 0 and (c == '^' or c == '*' or c == '/' or c == '+' or c == '-'):
             return toFunction
 
@@ -619,7 +622,7 @@ def expon(toFunction):
             if len(mainParen) != 0:
                 mainParen.pop()
             else:
-                raise ValueError
+                raise ValueError("Parentheses do not match.")
 
         if i >= l:
             toReturn += c
@@ -645,7 +648,7 @@ def expon(toFunction):
                         if len(parenStack) != 0:
                             parenStack.pop()
                         else:
-                            raise ValueError
+                            raise ValueError("Parentheses do not match.")
                         
                     k -= 1
                     if k == -1:
@@ -685,7 +688,7 @@ def negSign(toFunction):
             if len(mainParen) != 0:
                 mainParen.pop()
             else:
-                raise ValueError
+                raise ValueError("Parentheses do not match.")
         if i >= l:
             toReturn += c
 
@@ -704,7 +707,7 @@ def negSign(toFunction):
                                 if len(parenStack) != 0:
                                     parenStack.pop()
                                 else:
-                                    raise ValueError
+                                    raise ValueError("Parentheses do not match.")
                             l += 1
                             if l == len(toFunction):
                                 break   
@@ -727,7 +730,7 @@ def negSign(toFunction):
                             if len(parenStack) != 0:
                                 parenStack.pop()
                             else:
-                                raise ValueError
+                                raise ValueError("Parentheses do not match.")
                         l += 1
                         if l == len(toFunction):
                             break   
@@ -755,7 +758,7 @@ def parenMult(toFunction):
             if len(mainParen) != 0:
                 mainParen.pop()
             else:
-                raise ValueError
+                raise ValueError("Parentheses do not match.")
 
         if i >= l:
             toReturn += c
@@ -779,7 +782,7 @@ def parenMult(toFunction):
                             if len(parenStack) != 0:
                                 parenStack.pop()
                             else:
-                                raise ValueError
+                                raise ValueError("Parentheses do not match.")
                         k -= 1
                         if k == -1:
                             break   
@@ -795,7 +798,7 @@ def parenMult(toFunction):
                             if len(parenStack) != 0:
                                 parenStack.pop()
                             else:
-                                raise ValueError
+                                raise ValueError("Parentheses do not match.")
                         l += 1
                         if l == len(toFunction):
                             break     
@@ -820,7 +823,7 @@ def parenMult(toFunction):
                             if len(parenStack) != 0:
                                 parenStack.pop()
                             else:
-                                raise ValueError
+                                raise ValueError("Parentheses do not match.")
                         l += 1
                         if l == len(toFunction):
                             break          
@@ -847,7 +850,7 @@ def multDiv(toFunction):
             if len(mainParen) != 0:
                 mainParen.pop()
             else:
-                raise ValueError
+                raise ValueError("Parentheses do not match.")
 
         if i >= l:
             toReturn += c
@@ -871,7 +874,7 @@ def multDiv(toFunction):
                         if len(parenStack) != 0:
                             parenStack.pop()
                         else:
-                            raise ValueError
+                            raise ValueError("Parentheses do not match.")
                     k -= 1
                     if k == -1:
                         break
@@ -910,7 +913,7 @@ def addSub(toFunction):
             if len(mainParen) != 0:
                 mainParen.pop()
             else:
-                raise ValueError
+                raise ValueError("Parentheses do not match.")
 
         if i >= l:
             toReturn += c
@@ -933,7 +936,7 @@ def addSub(toFunction):
                         if len(parenStack) != 0:
                             parenStack.pop()
                         else:
-                            raise ValueError
+                            raise ValueError("Parentheses do not match.")
                     k -= 1
                     if k == -1:
                         break
@@ -947,7 +950,7 @@ def addSub(toFunction):
                         if len(parenStack) != 0:
                             parenStack.pop()
                         else:
-                            raise ValueError
+                            raise ValueError("Parentheses do not match.")
                     l += 1
                     if l == len(toFunction):
                         break
@@ -971,7 +974,7 @@ def addSub(toFunction):
                         if len(parenStack) != 0:
                             parenStack.pop()
                         else:
-                            raise ValueError
+                            raise ValueError("Parentheses do not match.")
                     k -= 1
                     if k == -1:
                         break
@@ -984,7 +987,7 @@ def addSub(toFunction):
                         if len(parenStack) != 0:
                             parenStack.pop()
                         else:
-                            raise ValueError
+                            raise ValueError("Parentheses do not match.")
                     l += 1
                     if l == len(toFunction):
                         break
