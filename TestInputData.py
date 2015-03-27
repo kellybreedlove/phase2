@@ -48,22 +48,20 @@ class TestInputData(unittest.TestCase):
     def test_mementoGetSet(self):
         inputData = InputData(stokes)
         memento = inputData.createMemento()
-        dataList = memento.get()
-        self.assertIn(stokes, dataList)
-        self.assertNotIn(nStokes, dataList)
+        dataMap = memento.get()
+        self.assertIn("stokes", dataMap)
+        self.assertNotIn("nStokes", dataMap)
         
         memento.set([nStokes])
-        dataList = memento.get()
-        self.assertIn(nStokes, dataList)
-        self.assertNotIn(stokes, dataList)
+        dataMap = memento.get()
+        self.assertIn(nStokes, dataMap)
+        self.assertNotIn(stokes, dataMap)
 
     """Test InputData's init"""
     def test_inputDataInit(self):
         inputData = InputData(stokes)
-        memento = inputData.createMemento()
-        dataList = memento.get()
         self.assertIsNotNone(inputData)
-        self.assertIn(stokes, dataList)
+        self.assertEqual(stokes, inputData.getVariable("stokes"))
 
     """Test InputData's setForm & getForm"""
     def test_inputDataSetGetForm(self):
@@ -71,46 +69,44 @@ class TestInputData(unittest.TestCase):
         inputData.setForm(form)
         self.assertIs(form, inputData.getForm())
 
-    """Test InputData's addVariable"""
+    """Test InputData's addVariable & getVariable"""
     def test_inputDataAddVariable(self):
         inputData = InputData(stokes)
-        inputData.addVariable(transient)
-        memento = inputData.createMemento()
-        dataList = memento.get()
-        self.assertIn(stokes, dataList)
-        self.assertIn(transient, dataList)
+        inputData.addVariable(transient, transient)
+        self.assertEqual(stokes, inputData.getVariable("stokes"))
+        self.assertEqual(transient, inputData.getVariable("transient"))
 
     """Test InputData's createMemento"""
     def test_inputDataCreateMemento(self):
         inputData = InputData(stokes)
         memento = inputData.createMemento()
         self.assertIsNotNone(memento)
-        self.assertIn(stokes, memento.get())
+        self.assertIn("stokes", memento.get())
 
     """Test InputData's setMemento"""
     def test_inputDataSetMemento(self):
         inputData = InputData(stokes)
         inputData.setForm(form)
-        inputData.addVariable(transient)
-        inputData.addVariable(dims)
-        inputData.addVariable(numElements)
-        inputData.addVariable(meshTopo)
-        inputData.addVariable(polyOrder)
+        inputData.addVariable("transient", transient)
+        inputData.addVariable("dims", dims)
+        inputData.addVariable("numElements", numElements)
+        inputData.addVariable("mesh", meshTopo)
+        inputData.addVariable("polyOrder", polyOrder)
         memento = inputData.createMemento()
         
         inputDataNew = InputData(nStokes)
         inputDataNew.setMemento(memento)
         mementoNew = inputDataNew.createMemento()
-        dataList = memento.get()
+        dataMap = memento.get()
         self.assertIs(inputData.getForm(), inputDataNew.getForm())
-        self.assertIn(form, dataList)
-        self.assertIn(stokes, dataList)
-        self.assertNotIn(nStokes, dataList)
-        self.assertIn(transient, dataList)
-        self.assertIn(dims, dataList)
-        self.assertIn(numElements, dataList)
-        self.assertIn(meshTopo, dataList)
-        self.assertIn(polyOrder, dataList)
+        self.assertIn("form", dataMap)
+        self.assertIn("stokes", dataMap)
+        self.assertNotIn("nStokes", dataMap)
+        self.assertIn("transient", dataMap)
+        self.assertIn("dims", dataMap)
+        self.assertIn("numElements", dataMap)
+        self.assertIn("mesh", dataMap)
+        self.assertIn("polyOrder", dataMap)
 
     """Test Reynold's init"""
     def test_reynoldsInit(self):
