@@ -71,10 +71,19 @@ class TestFunctionParser(unittest.TestCase):
 
     """Test HalfAssedDoubles"""
     def test_halfAssedDoubles(self):
-        func = stringToFunction("2.+5.6-x^2+y")
-        answ = 2. + 5.6 - x**2 + y
+        func = stringToFunction("2.+.6-x^2+y")
+        answ = 2. + .6 - x**2 + y
         self.assertEqual(answ, func.evaluate(x, y))
 
+    """Test ePowerOfTen"""
+    def test_ePowerOfTen(self):
+        try:
+            func = stringToFunction("xe2")
+        except ValueError:
+            error = True
+        answ = x * 10 * 10
+        #self.assertEqual(answ, func.evaluate(x))
+        self.assertEqual(True, error)
 
     if __name__ == '__main__':
         unittest.main()
