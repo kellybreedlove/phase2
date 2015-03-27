@@ -8,12 +8,17 @@ class Solver:
 		self.state = InitState.Instance()
 		self.inputData = None # initally null until some input is known
 		#self.state = StokesState.Instance() #FOR TESTING
-	def readCommand(self, command):
-		#if " " in command: #add functionality for multiple commands at once (?)
-		#	self.readCommand(self, command[:command.index(" ")])
-		#	self.readCommand(self, command[command.index(" ")+1:])
-		#else:
-			self.state = self.state.act(command, self)
+	def readCommand(self, userinput):
+		command = userinput.lower()
+		if command[0] == " ":
+		    self.readCommand(command[1:])
+		else:
+		    if " " in command and not command[0:6] == "steady" and not "x" in command:
+		    	self.readCommand(command[:command.index(" ")])
+		    	self.readCommand(command[(command.index(" ")+1):])
+		    else:
+		    	#print(command) #for testing
+		    	self.state = self.state.act(command, self)
 	def prompt(self):
 		self.state.prompt()
 
@@ -79,6 +84,9 @@ class StokesState:
 					self.inputState = self.inputState.next()
 					return self
 				else:
+					context.inputData.getForm().solve()
+					print("Solving...")
+					#print("Solve completed in __ minutes, __ seconds")
 					return PostSolveState.Instance()
 			else:
 				print("Sorry, input does not match expected format.")
@@ -109,6 +117,9 @@ class NavierStokesState:
 					self.inputState = self.inputState.next()
 					return self
 				else:
+					context.inputData.getForm().solve()
+					print("Solving...")
+					#print("Solve completed in __ minutes, __ seconds")
 					return PostSolveState.Instance()
 			else:
 				print("Sorry, input does not match expected format.")
@@ -176,6 +187,16 @@ class RefineState:
 			#print "New mesh has __ elements and __ degrees of freedom"
 			#solve
 			#print "Solve completed in _ minutes
+			threshold = .05
+            while energyError > threshold and refinementNumber <= 8:
+                form.hRefine()
+                form.solve()
+                energyError = form.solution().energyErrorTotal()
+                refinementNumber += 1
+                #elementCount = mesh.numActiveElements()
+                #globalDofCount = mesh.numGlobalDofs()
+                print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
+                print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
 			return PostSolveState.Instance()
 		elif command.lower() == "h manual":
 			#refine

@@ -1,5 +1,4 @@
 from PyCamellia import *
-from PyCamellia import Function
 from SolutionFns import *
 import sys
 import math

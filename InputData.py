@@ -16,18 +16,26 @@ class InputData:
 	def __init__(self, stokesOrNot):
 		self.form = None #initialized to null value
 		self.stokes = stokesOrNot #true if stokes, false if NavierStokes
-		self.vars = () # to collect all the variables
+		self.vars = [] # to collect all the variables
+		self.vars.append(self.stokes)
+		if stokesOrNot: #no more info needed to create Stokes formulation
+		    spaceDim = 2
+		    useConformingTraces = True
+		    mu = 1.0
+		    self.form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
 
-		# Stokes: stokesTrue, reNum, transient, dims, numElements, 
+		# Stokes: stokesTrue, transient, dims [], numElements[], mesh, 
 		#   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
 		#   outflow tuple (numOutflows, [outflow regions]), wall tuple (numWalls, [wall regions])
-		# Navier Stokes: nStokesFalse, transient, dims, numElements, polyOrder, 
+		# Navier Stokes: nStokesFalse, Reynolds, transient, dims[], numElements[], mesh, polyOrder, 
 		#   inflow tuple, outflow tuple, wall tuple
 
-	def setForm(self, form,):
+	def setForm(self, form):
 		self.form = form
+	def getForm(self):
+	    return self.form
 	def addVariable(self, var):
-		self.vars += (var,)
+		self.vars.append(var)
 	def createMemento(self):
 		return Memento((self.form, self.stokes) + self.vars) # shove it all into one tuple to hold onto
 	def setMemento(self, memento):
@@ -85,8 +93,8 @@ class MeshDimensions:
 		print('This solver handles rectangular meshes with lower-left corner at the origin.\nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")')
 	def store(self, inputData, datum):
 		try:
-		    #check data, create mesh
-		    inputData.addVariable(datum)
+		    dims = stringToDims(datum)
+		    inputData.addVariable(dims)
 		    return True
 		except ValueError:
 		    return False
@@ -103,10 +111,21 @@ class Elements:
 	     self.type = "Elements"
 	def prompt(self):
 		print('How many elements in the initial mesh? (E.g. "3 x 5")')
-	def store(self, inputData, datum):
+	def store(self, inputData, datum): #enough info to create mesh
 		try:
-		    #check data
-		    inputData.addVariable(datum)
+		    numElements = stringToElements(datum)
+		    inputData.addVariable(numElements)
+		    if inputData.vars[0]:
+		        dims = inputData.vars[2]
+		    else:
+		        dims = inputData.vars[3]
+		    x0 = [0.,0.]
+		    #print(inputData.vars[0])
+		    #print(inputData.vars[1])
+		    #print(inputData.vars[2])
+		    #print(dims)
+		    meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+		    inputData.addVariable(meshTopo)
 		    return True
 		except ValueError:
 		    return False
@@ -123,11 +142,18 @@ class PolyOrder:
 	     self.type = "PolyOrder"
 	def prompt(self):
 		print("What polynomial order? (1 to 9)")
-	def store(self, inputData, datum):
+	def store(self, inputData, datum): #enough info to create NS form or initialize S solution
 	    try:
 	        order = int(datum)
 	    	if order <= 9 and order >= 1:
 			    inputData.addVariable(order)
+			    if not inputData.vars[0]:
+			        Re = inputData.vars[1]
+			        meshTopo = inputData.vars[5]
+			        inputData.form = NavierStokesVGPFormulation(meshTopo,Re,order,delta_k)
+			    else:
+			        meshTopo = inputData.vars[4]
+			        inputData.form.initializeSolution(meshTopo,order,delta_k)
 			    return True
 	    	else:
 			    return False
@@ -151,9 +177,9 @@ class Inflow:
 	    self.inflowX = []
 	    self.inflowY = []
 	    try:
-	        self.numInflows = int(datum)
+	        numInflows = int(datum)
 	        i = 1
-	        while i <= self.numInflows*3:
+	        while i <= numInflows*3:
 	        	x = self.obtainData(i)
 	        	if not str(x) == "False":
 	        	    i += 1
@@ -163,7 +189,11 @@ class Inflow:
 	        	        return "undo"#already at last input, go back to PolyOrder
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
-	        inputData.addVariable((datum, self.inflowRegions, self.inflowX, self.inflowY))
+	        inputData.addVariable((numInflows, self.inflowRegions, self.inflowX, self.inflowY))
+	        i = 0
+	        while i < numInflows:
+	            inputData.form.addInflowCondition(self.inflowRegions[i], Function.vectorize(self.inflowX[i], self.inflowY[i])) #add inflow conditions
+	            i += 1
 	        return True
 	    except ValueError:
 	        return False
@@ -176,8 +206,8 @@ class Inflow:
 	            quit()
 	        else:
 	            try:
-	                #parse data, create spatialFilter
-	                self.inflowRegions.append(data)
+	                region = stringToFilter(data.replace(" ", ""))
+	                self.inflowRegions.append(region)
 	                return True
 	            except ValueError:
 	                return False
@@ -189,7 +219,6 @@ class Inflow:
 	            quit()
 	        else:
 	            try:
-	                #parse data, create function
 	                x = stringToFunction(data)
 	                self.inflowX.append(x)
 	                return True
@@ -203,7 +232,6 @@ class Inflow:
 	            quit()
 	        else:
 	            try:
-	                #parse data, create function
 	                y = stringToFunction(data)
 	                self.inflowY.append(y)
 	                return True
@@ -239,7 +267,11 @@ class Outflow:
 	        	        return "undo"#already at last input, go back to Inflow
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
-	        inputData.addVariable((datum, self.outflowRegions))
+	        inputData.addVariable((numOutflows, self.outflowRegions))
+	        i = 0
+	        while i < numOutflows:
+	            inputData.form.addOutflowCondition(self.outflowRegions[i])#add outflow conditions
+	            i += 1
 	        return True
 	    except ValueError:
 	        return False
@@ -251,8 +283,8 @@ class Outflow:
 	        quit()
 	    else:
 	        try:
-	            #parse data, make spatialFilter
-	            self.outflowRegions.append(data)
+	            region = stringToFilter(data.replace(" ", ""))
+	            self.outflowRegions.append(region)
 	            return True
 	        except ValueError:
 	            return False
@@ -275,7 +307,7 @@ class Walls:
 	        numWalls = int(datum)
 	        i = 1
 	        while i <= numWalls:
-	        	x = self.obtainData(i)
+	        	x = self.obtainData(i,inputData)
 	        	if not str(x) == "False":
 	        	    i += 1
 	        	    if str(x) == "undo":
@@ -288,7 +320,7 @@ class Walls:
 	        return True
 	    except ValueError:
 	        return False
-	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
+	def obtainData(self, i, inputData):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")')
 	    if data == "undo":
 	        return "undo"
@@ -296,8 +328,9 @@ class Walls:
 	        quit()
 	    else:
 	        try:
-	            #parse data, create SpatialFilter
-	            self.wallRegions.append(data)
+	            region = stringToFilter(data.replace(" ", ""))
+	            inputData.form.addWallCondition(region)#add wall conditions
+	            self.wallRegions.append(region)
 	            return True
 	        except ValueError:
 	            return False
