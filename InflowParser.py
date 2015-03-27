@@ -1,4 +1,3 @@
-#String inputstr contains the input for the condition
 from PyCamellia import *
 delta_k = 1
 
@@ -22,37 +21,21 @@ def stringToFilter(inputstr):
             return yBounds
         else:
             reject()
-    else:
-        firstHalf = inputstr[:i]
-        print('FirstHalf: %s' % firstHalf)
-        secondHalf = inputstr[i+1:] #add error handling in case there is no comma
-        print('SecondHalf: %s' % secondHalf)
-        c = firstHalf[0]
-        if c == 'x':
-            xBounds = setXBoundary(firstHalf)
-        elif c == 'y':
-            yBounds = setYBoundary(firstHalf)
-            xFirst = False
+    arguments = inputstr.split(",")
+    filters = []
+    for argument in arguments:
+        if argument[0] == 'x':
+            filters.append(setXBoundary(argument))
+        elif argument[0] == 'y':
+            filters.append(setYBoundary(argument))
         else:
             reject()
-        c = secondHalf[0]
-        if c == 'x':
-            if xFirst:
-                reject()
-            xBounds = setXBoundary(secondHalf)
-        elif c == 'y':
-            if not xFirst:
-                reject()
-            yBounds = setYBoundary(secondHalf)
-        else:
-            reject()
-        
-        return xBounds and yBounds
-
-
-
-
-
+    startingFilter = filters.pop() 
+    for filter in filters:
+        startingFilter and filter
+    return startingFilter
+    
+            
 
 def setXBoundary(inputstr):
     digits = float(inputstr[2:])
