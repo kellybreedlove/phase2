@@ -69,15 +69,19 @@ class Reynolds: #only used for Navier-Stokes
 	    return State.Instance()
 
 @Singleton
-class State:
+class State: #transient not supported for Navier-Stokes
 	def __init__(self):
 	    self.type = "State"
 	def prompt(self):
 		print("Transient or steady state?")
 	def store(self, inputData, datum):
 	    if datum.lower() == "transient" or datum.lower() == "steady state":
-	        inputData.addVariable(datum.lower())
-	        return True
+	        if inputData.stokes == false and datum.lower() == "transient"
+	            print("Transient solves are not supported for Navier-Stokes")
+	            return False
+	        else:
+	            inputData.addVariable(datum.lower())
+	            return True
 	    else:
 	        return False
 	def hasNext(self):
@@ -149,11 +153,11 @@ class PolyOrder:
 	        order = int(datum)
 	    	if order <= 9 and order >= 1:
 			    inputData.addVariable(order)
-			    if not inputData.vars[0]:
+			    if not inputData.stokes: #if NS
 			        Re = inputData.vars[1]
 			        meshTopo = inputData.vars[5]
 			        inputData.form = NavierStokesVGPFormulation(meshTopo,Re,order,delta_k)
-			    else:
+			    else: #if Stokes
 			        meshTopo = inputData.vars[4]
 			        inputData.form.initializeSolution(meshTopo,order,delta_k)
 			    return True
