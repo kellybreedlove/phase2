@@ -13,7 +13,7 @@ class Solver:
 		if command[0] == " ":
 		    self.readCommand(command[1:])
 		else:
-		    if " " in command and not command[0:6] == "steady" and not "x" in command:
+		    if " " in command and not command[:6] == "steady" and not "x" in command and not command[-4:] == "auto" and not command[-6:] == "manual":
 		    	self.readCommand(command[:command.index(" ")])
 		    	self.readCommand(command[(command.index(" ")+1):])
 		    else:
@@ -84,12 +84,8 @@ class StokesState:
 					self.inputState = self.inputState.next()
 					return self
 				else:
-					context.inputData.getForm().solve()
-					print("Solving...")
-					#print("Solve completed in __ minutes, __ seconds")
 					return PostSolveState.Instance()
 			else:
-				print("Sorry, input does not match expected format.")
 				return self
 
 @Singleton
@@ -117,9 +113,6 @@ class NavierStokesState:
 					self.inputState = self.inputState.next()
 					return self
 				else:
-					context.inputData.getForm().solve()
-					print("Solving...")
-					#print("Solve completed in __ minutes, __ seconds")
 					return PostSolveState.Instance()
 			else:
 				print("Sorry, input does not match expected format.")
