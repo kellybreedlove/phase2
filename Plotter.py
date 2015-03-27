@@ -34,5 +34,5 @@ def plot(values,pointsArray):
     plt.scatter(array(xCoor),array(yCoor),c=colors,cmap='bwr')
     plt.show()
     
-plot([.1,.2,.3,.4],[[0,0],[0,1],[1,0],[1,1]])
+
 
