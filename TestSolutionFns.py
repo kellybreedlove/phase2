@@ -131,5 +131,123 @@ class TestSolutionFns(unittest.TestCase):
         self.assertAlmostEqual(0.745, energyError, 3)
 
 
+    """Test addOutflow"""
+    def test_addOutflow(self):
+        pass
+
+
+    """Test energyPerCell"""
+    def test_energyPerCell(self):
+        form = steadyLinearInit(spaceDim, dims, numElements, polyOrder)
+        foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
+        foo.initializeSolution(meshTopo,polyOrder,delta_k)
+        foo.addZeroMeanPressureCondition()
+
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        form.solve()
+
+        perCellError = energyPerCell(form)
+        
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        foo.solve()
+
+        fooPerCellError = foo.solution().energyErrorPerCell()
+        
+        formCellID = 0
+        for fooCellID in fooPerCellError:
+            if fooPerCellError[fooCellID] > .01:
+                self.assertAlmostEqual(perCellError[formCellID], fooPerCellError[fooCellID])
+                formCellID += 1
+
+
+    """Test steadyLinearSolve"""
+    def test_steadyLinearSolve(self):
+        pass
+
+
+    """Test steadyLinearRefine"""
+    def test_steadyLinearRefine(self):
+        pass
+
+    """Test steadyLinearHRefine"""
+    def test_steadyLinearHRefine(self):
+        pass
+
+
+    """Test steadyLinearPRefine"""
+    def test_steadyLinearPRefine(self):
+        pass
+
+
+    """Test steadyLinearExport"""
+    def test_steadyLinearExport(self):
+        pass
+
+
+    """Test transientLinearInit"""
+    def test_transientLinearInit(self):
+        pass
+
+
+    """Test transientLinearExport"""
+    def test_transientLinearExport(self):
+        pass
+
+    """Test transientLinearSolve"""
+    def test_transientLienarSolve(self):
+        pass
+
+
+    """Test transientLinearRefine"""
+    def test_transientLinearRefine(self):
+        pass
+
+
+    """Test transientLienarHRefine"""
+    def test_transientLinearHRefine(self):
+        pass
+
+
+    """Test transientLinearPRefine"""
+    def test_transientLinearPRefine(self):
+        pass
+
+
+    """Test steadyNonlinearInit"""
+    def test_steadyNonlinearInit(self):
+        pass
+
+    """Test nonlinearSolve"""
+    def test_nonlinearSolve(self):
+        pass
+
+
+    """Test steadyNonlinearSolve"""
+    def test_steadyNonlinearSolve(self):
+        pass
+
+
+    """Test steadyNonlinearRefine"""
+    def test_steadyNonlinearRefine(self):
+        pass
+
+
+    """Test steadyNonlinearHRefine"""
+    def test_steadyNonlinearHRefine(self):
+        pass
+
+
+    """Test steadyNonlinearPRefine"""
+    def test_steadyNonlinearPRefine(self):
+        pass
+
+
+    """Test steadyNonlinearExport"""
+    def test_steadyNonlinearExport(self):
+        pass
+
+
     if __name__ == '__main__':
         unittest.main()
