@@ -15,32 +15,31 @@ class Memento:
 # should we restrict the creation of a memento to being only when the data is complete, and should we confirm it matches
 # stokes vs nStokes requirements?
 class InputData:
-	def __init__(self, stokesOrNot):
-		self.form = None #initialized to null value
-		self.stokes = stokesOrNot #true if stokes, false if NavierStokes
-		self.vars = [self.stokes] # to collect all the variables
+    def __init__(self, stokesOrNot):
+        self.form = None #initialized to null value
+        self.vars = {"stokes": stokesOrNot} # to collect all the variables
 
-                # NOT enough information to makes stokes form using SolutionFns, need polyOrder exc.
+# NOT enough information to makes stokes form using SolutionFns, need polyOrder exc.
 
-		# Stokes: stokesTrue, transient, dims [], numElements[], mesh, 
-		#   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
-		#   outflow tuple (numOutflows, [outflow regions]), wall tuple (numWalls, [wall regions])
-		# Navier Stokes: nStokesFalse, Reynolds, transient, dims[], numElements[], mesh, polyOrder, 
-		#   inflow tuple, outflow tuple, wall tuple
+        # Stokes: stokesTrue, transient, dims [], numElements[], mesh, 
+        #   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
+        #   outflow tuple (numOutflows, [outflow regions]), wall tuple (numWalls, [wall regions])
+        # Navier Stokes: nStokesFalse, Reynolds, transient, dims[], numElements[], mesh, polyOrder, 
+        #   inflow tuple, outflow tuple, wall tuple
 
 	def setForm(self, form):
-		self.form = form
+            self.form = form
 	def getForm(self):
-	    return self.form
-	def addVariable(self, var):
-		self.vars.append(var)
+            return self.form
+	def addVariable(self, string, var):
+            vars[string] = var
 	def createMemento(self):
-		return Memento([self.form, self.stokes] + self.vars) # shove it all into one list to hold onto
+            return Memento([self.form, self.stokes] + self.vars) # shove it all into one list to hold onto
 	def setMemento(self, memento):
-		data = memento.get()
-		self.form = data[0]	
-		self.stokes = data[1]
-		self.vars = data[2:]
+            data = memento.get()
+            self.form = data[0]	
+            self.stokes = data[1]
+            self.vars = data[2:]
 		#if self.stokes:
                     #spaceDim = 2
                     #dims = self.vars[2]
@@ -56,7 +55,7 @@ class Reynolds: #only used for Navier-Stokes
 	def __init__(self):
 	    self.type = "Reynolds"
 	def prompt(self):
-		print("What Reynolds number?")
+            print("What Reynolds number?")
 	def store(self, inputData, datum):
 	    try:
 	        inputData.addVariable(int(datum))
