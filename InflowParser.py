@@ -11,11 +11,11 @@ def stringToFilter(inputstr):
             break
         i+=1
     if(noComma):
-        if(inputstr[0] == 'x' and inputstr[1] == '='):
+        if(inputstr[0] == 'x'):
             #print(inputstr[2:])
             xBounds = setXBoundary(inputstr)
             return xBounds
-        elif(inputstr[0] == 'y' and inputstr[1] == '='):
+        elif(inputstr[0] == 'y'):
             #print(inputstr[2:])
             yBounds = setYBoundary(inputstr)
             return yBounds
