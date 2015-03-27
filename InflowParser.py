@@ -5,6 +5,8 @@ def stringToFilter(inputstr):
     i = 0
     xFirst = True
     noComma = True
+    #if inputstr.count(',') > 1:
+        #raise ValueError("Too many arguments in input.")
     for c in inputstr:
         if c == ',':
             noComma = False
@@ -20,7 +22,7 @@ def stringToFilter(inputstr):
             yBounds = setYBoundary(inputstr)
             return yBounds
         else:
-            reject()
+            reject(inputstr[0]+" is not a valid variable, must be x or y.")
     arguments = inputstr.split(",")
     filters = []
     for argument in arguments:
@@ -29,20 +31,21 @@ def stringToFilter(inputstr):
         elif argument[0] == 'y':
             filters.append(setYBoundary(argument))
         else:
-            reject()
+            reject(argument[0]+" is not a valid variable, must be x or y.")
     startingFilter = filters.pop() 
     for filter in filters:
-        startingFilter and filter
+        startingFilter = SpatialFilter.intersectionFilter(startingFilter,filter)
     return startingFilter
     
             
 
 def setXBoundary(inputstr):
     digits = float(inputstr[2:])
-    #print(digits)
+    #print("x "+str(digits))
     c = inputstr[1]
+    #print c
     if not type(digits) == float: #Need to change to isLong or something similar
-        reject()
+        reject(digits+"is not a valid number.")
     
     if c == '=':
         return SpatialFilter.matchingX(float(digits))
@@ -51,7 +54,7 @@ def setXBoundary(inputstr):
     elif c == '>':
         return SpatialFilter.greaterThanX(float(digits))
     else:
-        reject()
+        reject(c+"is not a valid operator, must be =, <, or >.")
     
 
 
@@ -59,10 +62,11 @@ def setXBoundary(inputstr):
 
 def setYBoundary(inputstr):
     digits = float(inputstr[2:])
-    #print(type(digits))
+    #print("y "+str(digits))
     c = inputstr[1]
+    #print c
     if not type(digits) == float: #Need to change to isLong or something similar
-        reject()
+        reject(digits+"is not a valid number.")
     if c == '=':
         return SpatialFilter.matchingY(float(digits))
     elif c == '<':
@@ -70,13 +74,13 @@ def setYBoundary(inputstr):
     elif c == '>':
         return SpatialFilter.greaterThanY(float(digits))
     else:
-        reject()
+        reject(c+"is not a valid operator, must be =, <, or >.")
 
 
 
 
-def reject():
-    raise ValueError
+def reject(msg):
+    raise ValueError(msg)
  
  
  

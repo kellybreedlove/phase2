@@ -19,7 +19,7 @@ class TestConditionParser(unittest.TestCase):
         filter = stringToFilter("x>0")       
         for i in Points:
             for j in Points:
-                x = (i > 0.0)
+                x = (i >= 0.0)
                 self.assertEqual(x, filter.matchesPoint(i,j))
     
     """Test Only X Less""" 
@@ -27,7 +27,7 @@ class TestConditionParser(unittest.TestCase):
         filter = stringToFilter("x<0")       
         for i in Points:
             for j in Points:
-                x = (i < 0.0)
+                x = (i <= 0.0)
                 self.assertEqual(x, filter.matchesPoint(i,j))
 
     """Test Only Y Equals"""
@@ -43,7 +43,7 @@ class TestConditionParser(unittest.TestCase):
         filter = stringToFilter("y>0")       
         for i in Points:
             for j in Points:
-                y = (j > 0.0)
+                y = (j >= 0.0)
                 self.assertEqual(y, filter.matchesPoint(i,j))
 
     """Test Only Y Less"""
@@ -51,7 +51,7 @@ class TestConditionParser(unittest.TestCase):
         filter = stringToFilter("y<0")       
         for i in Points:
             for j in Points:
-                y = (j < 0.0)
+                y = (j <= 0.0)
                 self.assertEqual(y, filter.matchesPoint(i,j))
 
     """Test XY"""
@@ -60,7 +60,7 @@ class TestConditionParser(unittest.TestCase):
         for i in Points:
             for j in Points:
                 x = (i == 0.0)
-                y = (j < 0.0)
+                y = (j <= 0.0)
                 self.assertEqual(x and y, filter.matchesPoint(i,j))
 
     """Test YX"""
@@ -68,7 +68,7 @@ class TestConditionParser(unittest.TestCase):
         filter = stringToFilter("y=0,x>0")       
         for i in Points:
             for j in Points:
-                x = (i > 0.0)
+                x = (i >= 0.0)
                 y = (j == 0.0)
                 self.assertEqual(x and y, filter.matchesPoint(i,j))
 
@@ -77,8 +77,8 @@ class TestConditionParser(unittest.TestCase):
         filter = stringToFilter("x>0.0,y>0.0")       
         for i in Points:
             for j in Points:
-                x = (i > 0.0)
-                y = (j > 0.0)
+                x = (i >= 0.0)
+                y = (j >= 0.0)
                 self.assertEqual(x and y, filter.matchesPoint(i,j))
 
     """Test Half-Doubles"""
@@ -86,19 +86,20 @@ class TestConditionParser(unittest.TestCase):
         filter = stringToFilter("x>0.,y>0.")       
         for i in Points:
             for j in Points:
-                x = (i > 0.0)
-                y = (j > 0.0)
+                x = (i >= 0.0)
+                y = (j >= 0.0)
                 self.assertEqual(x and y, filter.matchesPoint(i,j))
         
 
-    """Test Error on too many arguments"""
-    def test_ErrorTooManyArgs(self):
-        error = False
-        try:
-            filter = stringToFilter("y=0,x>0,y=3")       
-        except ValueError:
-            error = True
-        self.assertEqual(True,error) 
+    """Test on many arguments"""
+    def test_ManyArgs(self):
+        filter = stringToFilter("y=0,x>0,y=3")  
+        for i in Points:
+            for j in Points:
+                x = (i >= 0.0)
+                y1 = (j == 0.0)
+                y2 = (j == 3.0)
+                self.assertEqual(x and y1 and y2, filter.matchesPoint(i,j))
 
     """Test Out of Order input"""
     def test_OutOfOrder(self):
@@ -109,23 +110,24 @@ class TestConditionParser(unittest.TestCase):
             error = True
         self.assertEqual(True,error)
 
-    """Test No Commas"""
+    """Test No Commas between arguments"""
     def test_NoComma(self):
         error = False
         try:
-            filter = stringToFilter("x=0,y<2")       
+            filter = stringToFilter("x=0 y<2")       
         except ValueError:
             error = True
         self.assertEqual(True,error) 
     
-    """Test too many commas"""
-    def test_TooManyCommas(self):
-        error = False
-        try:
-            filter = stringToFilter("x=0,,y<2")       
-        except ValueError:
-            error = True
-        self.assertEqual(True,error) 
+    """Multiple arguments"""
+    def test_MultipleArgs(self):
+        filter = stringToFilter("x>0,x<2,y<2")       
+        for i in Points:
+            for j in Points:
+                x1 = (i >= 0.0)
+                x2 = (i <= 2.0)
+                y = (j <= 2.0)
+                self.assertEqual(x1 and x2 and y, filter.matchesPoint(i,j))
 
 
 
