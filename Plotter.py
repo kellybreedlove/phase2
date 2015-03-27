@@ -1,22 +1,29 @@
-#So I believe for Plotting what we need to do is have the parsing be done for each possible choice outside of the 
-plotting functions. We need to handle Error and mesh plotting differently from the other functions(u1,u2, stream 
-function and p). For error, we need to pass in the perCellError. For mesh we need to pass in the ?number of elements?
-not sure on that one. For the functions though we need to pass in the values and points after they have been computed
-from the function solution. See bottom of refcellpoints for example
-
-
-
-
-
-
+import matplotlib.pyplot as  plt
 from PyCamellia import *
-from matplotlib import *
+from numpy import *
 
 
-def plotError(perCellError):
-  
 
-def plot(values, points):
-  
-  
-def plotMesh():
+
+def plot(): #example
+    xCoor = [-1,0,1]
+    yCoor = [-1,0,1]
+    values = random.random_integers(-100, 100, (len(xCoor)-1, len(yCoor)-1))
+    #for loc in points:
+     #   xCoor.append(loc[0])
+      #  yCoor.append(loc[1])
+    
+    plt.pcolormesh(array(xCoor), array(yCoor), values, cmap='RdBu', vmin=-100, vmax = 100)
+    plt.show()
+
+plot()
+
+def plotMesh(points): #fo real
+    xCoor = []
+    yCoor = []
+    for points in pointsArray:
+      for point in points:
+        xCoor.append(point[0])
+        yCoor.append(point[1])
+        
+    plt.pcolormesh(array(xCoor), array(yCoor), blanks, cmap='bwr', vmin=-100,vmax = 100)
