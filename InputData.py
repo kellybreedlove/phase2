@@ -1,28 +1,26 @@
 from Singleton import *
 from InflowParser import *
 from ParseFunction import *
-import Solver
+#import Solver
 
 # The memento doesn't care about any of the data, it just passes it around
 class Memento:
-    def __init__(self, dataTuple):
-        self.set(dataTuple)
+    def __init__(self, dataList):
+        self.set(dataList)
     def get(self):
-        return self.dataTuple
-    def set(self, dataTuple):
-        self.dataTuple = dataTuple
+        return self.dataList
+    def set(self, dataList):
+        self.dataList = dataList
 
+# should we restrict the creation of a memento to being only when the data is complete, and should we confirm it matches
+# stokes vs nStokes requirements?
 class InputData:
 	def __init__(self, stokesOrNot):
 		self.form = None #initialized to null value
 		self.stokes = stokesOrNot #true if stokes, false if NavierStokes
-		self.vars = [] # to collect all the variables
-		self.vars.append(self.stokes)
-		if stokesOrNot: #no more info needed to create Stokes formulation
-		    spaceDim = 2
-		    useConformingTraces = True
-		    mu = 1.0
-		    self.form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
+		self.vars = [self.stokes] # to collect all the variables
+
+                # NOT enough information to makes stokes form using SolutionFns, need polyOrder exc.
 
 		# Stokes: stokesTrue, transient, dims [], numElements[], mesh, 
 		#   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
@@ -37,17 +35,21 @@ class InputData:
 	def addVariable(self, var):
 		self.vars.append(var)
 	def createMemento(self):
-		return Memento((self.form, self.stokes) + self.vars) # shove it all into one tuple to hold onto
+		return Memento([self.form, self.stokes] + self.vars) # shove it all into one list to hold onto
 	def setMemento(self, memento):
 		data = memento.get()
 		self.form = data[0]	
 		self.stokes = data[1]
 		self.vars = data[2:]
-		if stokes:
-			polyOrder = self.vars[5]
-		#self.form.initializeSolution(meshTopo,polyOrder, delta_k)
-		# initialize solution from here & use inflow and wall
-		# conditions to add to the initialized solution again
+		#if self.stokes:
+                    #spaceDim = 2
+                    #dims = self.vars[2]
+                    #numElements = self.vars[3]
+                    #polyOrder = self.vars[5]
+                    #self.form = SolutionFns.steadyLinearInit(sapceDim, dims, numElements, polyOrder)
+                    # initialize solution from here & use inflow and wall
+                    # conditions to add to the initialized solution again
+                    # can't say I understand if I should initialize a new form or use the stored one from memento
 
 @Singleton
 class Reynolds: #only used for Navier-Stokes
