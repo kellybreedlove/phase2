@@ -71,7 +71,7 @@ class State: #transient not supported for Navier-Stokes
 		print("Transient or steady state?")
 	def store(self, inputData, datum):
 	    if datum.lower() == "transient" or datum.lower() == "steady state":
-	        if inputData.getVariable("stokes") == false and datum.lower() == "transient"
+	        if inputData.getVariable("stokes") == False and datum.lower() == "transient":
 	            print("Transient solves are not supported for Navier-Stokes")
 	            return False
 	        else:
@@ -117,7 +117,7 @@ class Elements:
 	def store(self, inputData, datum): #enough info to create mesh
 		try:
 		    numElements = stringToElements(datum)
-		    dims = inputData.getVariable("meshDimensions")
+		    dims = inputData.getVariable("numElements")
 		    x0 = [0.,0.]
 		    meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 		    inputData.addVariable("mesh", meshTopo)
@@ -198,7 +198,7 @@ class Inflow:
 	                self.inflowRegions.append(region)
 	                return True
 	            except ValueError:
-	                print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")
+	                print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
 	                return False
 	    elif (i+1)%3 == 0:
 	        data = raw_input("For inflow condition " + str((i+1)/3) + ", what is the x component of the velocity?\n")
@@ -274,7 +274,7 @@ class Outflow:
 	            self.outflowRegions.append(region)
 	            return True
 	        except ValueError:
-	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")
+	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
 	            return False
 	def hasNext(self):
 	    return True
@@ -306,12 +306,13 @@ class Walls:
 	        	    print("Sorry, input does not match expected format.")
 	        inputData.addVariable("numWalls", datum)
 	        inputData.addVariable("wallRegions", self.wallRegions)
+	        inputData.setForm(solve(inputData.vars))
 	        return True
 	    except ValueError:
 	        print("Please enter and integer value")
 	        return False
 	def obtainData(self, i, inputData):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
-	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")')
+	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
 	    if data == "undo":
 	        return "undo"
 	    elif data.lower() == "exit" or data.lower() == "quit":
@@ -320,10 +321,9 @@ class Walls:
 	        try:
 	            region = stringToFilter(data.replace(" ", ""))
 	            self.wallRegions.append(region)
-	            inputData.setForm(solve(inputData.vars))
 	            return True
 	        except ValueError:
-	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")
+	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
 	            return False
 	def hasNext(self):
 	    return False
