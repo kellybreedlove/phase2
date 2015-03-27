@@ -84,6 +84,9 @@ class StokesState:
 					self.inputState = self.inputState.next()
 					return self
 				else:
+					context.inputData.getForm().solve()
+					print("Solving...")
+					#print("Solve completed in __ minutes, __ seconds")
 					return PostSolveState.Instance()
 			else:
 				print("Sorry, input does not match expected format.")
@@ -114,6 +117,9 @@ class NavierStokesState:
 					self.inputState = self.inputState.next()
 					return self
 				else:
+					context.inputData.getForm().solve()
+					print("Solving...")
+					#print("Solve completed in __ minutes, __ seconds")
 					return PostSolveState.Instance()
 			else:
 				print("Sorry, input does not match expected format.")
@@ -181,6 +187,16 @@ class RefineState:
 			#print "New mesh has __ elements and __ degrees of freedom"
 			#solve
 			#print "Solve completed in _ minutes
+			threshold = .05
+            while energyError > threshold and refinementNumber <= 8:
+                form.hRefine()
+                form.solve()
+                energyError = form.solution().energyErrorTotal()
+                refinementNumber += 1
+                #elementCount = mesh.numActiveElements()
+                #globalDofCount = mesh.numGlobalDofs()
+                print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
+                print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
 			return PostSolveState.Instance()
 		elif command.lower() == "h manual":
 			#refine

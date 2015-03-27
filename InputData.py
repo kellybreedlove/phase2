@@ -32,6 +32,8 @@ class InputData:
 
 	def setForm(self, form):
 		self.form = form
+	def getForm(self):
+	    return self.form
 	def addVariable(self, var):
 		self.vars.append(var)
 	def createMemento(self):
@@ -175,9 +177,9 @@ class Inflow:
 	    self.inflowX = []
 	    self.inflowY = []
 	    try:
-	        self.numInflows = int(datum)
+	        numInflows = int(datum)
 	        i = 1
-	        while i <= self.numInflows*3:
+	        while i <= numInflows*3:
 	        	x = self.obtainData(i)
 	        	if not str(x) == "False":
 	        	    i += 1
@@ -187,7 +189,11 @@ class Inflow:
 	        	        return "undo"#already at last input, go back to PolyOrder
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
-	        inputData.addVariable((datum, self.inflowRegions, self.inflowX, self.inflowY))
+	        inputData.addVariable((numInflows, self.inflowRegions, self.inflowX, self.inflowY))
+	        i = 0
+	        while i < numInflows:
+	            inputData.form.addInflowCondition(self.inflowRegions[i], Function.vectorize(self.inflowX[i], self.inflowY[i])) #add inflow conditions
+	            i += 1
 	        return True
 	    except ValueError:
 	        return False
@@ -261,7 +267,11 @@ class Outflow:
 	        	        return "undo"#already at last input, go back to Inflow
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
-	        inputData.addVariable((datum, self.outflowRegions))
+	        inputData.addVariable((numOutflows, self.outflowRegions))
+	        i = 0
+	        while i < numOutflows:
+	            inputData.form.addOutflowCondition(self.outflowRegions[i])#add outflow conditions
+	            i += 1
 	        return True
 	    except ValueError:
 	        return False
@@ -319,7 +329,7 @@ class Walls:
 	    else:
 	        try:
 	            region = stringToFilter(data.replace(" ", ""))
-	            inputData.form.addWallCondition(region)
+	            inputData.form.addWallCondition(region)#add wall conditions
 	            self.wallRegions.append(region)
 	            return True
 	        except ValueError:
