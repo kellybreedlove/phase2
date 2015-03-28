@@ -153,7 +153,7 @@ class TestInputData(unittest.TestCase):
 
     """Test State's store a bad value"""
     def test_stateStoreBadVal(self):
-        success = state.store(nStokesInputData, 0)
+        success = state.store(nStokesInputData, "0")
         self.assertFalse(success)
         success = state.store(nStokesInputData, transient)
         self.assertFalse(success)
@@ -184,7 +184,7 @@ class TestInputData(unittest.TestCase):
     def test_meshDimensionsStoreBadVal(self):
         success = meshDims.store(nStokesInputData, "not a floating point value")
         self.assertFalse(success)
-        success = meshDims.store(nStokesInputData, 0)
+        success = meshDims.store(nStokesInputData, "0")
         self.assertFalse(success)
 
     """Test MeshDimensions's hasNext"""
@@ -213,7 +213,7 @@ class TestInputData(unittest.TestCase):
     def test_elementsStoreBadVal(self):
         success = elements.store(nStokesInputData, "not an integer")
         self.assertFalse(success)
-        success = elements.store(nStokesInputData, 0.)
+        success = elements.store(nStokesInputData, "0.")
         self.assertFalse(success)
 
     """Test Elements' hasNext"""
@@ -242,9 +242,9 @@ class TestInputData(unittest.TestCase):
     def test_polyOrderStoreBadVal(self):
         success = polyOrder.store(nStokesInputData, "not an integer")
         self.assertFalse(success)
-        success = polyOrder.store(nStokesInputData, 10)
+        success = polyOrder.store(nStokesInputData, "10")
         self.assertFalse(success)
-        sucess = polyOrder.store(nStokesInputData, 5.0)
+        sucess = polyOrder.store(nStokesInputData, "5.0")
         self.assertFalse(success)
 
     """Test PolyOrder's hasNext"""
@@ -267,7 +267,7 @@ class TestInputData(unittest.TestCase):
     def test_inflowStoreBadVal(self):
         inputData = InputData(stokes)
         self.assertFalse(inflow.store(inputData, "not an integer"))
-        self.assertFalse(inflow.store(inputData, 2.4))
+        self.assertFalse(inflow.store(inputData, "2.4"))
 
     """Test Inflow's hasNext"""
     def test_inflowHasNext(self):
@@ -292,7 +292,7 @@ class TestInputData(unittest.TestCase):
     def test_outflowStoreBadVal(self):
         inputData = InputData(stokes)
         self.assertFalse(outflow.store(inputData, "not an integer"))
-        self.assertFalse(outflow.store(inputData, 2.4))
+        self.assertFalse(outflow.store(inputData, "2.4"))
 
     """Test Outflow's hasNext"""
     def test_outflowHasNext(self):
@@ -317,7 +317,7 @@ class TestInputData(unittest.TestCase):
     def test_wallsStoreBadVal(self):
         inputData = InputData(stokes)
         self.assertFalse(walls.store(inputData, "not an integer"))
-        self.assertFalse(walls.store(inputData, 2.4))
+        self.assertFalse(walls.store(inputData, "2.4"))
 
     """Test Walls's hasNext"""
     def test_wallsHasNext(self):

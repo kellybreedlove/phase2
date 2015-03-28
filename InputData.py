@@ -169,10 +169,10 @@ class Inflow:
 	    self.Regions = []
 	    self.X = []
 	    self.Y = []
-	    if str(type(datum)) == int:
-	        numOutflows = int(datum)
-	    else:
-	        print("Please enter an integer value")
+	    try:
+	        numInflows = int(datum)
+	    except ValueError:
+	        print("Please enter an integer value.")
 	        return False
 	    i = 1
 	    while i <= numInflows*3:
@@ -211,11 +211,11 @@ class Outflow:
 	def prompt(self):
 		print("How many outflow conditions?")
 	def store(self, inputData, datum): #returns True (proceed to Walls), False (wrong input, try again), or "undo" (go bak to Inflow)
-	    self.outflowRegions = []
-	    if str(type(datum)) == int:
+	    self.Regions = []
+	    try:
 	        numOutflows = int(datum)
-	    else:
-	        print("Please enter an integer value")
+	    except ValueError:
+	        print("Please enter an integer value.")
 	        return False
 	    i = 1
 	    while i <= numOutflows:
@@ -227,7 +227,7 @@ class Outflow:
 	            if i < 1:
 	                return "undo"#already at last input, go back to Inflow
 	    inputData.addVariable("numOutflows",numOutflows)
-	    inputData.addVariable("outflowRegions", self.outflowRegions)
+	    inputData.addVariable("outflowRegions", self.Regions)
 	    return True
 	def hasNext(self):
 	    return True
@@ -239,19 +239,19 @@ class Outflow:
 @Singleton
 class Walls:
 	def __init__(self):
-	     self.type = "Walls"
+	    self.type = "Walls"
 	def prompt(self):
 		print("How many wall conditions?")
 	def store(self, inputData, datum):#returns True (proceed), False (wrong input, try again), or "undo" (go bak to Outflow)
 	    self.wallRegions =  []
-	    if str(type(datum)) == int:
-	        numOutflows = int(datum)
-	    else:
-	        print("Please enter an integer value")
+	    try:
+	        numWalls = int(datum)
+	    except ValueError:
+	        print("Please enter an integer value.")
 	        return False
 	    i = 1
 	    while i <= numWalls:
-	    	x = getFilter(promptRegion(i, "wall"), inputData.wallRegions)#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
+	    	x = getFilter(promptRegion(i, "wall"), self.wallRegions)#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    	if not str(x) == "False":
 	    	    i += 1
 	    	    if str(x) == "undo":
@@ -319,8 +319,6 @@ def stringToDims(inputstr):
         tokenList = re.split('x', inputstr)
         x = float(tokenList[0])
         y = float(tokenList[1])
-        print(x)
-        print(y)
         return [x,y]
     except:
         raise ValueError
@@ -330,8 +328,6 @@ def stringToElements(inputstr):
         tokenList = re.split('x', inputstr)
         x = int(tokenList[0])
         y = int(tokenList[1])
-        print(x)
-        print(y)
         return [x,y]
     except:
         raise ValueError
