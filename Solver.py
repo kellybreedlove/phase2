@@ -198,12 +198,27 @@ class LoadState:
 	def prompt(self):
 		self.filename = input("What solution would you like to load?")
 	def act(self, command, context):
-		# load
-		file = open(self.filename) # open for reading
-		memento = pickle.load(file) # may not use pickle, just a place holder
+		print("Loading..."),
+		
+		file = open(self.filename)
+		memento = pickle.load(file)
 		file.close()
 		context.inputData.setMemento(memento)
-		#print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (numEL, numDeg))
+
+		form = None
+		polyOrder = context.inputData.getVariable("polyOrder")
+		if not context.inputData.getVariable("stokes"):
+			spaceDim = 2
+			reynolds = context.inputData.getVariable("reynolds")
+			form = NavierStokesVGPForumlation(command + "Form", spaceDim, reynolds, polyOrder)
+		else:
+			form.initializeSolution(command + "Form", polyOrder)
+		context.inputData.setForm(form)
+
+		mesh = form.solution().mesh()
+		elementCount = mesh.numActiveElements()
+		globalDofCount = mesh.numGlobalDofs()
+		print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (elementCount, globalDofCount))
 		return PostSolveState.Instance()
 
 
@@ -212,14 +227,15 @@ class SaveState:
 	def prompt(self):
 		print("What would you like to call the solution and mesh files?")
 	def act(self, command, context):
-		# save file
-		print "Saving..."
-		memento = context.inputData.createMemento()
-		file = open(command, 'wb') # open for writing
-		pickle.dump(memento, file) # may not use pickle, just a place holder
-		file.close()
-		print "saved."
+		print("Saving..."),
 		
+		form.save(commant + "Form")
+		memento = context.inputData.createMemento()
+		file = open(command, 'wb')
+		pickle.dump(memento, file)
+		file.close()
+		
+		print("saved.")
 		return PostsolveState.Instance()
 
 #run solver

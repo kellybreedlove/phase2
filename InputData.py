@@ -3,7 +3,6 @@ from ConditionParser import *
 from ParseFunction import *
 from SolveFormulation import *
 import re
-#import Solver
 
 # The memento doesn't care about any of the data, it just passes it around
 class Memento:
@@ -14,13 +13,9 @@ class Memento:
     def set(self, dataMap):
         self.dataMap = dataMap
 
-# should we restrict the creation of a memento to being only when the data is complete, and should we confirm it matches
-# stokes vs nStokes requirements?
 class InputData:
     def __init__(self, stokesOrNot):
         self.vars = {"stokes": stokesOrNot} # to collect all the variables
-
-        # not enough information to makes stokes form using SolutionFns, need polyOrder exc.
 
         # Stokes: stokesTrue, transient, dims [], numElements[], mesh, 
         #   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
@@ -43,15 +38,11 @@ class InputData:
         except:
             print("InputData does not contain %s" % string)
     def createMemento(self):
-        return Memento(self.vars) # shove it all into one list to hold onto
+        return Memento(self.vars)
     def setMemento(self, memento):
         self.vars = memento.get()
 
-                    #self.form = SolutionFns.steadyLinearInit(sapceDim, dims, numElements, polyOrder)
-                    # initialize solution from here & use inflow and wall
-                    # conditions to add to the initialized solution again
-                    # can't say I understand if I should initialize a new form or use the stored one from memento
-
+                    
 @Singleton
 class Reynolds: #only used for Navier-Stokes
 	def __init__(self):
