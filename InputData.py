@@ -53,8 +53,8 @@ class Reynolds: #only used for Navier-Stokes
             print("What Reynolds number?")
 	def store(self, inputData, datum):
 	    try:
-	        inputData.addVariable("reynolds",int(datum))
-	        return True
+                inputData.addVariable("reynolds",int(datum))
+                return True
 	    except ValueError:
 	        print("Please enter an integer value.")
 	        return False
