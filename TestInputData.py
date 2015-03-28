@@ -29,6 +29,7 @@ topVelocity = Function.vectorize(ramp,zero)
 stokes = True
 nStokes = False
 nStokesInputData = InputData(nStokes)
+stokesInputData = InputData(stokes)
 form = steadyLinearInit(dims, numElements, polyOrder)
 reynolds = Reynolds.Instance()
 state = State.Instance()
@@ -95,11 +96,11 @@ class TestInputData(unittest.TestCase):
         inputData.addVariable("polyOrder", polyOrder)
         memento = inputData.createMemento()
         
-        inputDataNew = InputData(nStokes)
-        inputDataNew.setMemento(memento)
-        mementoNew = inputDataNew.createMemento()
+        newData = InputData(nStokes)
+        newData.setMemento(memento)
+        mementoNew = newData.createMemento()
         dataMap = memento.get()
-        self.assertIs(inputData.getForm(), inputDataNew.getForm())
+        self.assertIs(inputData.getForm(), newData.getForm())
         self.assertIn("form", dataMap)
         self.assertIn("stokes", dataMap)
         self.assertNotIn("nStokes", dataMap)
@@ -130,7 +131,7 @@ class TestInputData(unittest.TestCase):
 
     """Test Reynold's hasNext"""
     def test_reynoldsHasNext(self):
-        pass
+        self.assertTrue(reynolds.hasNext())
 
     """Test Reynold's next"""
     def test_reynoldsNext(self):
@@ -146,18 +147,28 @@ class TestInputData(unittest.TestCase):
 
     """Test State's store a good value"""
     def test_stateStoreGoodVal(self):
-        success = state.store(nStokesInputData, transient)
+        success = state.store(nStokesInputData, steadyState)
         self.assertTrue(success)
-        self.assertEqual(transient, nStokesInputData.getVariable("transient"))
+        self.assertEqual(steadyState, nStokesInputData.getVariable("steady state"))
+        
+        stokesInputData = InputData(stokes)
+        success = state.store(stokesInputData, transient)
+        self.assertTrue(success)
+        self.assertEqual(transient, stokesInputData.getVariable("transient"))
+        success = state.store(stokesInputData, steadyState)
+        self.assertTrue(success)
+        self.assertEqual(steadyState, stokesInputData.getVariable("steady state"))
 
     """Test State's store a bad value"""
     def test_stateStoreBadVal(self):
         success = state.store(nStokesInputData, 0)
         self.assertFalse(success)
+        success = state.store(nStokesInputData, transient)
+        self.assertFalse(success)
 
     """Test State's hasNext"""
     def test_stateHasNext(self):
-        pass
+        self.assertTrue(state.hasNext())
 
     """Test State's next"""
     def test_stateNext(self):
@@ -175,17 +186,30 @@ class TestInputData(unittest.TestCase):
     def test_meshDimensionsPrompt(self):
         pass
 
-    """Test MeshDimensions's store"""
-    def test_meshDimensionsStore(self):
-        pass
+    """Test MeshDimensions's store a good value"""
+    def test_meshDimensionsStoreGoodVal(self):
+        success = meshDims.store(nStokesInputData, "1.0 x 1.0")
+        self.assertTrue(success)
+        self.assertEqual(dims, nStokesInputData.getVariable("meshDimensions"))
+
+    """Test MeshDimensions's store a bad value"""
+    def test_meshDimensionsStoreBadVal(self):
+        success = meshDims.store(nStokesInputData, "not a floating point value")
+        self.assertFalse(success)
+        success = meshDims.store(nStokesInputData, 0)
+        self.assertFalse(success)
 
     """Test MeshDimensions's hasNext"""
     def test_meshDimensionsHasNext(self):
-        pass
+        self.assertTrue(meshDims.hasNext())
 
     """Test MeshDimensions's next"""
     def test_meshDimensionsNext(self):
-        pass
+        self.assertEqual(meshDims.next(), elements)
+
+    """Test MeshDimensions's undo"""
+    def test_meshDimensionsUndo(self):
+        self.assertEqual(state, meshDims.undo())
 
     """Test Elements' init"""
     def test_elementsInit(self):
@@ -195,17 +219,32 @@ class TestInputData(unittest.TestCase):
     def test_elementsPrompt(self):
         pass
 
-    """Test Elements' store"""
-    def test_elementsStore(self):
-        pass
+    """Test Elements' store good value"""
+    def test_elementsStoreGoodVal(self):
+        success = elements.store(nStokesInputData, "2 x 2")
+        self.assertTrue(success)
+        self.assertEqual(numElements, nStokesInputData.getVariable("numElements"))
+        self.assertIsNotNone(nStokesInputData.getVariable("mesh"))
+
+    """Test Elements' store bad value"""
+    def test_elementsStoreBadVal(self):
+        success = elements.store(nStokesInputData, "not an integer")
+        self.assertFalse(success)
+        success = elements.store(nStokesInputData, 0.)
+        self.assertFalse(success)
+        self.assertIsNone(nStokesInputData.getVariable("mesh"))
 
     """Test Elements' hasNext"""
     def test_elementsHasNext(self):
-        pass
+        self.assertTrue(elements.hasNext())
 
     """Test Elements' next"""
     def test_elementsNext(self):
-        pass
+        self.assertEqual(elements.next(), polyOrder)
+
+    """Test Elements' undo"""
+    def test_elementsUndo(self):
+        self.assertEqual(meshDims, elements.undo())
 
     """Test PolyOrder's init"""
     def test_polyOrderInit(self):

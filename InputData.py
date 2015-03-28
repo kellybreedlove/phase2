@@ -2,6 +2,7 @@ from Singleton import *
 from InflowParser import *
 from ParseFunction import *
 from SolveFormulation import *
+import re
 #import Solver
 
 # The memento doesn't care about any of the data, it just passes it around
@@ -30,11 +31,17 @@ class InputData:
     def setForm(self, form):
         self.vars["form"] = form
     def getForm(self):
-        return self.vars["form"]
+        try:
+            return self.vars["form"]
+        except:
+            print("InputData does not contain form")
     def addVariable(self, string, var):
         self.vars[string] = var
     def getVariable(self, string):
-        return self.vars[string]
+        try: 
+            return self.vars[string]
+        except:
+            print("InputData does not contain %s", string)
     def createMemento(self):
         return Memento(self.vars) # shove it all into one list to hold onto
     def setMemento(self, memento):
@@ -70,16 +77,24 @@ class State: #transient not supported for Navier-Stokes
 	def prompt(self):
 		print("Transient or steady state?")
 	def store(self, inputData, datum):
-	    if datum.lower() == "transient" or datum.lower() == "steady state":
-	        if inputData.getVariable("stokes") == False and datum.lower() == "transient":
-	            print("Transient solves are not supported for Navier-Stokes")
-	            return False
-	        else:
-	            inputData.addVariable("transient", datum.lower())
-	            return True
-	    else:
-	        print('Please enter "transient" or "steady state"')
-	        return False
+            try:
+                datumL = datum.lower()
+                if datumL == "transient" or datumL == "steady state":
+                    if datumL == "steady state":
+                        inputData.addVariable("steady state", datumL)
+                        return True
+                    elif (not inputData.getVariable("stokes")) and datumL == "transient":
+                        print("Transient solves are not supported for Navier-Stokes")
+                        return False
+                    else:
+                        inputData.addVariable("transient", datumL)
+                        return True
+                else:
+                    print('Please enter "transient" or "steady state"')
+                    return False
+            except AttributeError:
+                print("Please enter a string value.")
+                return False
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -95,7 +110,7 @@ class MeshDimensions:
 		print('This solver handles rectangular meshes with lower-left corner at the origin.\nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")')
 	def store(self, inputData, datum):
 		try:
-		    dims = stringToDims(datum)
+		    dims = stringToDims(str(datum))
 		    inputData.addVariable("meshDimensions", dims)
 		    return True
 		except ValueError:
@@ -116,8 +131,9 @@ class Elements:
 		print('How many elements in the initial mesh? (E.g. "3 x 5")')
 	def store(self, inputData, datum): #enough info to create mesh
 		try:
-		    numElements = stringToElements(datum)
-		    dims = inputData.getVariable("numElements")
+		    numElements = stringToElements(str(datum))
+                    inputData.addVariable("numElements", numElements)
+		    dims = inputData.getVariable("meshDimensions")
 		    x0 = [0.,0.]
 		    meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 		    inputData.addVariable("mesh", meshTopo)
@@ -329,3 +345,26 @@ class Walls:
 	    return False
 	def undo(self):
 	    return Outflow.Instance()
+
+
+
+"""
+Some methods for formatting data input
+"""
+def stringToDims(inputstr):
+    tokenList = re.split(' ', inputstr)
+    if "x" in tokenList:
+        x = float(tokenList[0])
+        y = float(tokenList[2])
+        return [x,y]
+    else:
+        raise ValueError
+
+def stringToElements(inputstr):
+    tokenList = re.split(' ', inputstr)
+    if "x" in tokenList:
+        x = int(tokenList[0])
+        y = int(tokenList[2])
+        return [x,y]
+    else:
+        raise ValueError
