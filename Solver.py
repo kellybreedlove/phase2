@@ -178,7 +178,7 @@ class RefineState:
 		if command.lower() == "h":
 		    return hRefine.Instance()
 		elif command.lower() == "p":
-		    return pRefine.Instanc()
+		    return pRefine.Instance()
 		else:
 			print("Sorry, input does not match any known commands.")
 			print("Please select h or p to refine.")
