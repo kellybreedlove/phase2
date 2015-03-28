@@ -1,5 +1,6 @@
 from Singleton import *
 from InputData import *
+from refine import *
 #from PyCamellia import *
 
 class Solver:
@@ -13,7 +14,7 @@ class Solver:
 		if not command == "" and command[0] == " ":
 		    self.readCommand(command[1:])
 		else:
-		    if " " in command and not command[:6] == "steady" and not "x" in command and not command[-4:] == "auto" and not command[-6:] == "manual":
+		    if " " in command and not command[:6] == "steady" and not "x" in command:
 		    	self.readCommand(command[:command.index(" ")])
 		    	self.readCommand(command[(command.index(" ")+1):])
 		    else:
@@ -172,41 +173,15 @@ class PlotState:
 @Singleton
 class RefineState:
 	def prompt(self):
-		print("What would you like to refine?")
+		print("What sort of refinement would you like to make? (h or p)")
 	def act(self, command, context):
-		if command.lower() == "h auto":
-			print("Automatically refining in h . . .")
-			#refine
-			#print "New mesh has __ elements and __ degrees of freedom"
-			#solve
-			#print "Solve completed in _ minutes
-			threshold = .05
-			while energyError > threshold and refinementNumber <= 8:
-			    form.hRefine()
-			    form.solve()
-			    energyError = form.solution().energyErrorTotal()
-			    refinementNumber += 1
-			    #elementCount = mesh.numActiveElements()
-			    #globalDofCount = mesh.numGlobalDofs()
-			    print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-			    print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-			return PostSolveState.Instance()
-		elif command.lower() == "h manual":
-			#refine
-			return PostSolveState.Instance()
-		elif command.lower() == "p auto":
-			print("Automatically refining in p . . .")
-			#refine
-			#print "New mesh has __ elements and __ degrees of freedom"
-			#solve
-			#print "Solve completed in _ minutes 
-			return PostSolveState.Instance()
-		elif command.lower() == "p manual":
-			#refine
-			return PostSolveState.Instance()
+		if command.lower() == "h":
+		    return hRefine.Instance()
+		elif command.lower() == "p":
+		    return pRefine.Instanc()
 		else:
 			print("Sorry, input does not match any known commands.")
-			print("Please select h or p auto or manual.")
+			print("Please select h or p to refine.")
 			return self
 
 @Singleton
@@ -245,7 +220,6 @@ if __name__ == '__main__':
 	phase2.prompt()
 	command = raw_input()
 	while str(command).lower() != "exit" and str(command).lower() != "quit":
-		phase2.readCommand(command)
-		#phase2.state = phase2.state.act(command)
+		phase2.readCommand(command.lower())
 		phase2.prompt()
 		command = raw_input()
