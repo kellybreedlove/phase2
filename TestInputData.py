@@ -4,7 +4,6 @@ import SolutionFns
 import unittest
 
 
-spaceDim = 2
 useConformingTraces = True
 mu = 1.0
 dims = [1.0,1.0]
@@ -13,6 +12,7 @@ x0 = [0.,0.]
 meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 polyOrder = 3
 delta_k = 1
+re = 1000.0
 transient = "transient"
 steadyState = "steady state"
 
@@ -28,7 +28,8 @@ topVelocity = Function.vectorize(ramp,zero)
 
 stokes = True
 nStokes = False
-form = steadyLinearInit(spaceDim, dims, numElements, polyOrder)
+nStokesInputData = InputData(nStokes)
+form = steadyLinearInit(dims, numElements, polyOrder)
 reynolds = Reynolds.Instance()
 state = State.Instance()
 meshDims = MeshDimensions.Instance()
@@ -116,9 +117,16 @@ class TestInputData(unittest.TestCase):
     def test_reynoldsPrompt(self):
         pass
 
-    """Test Reynold's store"""
-    def test_reynoldsStore(self):
-        pass
+    """Test Reynold's store with a good value"""
+    def test_reynoldsStoreGoodVal(self):
+        success = reynolds.store(nStokesInputData, re)
+        self.assertTrue(success)
+        self.assertEqual(re, nStokesInputData.getVariable("reynolds"))
+
+    """Test Reynold's store with a bad value"""
+    def test_reynoldsStoreBadVal(self):
+        success = reynolds.store(nStokesInputData, "not an integer")
+        self.assertFalse(success)
 
     """Test Reynold's hasNext"""
     def test_reynoldsHasNext(self):
@@ -126,7 +134,7 @@ class TestInputData(unittest.TestCase):
 
     """Test Reynold's next"""
     def test_reynoldsNext(self):
-        pass
+        self.assertEqual(reynolds.next(), state)
 
     """Test State's init"""
     def test_stateInit(self):
@@ -136,9 +144,16 @@ class TestInputData(unittest.TestCase):
     def test_statePrompt(self):
         pass
 
-    """Test State's store"""
-    def test_stateStore(self):
-        pass
+    """Test State's store a good value"""
+    def test_stateStoreGoodVal(self):
+        success = state.store(nStokesInputData, transient)
+        self.assertTrue(success)
+        self.assertEqual(transient, nStokesInputData.getVariable("transient"))
+
+    """Test State's store a bad value"""
+    def test_stateStoreBadVal(self):
+        success = state.store(nStokesInputData, 0)
+        self.assertFalse(success)
 
     """Test State's hasNext"""
     def test_stateHasNext(self):
@@ -146,7 +161,11 @@ class TestInputData(unittest.TestCase):
 
     """Test State's next"""
     def test_stateNext(self):
-        pass
+        self.assertEqual(state.next(), meshDims)
+
+    """Test State's undo"""
+    def test_stateUndo(self):
+        self.assertEqual(reynolds, state.undo())
 
     """Test MeshDimensions's init"""
     def test_meshDimensionsInit(self):

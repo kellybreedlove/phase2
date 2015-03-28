@@ -33,7 +33,7 @@ class TestSolutionFns(unittest.TestCase):
 
     """Test steadyLinearInit"""
     def test_steadyLindearInit(self):
-        form = steadyLinearInit(spaceDim, dims, numElements, polyOrder)
+        form = steadyLinearInit(dims, numElements, polyOrder)
         foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         foo.initializeSolution(meshTopo,polyOrder,delta_k)
         foo.addZeroMeanPressureCondition()
@@ -58,7 +58,7 @@ class TestSolutionFns(unittest.TestCase):
         
     """Test addWall"""
     def test_addWall(self):
-        form = steadyLinearInit(spaceDim, dims, numElements, polyOrder)
+        form = steadyLinearInit(dims, numElements, polyOrder)
         foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         foo.initializeSolution(meshTopo,polyOrder,delta_k)
         foo.addZeroMeanPressureCondition()
@@ -85,7 +85,7 @@ class TestSolutionFns(unittest.TestCase):
 
     """Test addInflowCondition"""
     def test_addInflowCondition(self):
-        form = steadyLinearInit(spaceDim, dims, numElements, polyOrder)
+        form = steadyLinearInit(dims, numElements, polyOrder)
         foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         foo.initializeSolution(meshTopo,polyOrder,delta_k)
         foo.addZeroMeanPressureCondition()
@@ -138,7 +138,7 @@ class TestSolutionFns(unittest.TestCase):
 
     """Test energyPerCell"""
     def test_energyPerCell(self):
-        form = steadyLinearInit(spaceDim, dims, numElements, polyOrder)
+        form = steadyLinearInit(dims, numElements, polyOrder)
         foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         foo.initializeSolution(meshTopo,polyOrder,delta_k)
         foo.addZeroMeanPressureCondition()
@@ -155,11 +155,9 @@ class TestSolutionFns(unittest.TestCase):
 
         fooPerCellError = foo.solution().energyErrorPerCell()
         
-        formCellID = 0
-        for fooCellID in fooPerCellError:
-            if fooPerCellError[fooCellID] > .01:
-                self.assertAlmostEqual(perCellError[formCellID], fooPerCellError[fooCellID])
-                formCellID += 1
+        for cellID in fooPerCellError:
+            if fooPerCellError[cellID] > .01:
+                self.assertAlmostEqual(perCellError[cellID], fooPerCellError[cellID])
 
 
     """Test steadyLinearSolve"""
