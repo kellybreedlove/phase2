@@ -1,6 +1,6 @@
 from Singleton import *
 from InputData import *
-from refine import *
+from Refine import *
 #from PyCamellia import *
 
 class Solver:
