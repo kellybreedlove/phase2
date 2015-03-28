@@ -7,6 +7,7 @@ class Solver:
 	def __init__(self):
 		self.commands = []
 		self.state = InitState.Instance()
+		self.previous = None
 		self.inputData = None # initally null until some input is known
 		#self.state = StokesState.Instance() #FOR TESTING
 	def readCommand(self, userinput):
@@ -34,6 +35,7 @@ class InitState:
 			print("Before we solve, I need to ask you some setup questions.")
 			return CreateState.Instance()
 		elif command.lower() == "load":
+			context.previous = InitState.Instance()
 			return LoadState.Instance()
 		elif command.lower() == "exit" or command.lower() == "quit":
 			quit()
@@ -130,6 +132,7 @@ class PostSolveState:
 		elif command.lower() == "refine":
 			return RefineState.Instance()
 		elif command.lower() == "save":
+			context.previous = PostSolveState.Instance()
 			return SaveState.Instance()
 		elif command.lower() == "load":
 			return LoadState.Instance()
@@ -145,7 +148,7 @@ class PlotState:
 		print("What would you like to plot?")
 		print("Possible choices are: u1, u2, p, stream function, mesh, and error.")
 	def act(self, command, context):
-		combos = combinations([-1.,1.,0.,.5,-.5,.25,-.25,.75,-.75,.8,-.8,.1,-.1,.2,-.2,.3,-.3,.4,-.4,.6,-.6,.7,-.7,.8,-.8,.9,-.9,.15,-.15,.35,-.35,.45,-.45,.55,-.55,.65,-.65,.85,-.85,.95,-.95,.125,-.125,.175,-.175,.225,-.225,.275,-.275,.325,-.325,.375,-.375,.425,-.425,.475,-.475,.525,-.525,.575,-.575,.625,-.625,.675,-.675,.725,-.725,.825,-.825,.875,-.875,.925,-.925,.975,-.975,.33,-.33,.66,-.66],2))
+		#combos = combinations([-1.,1.,0.,.5,-.5,.25,-.25,.75,-.75,.8,-.8,.1,-.1,.2,-.2,.3,-.3,.4,-.4,.6,-.6,.7,-.7,.8,-.8,.9,-.9,.15,-.15,.35,-.35,.45,-.45,.55,-.55,.65,-.65,.85,-.85,.95,-.95,.125,-.125,.175,-.175,.225,-.225,.275,-.275,.325,-.325,.375,-.375,.425,-.425,.475,-.475,.525,-.525,.575,-.575,.625,-.625,.675,-.675,.725,-.725,.825,-.825,.875,-.875,.925,-.925,.975,-.975,.33,-.33,.66,-.66],2))
 		refCellVertexPoints = []
 		for e in combos:
     			refCellVertexPoints.append(list(e))
@@ -196,8 +199,10 @@ class RefineState:
 @Singleton
 class LoadState:
 	def prompt(self):
-		self.filename = input("What solution would you like to load?")
+		print("What solution would you like to load?")
 	def act(self, command, context):
+		if command == "undo":
+		    return context.previous
 		print("Loading..."),
 		
 		file = open(self.filename)

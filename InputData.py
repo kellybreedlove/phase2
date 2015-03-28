@@ -101,7 +101,7 @@ class MeshDimensions:
 		print('This solver handles rectangular meshes with lower-left corner at the origin.\nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")')
 	def store(self, inputData, datum):
 		try:
-		    dims = stringToDims(str(datum))
+		    dims = stringToDims(str(datum).strip())
 		    inputData.addVariable("meshDimensions", dims)
 		    return True
 		except ValueError:
@@ -122,7 +122,7 @@ class Elements:
 		print('How many elements in the initial mesh? (E.g. "3 x 5")')
 	def store(self, inputData, datum): #enough info to create mesh
 		try:
-		    numElements = stringToElements(str(datum))
+		    numElements = stringToElements(str(datum).strip())
                     inputData.addVariable("numElements", numElements)
 		    return True
 		except ValueError:
@@ -315,19 +315,23 @@ def getFunction(data, store):
 Some methods for formatting data input
 """
 def stringToDims(inputstr):
-    tokenList = re.split(' ', inputstr)
-    if "x" in tokenList:
+    try:
+        tokenList = re.split('x', inputstr)
         x = float(tokenList[0])
-        y = float(tokenList[2])
+        y = float(tokenList[1])
+        print(x)
+        print(y)
         return [x,y]
-    else:
+    except:
         raise ValueError
 
 def stringToElements(inputstr):
-    tokenList = re.split(' ', inputstr)
-    if "x" in tokenList:
+    try:
+        tokenList = re.split('x', inputstr)
         x = int(tokenList[0])
-        y = int(tokenList[2])
+        y = int(tokenList[1])
+        print(x)
+        print(y)
         return [x,y]
-    else:
+    except:
         raise ValueError
