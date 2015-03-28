@@ -263,19 +263,11 @@ class TestInputData(unittest.TestCase):
     def test_inflowInit(self):
         self.assertIsNotNone(inflow)
 
-    """Test Inflow's store good value"""
-    def test_inflowStoreGoodVal(self):
-        pass
-
     """Test Inflow's store bad value"""
     def test_inflowStoreBadVal(self):
         inputData = InputData(stokes)
         self.assertFalse(inflow.store(inputData, "not an integer"))
         self.assertFalse(inflow.store(inputData, 2.4))
-
-    """Test Inflow's obtainData"""
-    def test_inflowObtainData(self):
-        pass
 
     """Test Inflow's hasNext"""
     def test_inflowHasNext(self):
@@ -289,25 +281,18 @@ class TestInputData(unittest.TestCase):
     def test_inflowUndo(self):
         self.assertEqual(polyOrder, inflow.undo())
 
+
+
+
     """Test Outflow's init"""
     def test_outflowInit(self):
         self.assertIsNotNone(outflow)
-
-    """Test Outflow's store good value"""
-    def test_outflowStoreGoodVal(self):
-        inputData = InputData(stokes)
-        #self.assertTrue(inflow.store(inputData,1))
-        pass
 
     """Test Outflow's store bad value"""
     def test_outflowStoreBadVal(self):
         inputData = InputData(stokes)
         self.assertFalse(outflow.store(inputData, "not an integer"))
         self.assertFalse(outflow.store(inputData, 2.4))
-
-    """Test Outflow's obtaindata"""
-    def test_outflowObtainData(self):
-        pass
 
     """Test Outflow's hasNext"""
     def test_outflowHasNext(self):
@@ -321,21 +306,18 @@ class TestInputData(unittest.TestCase):
     def test_outflowUndo(self):
         self.assertEqual(inflow, outflow.undo())
 
+
+
+
     """Test Walls's init"""
     def test_wallsInit(self):
         self.assertIsNotNone(walls)
 
-    """Test Walls's store good value"""
-    def test_wallsStoreGoodVal(self):
-        pass
-
     """Test Walls's store bad value"""
     def test_wallsStoreBadVal(self):
-        pass
-
-    """Test Walls's obtainData"""
-    def test_wallsObtainData(self):
-        pass
+        inputData = InputData(stokes)
+        self.assertFalse(walls.store(inputData, "not an integer"))
+        self.assertFalse(walls.store(inputData, 2.4))
 
     """Test Walls's hasNext"""
     def test_wallsHasNext(self):
@@ -345,6 +327,43 @@ class TestInputData(unittest.TestCase):
     def test_wallsUndo(self):
         self.assertEqual(outflow, walls.undo())
 
+        
+        
+    """Test getFunction"""
+    def test_getFunction(self):
+        data = []
+        self.assertEqual(getFunction("undo", data), "undo")
+        self.assertFalse(getFunction("not a function", data))
+        self.assertTrue(getFunction("x^2",data))
+        self.assertEqual(data[0].evaluate(3), 9)
+        
+    """Test getFilter"""
+    def test_getFilter(self):
+        data = []
+        self.assertEqual(getFilter("undo", data), "undo")
+        self.assertFalse(getFunction("not a filter", data))
+        self.assertFalse(getFunction("x=9y>2.2", data))
+        self.assertTrue(getFilter(" x = 1.8, y>   8", data))
+        self.assertTrue(getFilter("x>3,y=9",data))
+        self.assertTrue(data[0].matchesPoint(1.8, 900))
+        self.assertFalse(data[1].matchesPoint(2,9))
+        
+        
+    """Test stringToDims"""
+    def test_stringToDims(self):
+        dims = stringToDims("3.1x 5.0")
+        self.assertEqual(dims[0],3.1)
+        self.assertEqual(dims[1],5.0)
+        self.assertRaises(ValueError, lambda: stringToDims("a x 7"))
+        
+    """Test stringToElements"""
+    def test_stringToElements(self):
+        elements = stringToElements("3 x 5")
+        self.assertEqual(elements[0],3)
+        self.assertEqual(elements[1],5)
+        self.assertRaises(ValueError, lambda: stringToElements("bx7"))
+        self.assertRaises(ValueError, lambda: stringToElements("7.0 x4.2"))
+        
     if __name__ == '__main__':
         unittest.main()
 
