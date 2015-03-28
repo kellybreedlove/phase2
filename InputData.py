@@ -1,5 +1,5 @@
 from Singleton import *
-from InflowParser import *
+from ConditionParser import *
 from ParseFunction import *
 from SolveFormulation import *
 import re
@@ -133,10 +133,6 @@ class Elements:
 		try:
 		    numElements = stringToElements(str(datum))
                     inputData.addVariable("numElements", numElements)
-		    dims = inputData.getVariable("meshDimensions")
-		    x0 = [0.,0.]
-		    meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
-		    inputData.addVariable("mesh", meshTopo)
 		    return True
 		except ValueError:
 		    print('Please enter two integer values separated by an "x", E.g., "3 x 5"')
