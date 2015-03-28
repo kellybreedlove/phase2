@@ -21,7 +21,6 @@ class hRefine:
             numActiveElements = mesh.numActiveElements()
             dof = mesh.numGlobalDofs()
             print("New mesh has " + str(numActiveelements) + " elements and " + str(dof) + " degrees of freedom.")
-            form.solve()
             #print("Solve completed in _ minutes")
         else:
             try:

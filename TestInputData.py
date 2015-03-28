@@ -293,7 +293,9 @@ class TestInputData(unittest.TestCase):
 
     """Test Inflow's store bad value"""
     def test_inflowStoreBadVal(self):
-        pass
+        inputData = InputData(stokes)
+        self.assertFalse(inflow.store(inputData, "not an integer"))
+        self.assertFalse(inflow.store(inputData, 2.4))
 
     """Test Inflow's obtainData"""
     def test_inflowObtainData(self):
@@ -321,11 +323,15 @@ class TestInputData(unittest.TestCase):
 
     """Test Outflow's store good value"""
     def test_outflowStoreGoodVal(self):
+        inputData = InputData(stokes)
+        #self.assertTrue(inflow.store(inputData,1))
         pass
 
     """Test Outflow's store bad value"""
     def test_outflowStoreBadVal(self):
-        pass
+        inputData = InputData(stokes)
+        self.assertFalse(outflow.store(inputData, "not an integer"))
+        self.assertFalse(outflow.store(inputData, 2.4))
 
     """Test Outflow's obtaindata"""
     def test_outflowObtainData(self):
