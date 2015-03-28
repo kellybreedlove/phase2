@@ -175,9 +175,9 @@ class Inflow:
 	def prompt(self):
 		print("How many inflow conditions?")
 	def store(self, inputData, datum): #returns True (proceed to Outflow), False (wrong input, try again), or "undo" (go bak to PolyOrder)
-	    self.inflowRegions = []
-	    self.inflowX = []
-	    self.inflowY = []
+	    self.Regions = []
+	    self.X = []
+	    self.Y = []
 	    if str(type(datum)) == int:
 	        numOutflows = int(datum)
 	    else:
@@ -193,53 +193,17 @@ class Inflow:
 	            if i < 1:
 	                return "undo"#already at last input, go back to PolyOrder
 	    inputData.addVariable("numInflows",numInflows)
-	    inputData.addVariable("inflowRegions", self.inflowRegions)
-	    inputData.addVariable("inflowX", self.inflowX)
-	    inputData.addVariable("inflowY", self.inflowY)
+	    inputData.addVariable("inflowRegions", self.Regions)
+	    inputData.addVariable("inflowX", self.X)
+	    inputData.addVariable("inflowY", self.Y)
 	    return True
 	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    if (i+2)%3 == 0:
-	        data = promptInflowRegion(i)
-	        if data.lower() == "undo":
-	            return "undo"
-	        elif data.lower() == "exit" or data.lower() == "quit":
-	            quit()
-	        else:
-	            try:
-	                region = stringToFilter(data.replace(" ", ""))
-	                self.inflowRegions.append(region)
-	                return True
-	            except ValueError:
-	                print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
-	                return False
+	        return getFilter(promptRegion(i, "inflow"),self.Regions)
 	    elif (i+1)%3 == 0:
-	        data = promptInflowX(i)
-	        if data.lower() == "undo":
-	            return "undo"
-	        elif data.lower() == "exit" or data.lower() == "quit":
-	            quit()
-	        else:
-	            try:
-	                x = stringToFunction(data)
-	                self.inflowX.append(x)
-	                return True
-	            except ValueError as e:
-	                print(e)
-	                return False
+	        return getFunction(promptInflowFun((i+1)/3, "x"),self.X)
 	    elif i%3 == 0:
-	        data = promptInflowY(i)
-	        if data.lower() == "undo":
-	            return "undo"
-	        elif data.lower() == "exit" or data.lower() == "quit":
-	            quit()
-	        else:
-	            try:
-	                y = stringToFunction(data)
-	                self.inflowY.append(y)
-	                return True
-	            except ValueError as e:
-	                print(e)
-	                return False
+	        return getFunction(promptInflowFun(i/3, "y"),self.Y)
 	    else:
 	        return False
 	def hasNext(self):
@@ -248,18 +212,6 @@ class Inflow:
 	    return Outflow.Instance()
 	def undo(self):
 	    return PolyOrder.Instance()
-	    
-def promptInflowRegion(i):
-    data = raw_input("For inflow condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
-    return data
-	    
-def promptInflowX(i):
-    data = raw_input("For inflow condition " + str((i+1)/3) + ", what is the x component of the velocity?\n")
-    return data
-    
-def promptInflowY(i):
-    data = raw_input("For inflow condition " + str(i/3) + ", what is the y component of the velocity?\n")
-    return data 
     	    
 @Singleton
 class Outflow:
@@ -276,7 +228,7 @@ class Outflow:
 	        return False
 	    i = 1
 	    while i <= numOutflows:
-	        x = self.obtainData(i)
+	        x = getFilter(promptRegion(i, "outflow"),self.Regions)#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	        if not str(x) == "False":#either "True" or "undo"
 	            i += 1
 	            if str(x) == "undo":
@@ -286,21 +238,6 @@ class Outflow:
 	    inputData.addVariable("numOutflows",numOutflows)
 	    inputData.addVariable("outflowRegions", self.outflowRegions)
 	    return True
-	    
-	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
-	    data = raw_input("For outflow condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
-	    if data.lower() == "undo":
-	            return "undo"
-	    elif data.lower() == "exit" or data.lower() == "quit":
-	        quit()
-	    else:
-	        try:
-	            region = stringToFilter(data.replace(" ", ""))
-	            self.outflowRegions.append(region)
-	            return True
-	        except ValueError:
-	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
-	            return False
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -316,14 +253,14 @@ class Walls:
 		print("How many wall conditions?")
 	def store(self, inputData, datum):#returns True (proceed), False (wrong input, try again), or "undo" (go bak to Outflow)
 	    self.wallRegions =  []
-	    try:
-	        numWalls = int(datum)
-	    except ValueError:
-	        print("Please enter and integer value")
+	    if str(type(datum)) == int:
+	        numOutflows = int(datum)
+	    else:
+	        print("Please enter an integer value")
 	        return False
 	    i = 1
 	    while i <= numWalls:
-	    	x = self.obtainData(i,inputData)
+	    	x = getFilter(promptRegion(i, "wall"), inputData.wallRegions)#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    	if not str(x) == "False":
 	    	    i += 1
 	    	    if str(x) == "undo":
@@ -331,31 +268,56 @@ class Walls:
 	    	    if i < 1:
 	    	        return "undo"#already at last input, go back to Outflow
 	    	else:
-	    	    print("Sorry, input does not match expected format.")
+	    	    return False
 	    inputData.addVariable("numWalls", datum)
 	    inputData.addVariable("wallRegions", self.wallRegions)
 	    inputData.setForm(solve(inputData.vars))
 	    return True
-	    
-	def obtainData(self, i, inputData):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
-	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
-	    if data == "undo":
-	        return "undo"
-	    elif data.lower() == "exit" or data.lower() == "quit":
-	        quit()
-	    else:
-	        try:
-	            region = stringToFilter(data.replace(" ", ""))
-	            self.wallRegions.append(region)
-	            return True
-	        except ValueError:
-	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
-	            return False
 	def hasNext(self):
 	    return False
 	def undo(self):
 	    return Outflow.Instance()
 
+"""
+Some methods for retreiving data input
+"""
+
+   
+def promptRegion(i, inoutwall):
+    data = raw_input("For " + inoutwall + " condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
+    return data
+    
+def getFilter(data, flowRegions): #returns True, False, or undo
+        if data.lower() == "undo":
+            return "undo"
+        elif data.lower() == "exit" or data.lower() == "quit":
+            quit()
+        else:
+            try:
+                region = stringToFilter(data.replace(" ", ""))
+                flowRegions.append(region)
+                return True
+            except ValueError:
+                print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
+                return False
+
+def promptInflowFun(i,var):
+    data = raw_input("For inflow condition " + str(i) + ", what is the " + str(var) + " component of the velocity?\n")
+    return data
+
+def getFunction(data, store):
+    if data.lower() == "undo":
+        return "undo"
+    elif data.lower() == "exit" or data.lower() == "quit":
+        quit()
+    else:
+        try:
+            y = stringToFunction(data)
+            store.append(y)
+            return True
+        except ValueError as e:
+            print(e)
+            return False
 
 
 """
