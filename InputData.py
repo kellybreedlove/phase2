@@ -1,8 +1,8 @@
 from Singleton import *
-from InflowParser import *
+from ConditionParser import *
 from ParseFunction import *
 from SolveFormulation import *
-#import Solver
+import re
 
 # The memento doesn't care about any of the data, it just passes it around
 class Memento:
@@ -13,13 +13,9 @@ class Memento:
     def set(self, dataMap):
         self.dataMap = dataMap
 
-# should we restrict the creation of a memento to being only when the data is complete, and should we confirm it matches
-# stokes vs nStokes requirements?
 class InputData:
     def __init__(self, stokesOrNot):
         self.vars = {"stokes": stokesOrNot} # to collect all the variables
-
-        # not enough information to makes stokes form using SolutionFns, need polyOrder exc.
 
         # Stokes: stokesTrue, transient, dims [], numElements[], mesh, 
         #   polyOrder, inflow tuple (numInflows, [inflow regions], [x velocities], [y velocities]),
@@ -30,21 +26,23 @@ class InputData:
     def setForm(self, form):
         self.vars["form"] = form
     def getForm(self):
-        return self.vars["form"]
+        try:
+            return self.vars["form"]
+        except:
+            print("InputData does not contain form")
     def addVariable(self, string, var):
         self.vars[string] = var
     def getVariable(self, string):
-        return self.vars[string]
+        try: 
+            return self.vars[string]
+        except:
+            print("InputData does not contain %s" % string)
     def createMemento(self):
-        return Memento(self.vars) # shove it all into one list to hold onto
+        return Memento(self.vars)
     def setMemento(self, memento):
         self.vars = memento.get()
 
-                    #self.form = SolutionFns.steadyLinearInit(sapceDim, dims, numElements, polyOrder)
-                    # initialize solution from here & use inflow and wall
-                    # conditions to add to the initialized solution again
-                    # can't say I understand if I should initialize a new form or use the stored one from memento
-
+                    
 @Singleton
 class Reynolds: #only used for Navier-Stokes
 	def __init__(self):
@@ -53,8 +51,8 @@ class Reynolds: #only used for Navier-Stokes
             print("What Reynolds number?")
 	def store(self, inputData, datum):
 	    try:
-	        inputData.addVariable("reynolds",int(datum))
-	        return True
+                inputData.addVariable("reynolds",int(datum))
+                return True
 	    except ValueError:
 	        print("Please enter an integer value.")
 	        return False
@@ -70,16 +68,24 @@ class State: #transient not supported for Navier-Stokes
 	def prompt(self):
 		print("Transient or steady state?")
 	def store(self, inputData, datum):
-	    if datum.lower() == "transient" or datum.lower() == "steady state":
-	        if inputData.getVariable("stokes") == False and datum.lower() == "transient":
-	            print("Transient solves are not supported for Navier-Stokes")
-	            return False
-	        else:
-	            inputData.addVariable("transient", datum.lower())
-	            return True
-	    else:
-	        print('Please enter "transient" or "steady state"')
-	        return False
+            try:
+                datumL = datum.lower()
+                if datumL == "transient" or datumL == "steady state":
+                    if datumL == "steady state":
+                        inputData.addVariable("transient", False) # steady state
+                        return True
+                    elif (not inputData.getVariable("stokes")) and datumL == "transient":
+                        print("Transient solves are not supported for Navier-Stokes")
+                        return False
+                    else:
+                        inputData.addVariable("transient", True)
+                        return True
+                else:
+                    print('Please enter "transient" or "steady state"')
+                    return False
+            except AttributeError:
+                print("Please enter a string value.")
+                return False
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -95,7 +101,7 @@ class MeshDimensions:
 		print('This solver handles rectangular meshes with lower-left corner at the origin.\nWhat are the dimensions of your mesh? (E.g., "1.0 x 2.0")')
 	def store(self, inputData, datum):
 		try:
-		    dims = stringToDims(datum)
+		    dims = stringToDims(str(datum).strip())
 		    inputData.addVariable("meshDimensions", dims)
 		    return True
 		except ValueError:
@@ -116,11 +122,8 @@ class Elements:
 		print('How many elements in the initial mesh? (E.g. "3 x 5")')
 	def store(self, inputData, datum): #enough info to create mesh
 		try:
-		    numElements = stringToElements(datum)
-		    dims = inputData.getVariable("numElements")
-		    x0 = [0.,0.]
-		    meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
-		    inputData.addVariable("mesh", meshTopo)
+		    numElements = stringToElements(str(datum).strip())
+                    inputData.addVariable("numElements", numElements)
 		    return True
 		except ValueError:
 		    print('Please enter two integer values separated by an "x", E.g., "3 x 5"')
@@ -163,71 +166,35 @@ class Inflow:
 	def prompt(self):
 		print("How many inflow conditions?")
 	def store(self, inputData, datum): #returns True (proceed to Outflow), False (wrong input, try again), or "undo" (go bak to PolyOrder)
-	    self.inflowRegions = []
-	    self.inflowX = []
-	    self.inflowY = []
+	    self.Regions = []
+	    self.X = []
+	    self.Y = []
 	    try:
 	        numInflows = int(datum)
-	        i = 1
-	        while i <= numInflows*3:
-	        	x = self.obtainData(i)
-	        	if not str(x) == "False":
-	        	    i += 1
-	        	    if str(x) == "undo":
-	        	        i -= 2 #go back to last input
-	        	    if i < 1:
-	        	        return "undo"#already at last input, go back to PolyOrder
-	        inputData.addVariable("numInflows",numInflows)
-	        inputData.addVariable("inflowRegions", self.inflowRegions)
-	        inputData.addVariable("inflowX", self.inflowX)
-	        inputData.addVariable("inflowY", self.inflowY)
-	        return True
 	    except ValueError:
-	        print("Please enter an integer value")
+	        print("Please enter an integer value.")
 	        return False
+	    i = 1
+	    while i <= numInflows*3:
+	        x = self.obtainData(i)
+	        if not str(x) == "False":
+	            i += 1
+	            if str(x) == "undo":
+	                i -= 2 #go back to last input
+	            if i < 1:
+	                return "undo"#already at last input, go back to PolyOrder
+	    inputData.addVariable("numInflows",numInflows)
+	    inputData.addVariable("inflowRegions", self.Regions)
+	    inputData.addVariable("inflowX", self.X)
+	    inputData.addVariable("inflowY", self.Y)
+	    return True
 	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    if (i+2)%3 == 0:
-	        data = raw_input("For inflow condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
-	        if data.lower() == "undo":
-	            return "undo"
-	        elif data.lower() == "exit" or data.lower() == "quit":
-	            quit()
-	        else:
-	            try:
-	                region = stringToFilter(data.replace(" ", ""))
-	                self.inflowRegions.append(region)
-	                return True
-	            except ValueError:
-	                print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
-	                return False
+	        return getFilter(promptRegion(i, "inflow"),self.Regions)
 	    elif (i+1)%3 == 0:
-	        data = raw_input("For inflow condition " + str((i+1)/3) + ", what is the x component of the velocity?\n")
-	        if data.lower() == "undo":
-	            return "undo"
-	        elif data.lower() == "exit" or data.lower() == "quit":
-	            quit()
-	        else:
-	            try:
-	                x = stringToFunction(data)
-	                self.inflowX.append(x)
-	                return True
-	            except ValueError as e:
-	                print(e)
-	                return False
+	        return getFunction(promptInflowFun((i+1)/3, "x"),self.X)
 	    elif i%3 == 0:
-	        data = raw_input("For inflow condition " + str(i/3) + ", what is the y component of the velocity?\n")
-	        if data.lower() == "undo":
-	            return "undo"
-	        elif data.lower() == "exit" or data.lower() == "quit":
-	            quit()
-	        else:
-	            try:
-	                y = stringToFunction(data)
-	                self.inflowY.append(y)
-	                return True
-	            except ValueError as e:
-	                print(e)
-	                return False
+	        return getFunction(promptInflowFun(i/3, "y"),self.Y)
 	    else:
 	        return False
 	def hasNext(self):
@@ -236,7 +203,7 @@ class Inflow:
 	    return Outflow.Instance()
 	def undo(self):
 	    return PolyOrder.Instance()
-	    
+    	    
 @Singleton
 class Outflow:
 	def __init__(self):
@@ -244,38 +211,24 @@ class Outflow:
 	def prompt(self):
 		print("How many outflow conditions?")
 	def store(self, inputData, datum): #returns True (proceed to Walls), False (wrong input, try again), or "undo" (go bak to Inflow)
-	    self.outflowRegions = []
+	    self.Regions = []
 	    try:
 	        numOutflows = int(datum)
-	        i = 1
-	        while i <= numOutflows:
-	        	x = self.obtainData(i)
-	        	if not str(x) == "False":#either "True" or "undo"
-	        	    i += 1
-	        	    if str(x) == "undo":
-	        	        i -= 2 #go back to last input
-	        	    if i < 1:
-	        	        return "undo"#already at last input, go back to Inflow
-	        inputData.addVariable("numOutflows",numOutflows)
-	        inputData.addVariable("outflowRegions", self.outflowRegions)
-	        return True
 	    except ValueError:
-	        print("Please enter an integer value")
+	        print("Please enter an integer value.")
 	        return False
-	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
-	    data = raw_input("For outflow condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
-	    if data.lower() == "undo":
-	            return "undo"
-	    elif data.lower() == "exit" or data.lower() == "quit":
-	        quit()
-	    else:
-	        try:
-	            region = stringToFilter(data.replace(" ", ""))
-	            self.outflowRegions.append(region)
-	            return True
-	        except ValueError:
-	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
-	            return False
+	    i = 1
+	    while i <= numOutflows:
+	        x = getFilter(promptRegion(i, "outflow"),self.Regions)#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
+	        if not str(x) == "False":#either "True" or "undo"
+	            i += 1
+	            if str(x) == "undo":
+	                i -= 2 #go back to last input
+	            if i < 1:
+	                return "undo"#already at last input, go back to Inflow
+	    inputData.addVariable("numOutflows",numOutflows)
+	    inputData.addVariable("outflowRegions", self.Regions)
+	    return True
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -286,46 +239,95 @@ class Outflow:
 @Singleton
 class Walls:
 	def __init__(self):
-	     self.type = "Walls"
+	    self.type = "Walls"
 	def prompt(self):
 		print("How many wall conditions?")
 	def store(self, inputData, datum):#returns True (proceed), False (wrong input, try again), or "undo" (go bak to Outflow)
 	    self.wallRegions =  []
 	    try:
 	        numWalls = int(datum)
-	        i = 1
-	        while i <= numWalls:
-	        	x = self.obtainData(i,inputData)
-	        	if not str(x) == "False":
-	        	    i += 1
-	        	    if str(x) == "undo":
-	        	        i -= 2 #go back to last input
-	        	    if i < 1:
-	        	        return "undo"#already at last input, go back to Outflow
-	        	else:
-	        	    print("Sorry, input does not match expected format.")
-	        inputData.addVariable("numWalls", datum)
-	        inputData.addVariable("wallRegions", self.wallRegions)
-	        inputData.setForm(solve(inputData.vars))
-	        return True
 	    except ValueError:
-	        print("Please enter and integer value")
+	        print("Please enter an integer value.")
 	        return False
-	def obtainData(self, i, inputData):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
-	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
-	    if data == "undo":
-	        return "undo"
-	    elif data.lower() == "exit" or data.lower() == "quit":
-	        quit()
-	    else:
-	        try:
-	            region = stringToFilter(data.replace(" ", ""))
-	            self.wallRegions.append(region)
-	            return True
-	        except ValueError:
-	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
-	            return False
+	    i = 1
+	    while i <= numWalls:
+	    	x = getFilter(promptRegion(i, "wall"), self.wallRegions)#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
+	    	if not str(x) == "False":
+	    	    i += 1
+	    	    if str(x) == "undo":
+	    	        i -= 2 #go back to last input
+	    	    if i < 1:
+	    	        return "undo"#already at last input, go back to Outflow
+	    	else:
+	    	    return False
+	    inputData.addVariable("numWalls", datum)
+	    inputData.addVariable("wallRegions", self.wallRegions)
+	    inputData.setForm(solve(inputData.vars))
+	    return True
 	def hasNext(self):
 	    return False
 	def undo(self):
 	    return Outflow.Instance()
+
+"""
+Some methods for retreiving data input
+"""
+
+   
+def promptRegion(i, inoutwall):
+    data = raw_input("For " + inoutwall + " condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
+    return data
+    
+def getFilter(data, flowRegions): #returns True, False, or undo
+        if data.lower() == "undo":
+            return "undo"
+        elif data.lower() == "exit" or data.lower() == "quit":
+            quit()
+        else:
+            try:
+                region = stringToFilter(data.replace(" ", ""))
+                flowRegions.append(region)
+                return True
+            except ValueError:
+                print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
+                return False
+
+def promptInflowFun(i,var):
+    data = raw_input("For inflow condition " + str(i) + ", what is the " + str(var) + " component of the velocity?\n")
+    return data
+
+def getFunction(data, store):
+    if data.lower() == "undo":
+        return "undo"
+    elif data.lower() == "exit" or data.lower() == "quit":
+        quit()
+    else:
+        try:
+            y = stringToFunction(data)
+            store.append(y)
+            return True
+        except ValueError as e:
+            print(e)
+            return False
+
+
+"""
+Some methods for formatting data input
+"""
+def stringToDims(inputstr):
+    try:
+        tokenList = re.split('x', inputstr)
+        x = float(tokenList[0])
+        y = float(tokenList[1])
+        return [x,y]
+    except:
+        raise ValueError
+
+def stringToElements(inputstr):
+    try:
+        tokenList = re.split('x', inputstr)
+        x = int(tokenList[0])
+        y = int(tokenList[1])
+        return [x,y]
+    except:
+        raise ValueError

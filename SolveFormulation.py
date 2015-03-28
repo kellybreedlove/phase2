@@ -1,4 +1,5 @@
 from PyCamellia import *
+from SolutionFns import *
 
 def solve(data):
 	spaceDim = 2
@@ -12,7 +13,9 @@ def solve(data):
 	if not stokes:
 	    Re = data["reynolds"]
 	transient = data["transient"]
-	meshTopo = data["mesh"]
+	dims = data["meshDimensions"]
+	numElements = data["numElements"]
+	x0 = [0.,0.]
 	polyOrder = data["polyOrder"]
 	numInflows = data["numInflows"]
 	inflowRegions = data["inflowRegions"]
@@ -22,7 +25,8 @@ def solve(data):
 	outflowRegions = data["outflowRegions"]
 	numWalls = data["numWalls"]
 	wallRegions = data["wallRegions"]
-	
+	meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements, x0)
+
 	
 	if stokes:
 	    if transient:
@@ -37,7 +41,6 @@ def solve(data):
 	
 	form.addZeroMeanPressureCondition()
 	
-	
 	i = 0
 	while i < numInflows:
 	    inflowFunction = Function.vectorize(inflowX[i], inflowY[i])
@@ -46,16 +49,16 @@ def solve(data):
 	    else:
 	        form.addInflowCondition(inflowRegions[i], inflowFunction)
 	    i += 1
+	    
 	i = 0
 	while i < numOutflows:
 	    form.addOutflowCondition(outflowRegions[i])
-	    i += 1
-	i = 0
-	while i < numWalls:
-	    form.addWallCondition(wallRegions[i])
-	    i += 1
+	    i += 1  
+	i = 1
+	for i in wallRegions:
+	    form.addWallCondition(i)
 	    
 	form.solve()
 	print("Solving...")
 	#print("Solve completed in __ minutes, __ seconds")
-	return form
+	return form 

@@ -1,4 +1,5 @@
 from PyCamellia import *
+from time import *
 
 spaceDim = 2 # always two because we aren't handling anything 3D
 
@@ -17,15 +18,12 @@ def steadyLinearInit(dims, numElements, polyOrder):
 
 def addWall(form, newWall):
     form.addWallCondition(newWall)
-    return form
 
 def addInflow(form, newInflow, newVelocity):
     form.addInflowCondition(newInflow, newVelocity)
-    return form
 
 def addOutflow(form, newOutflow):
     form.addOutflowCondition(newOutflow)
-    return form
 
 def energyPerCell(form):
     perCellError = form.solution().energyErrorPerCell()
@@ -35,78 +33,60 @@ def energyPerCell(form):
     return perCellError
 
 def steadyLinearSolve(form):
-    refinementNumber = 0
+    print("Solving..."),
+    start = time()
     form.solve()
-    
-    mesh = form.solution().mesh();
-    
+    mesh = form.solution().mesh();    
     energyError = form.solution().energyErrorTotal()
-    elementCount = mesh.numActiveElements()
-    globalDofCount = mesh.numGlobalDofs()
-    print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
+    end = time()
+    mins = (end - start) / 60
+    secs = (end - start) % 60
+    print("Solve completed in %i minute, %i seconds." % (mins, secs))
+    print("Energy error is %0.3f" % (energyError))
 
-    return form
+# Begin Refine -------------------------------------------------------------
 
 def steadyLinearHAutoRefine(form):
+    print("Automatically refining in h..."),
+    form.hRefine()
     mesh = form.solution().mesh();
-    threshold = .05
-    while energyError > threshold and refinementNumber <= 8:
-        form.hRefine()
-        form.solve()
-        energyError = form.solution().energyErrorTotal()
-        refinementNumber += 1
-        elementCount = mesh.numActiveElements()
-        globalDofCount = mesh.numGlobalDofs()
-        print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-        print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    return form
+    elementCount = mesh.numActiveElements()
+    globalDofCount = mesh.numGlobalDofs()
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyLinearSolve(form)
 
 def steadyLinearPAutoRefine(form):
+    print("Automatically refining in p..."),
+    form.pRefine()
     mesh = form.solution().mesh();
-    threshold = .05
-    while energyError > threshold and refinementNumber <= 8:
-        form.pRefine()
-        form.solve()
-        energyError = form.solution().energyErrorTotal()
-        refinementNumber += 1
-        elementCount = mesh.numActiveElements()
-        globalDofCount = mesh.numGlobalDofs()
-        print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-        print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    return form
+    elementCount = mesh.numActiveElements()
+    globalDofCount = mesh.numGlobalDofs()
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyLinearSolve(form)
 
 def linearHManualRefine(form,cellList):
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    print("Manually refining in h..."),
+    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.hRefine(cellList)
-    form.solve()
-    energyError = form.solution().energyErrorTotal()
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
-    print("Energy error: %0.3f" % (energyError))
-    print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    return form
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyLinearSolve(form)
 
 def linearPManualRefine(form, cellList):
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    print("Manually refining in p..."),
+    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.pRefine(cellList)
-    form.solve()
-    energyError = form.solution().energyErrorTotal()
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
-    print("Energy error: %0.3f" % (energyError))
-    print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    return form
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyLinearSolve(form)
 
-def steadyLinearExport(form):
-    exporter = HDF5Exporter(form.solution().mesh(), "steadyStokes", ".")
-    exporter.exportSolution(form.solution(),0)
-    return exporter
-
+# End Refine ---------------------------------------------------------------
 
 def transientLinearInit(spaceDim, dims, numElements, polyOrder, dt):
     transient = True
@@ -122,10 +102,6 @@ def transientLinearInit(spaceDim, dims, numElements, polyOrder, dt):
 
     return form
 
-def transientLinearExport(form):
-    exporter = HDF5Exporter(form.solution().mesh(), "transientStokes", ".")
-    return exporter
-
 def transientLinearSolve(form, totalTime, dt):
     exporter = HDF5Exporter(form.solution().mesh(), "transientStokes", ".")
     numTimeSteps = int(totalTime / dt)    
@@ -134,8 +110,6 @@ def transientLinearSolve(form, totalTime, dt):
         exporter.exportSolution(form.solution(),form.getTime())
         form.takeTimeStep()
         print("Time step %i completed" % timeStepNumber)
-
-    return form
 
 def steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder):
     x0 = [0.,0.]
@@ -169,7 +143,6 @@ def steadyNonlinearSolve(form, maxSteps):
     globalDofCount = mesh.numGlobalDofs()
     print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-    return form
 
 def nonlinearHAutoRefine(form, maxSteps):
     threshold = 0.05
@@ -187,8 +160,6 @@ def nonlinearHAutoRefine(form, maxSteps):
         print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
         print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
 
-    return form
-
 def nonlinearPAutoRefine(form, maxSteps):
     threshold = 0.05
     maxRefs = 8
@@ -205,8 +176,6 @@ def nonlinearPAutoRefine(form, maxSteps):
         print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
         print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
 
-    return form
-
 def nonlinearHManualRefine(form, maxSteps, cellList):
     refinementNumber = 0
     mesh = form.solution().mesh()
@@ -221,8 +190,6 @@ def nonlinearHManualRefine(form, maxSteps, cellList):
     print("Energy error: %0.3f" % (energyError))
     print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
 
-    return form
-
 def nonlinearPManualRefine(form, maxSteps, cellList):
     refinementNumber = 0
     mesh = form.solution().mesh()
@@ -236,11 +203,4 @@ def nonlinearPManualRefine(form, maxSteps, cellList):
     globalDofCount = mesh.numGlobalDofs()
     print("Energy error: %0.3f" % (energyError))
     print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    return form
-
-def steadyNonlinearExport(form):
-    exporter = HDF5Exporter(form.solution().mesh(), "steadyNavierStokes", ".")
-    exporter.exportSolution(form.solution(),0)
-    return exporter
-
 

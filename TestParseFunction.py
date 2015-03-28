@@ -5,7 +5,7 @@ import unittest
 x = 2.0
 y = 3.0
 
-class TestFunctionParser(unittest.TestCase):
+class TestParseFunction(unittest.TestCase):
 
     """Test Add"""
     def test_add(self):
