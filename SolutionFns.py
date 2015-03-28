@@ -88,12 +88,6 @@ def linearPManualRefine(form, cellList):
 
 # End Refine ---------------------------------------------------------------
 
-def steadyLinearExport(form):
-    exporter = HDF5Exporter(form.solution().mesh(), "steadyStokes", ".")
-    exporter.exportSolution(form.solution(),0)
-    return exporter
-
-
 def transientLinearInit(spaceDim, dims, numElements, polyOrder, dt):
     transient = True
     x0 = [0.,0.]
@@ -108,10 +102,6 @@ def transientLinearInit(spaceDim, dims, numElements, polyOrder, dt):
 
     return form
 
-def transientLinearExport(form):
-    exporter = HDF5Exporter(form.solution().mesh(), "transientStokes", ".")
-    return exporter
-
 def transientLinearSolve(form, totalTime, dt):
     exporter = HDF5Exporter(form.solution().mesh(), "transientStokes", ".")
     numTimeSteps = int(totalTime / dt)    
@@ -120,8 +110,6 @@ def transientLinearSolve(form, totalTime, dt):
         exporter.exportSolution(form.solution(),form.getTime())
         form.takeTimeStep()
         print("Time step %i completed" % timeStepNumber)
-
-    return form
 
 def steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder):
     x0 = [0.,0.]
@@ -155,7 +143,6 @@ def steadyNonlinearSolve(form, maxSteps):
     globalDofCount = mesh.numGlobalDofs()
     print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-    return form
 
 def nonlinearHAutoRefine(form, maxSteps):
     threshold = 0.05
@@ -173,8 +160,6 @@ def nonlinearHAutoRefine(form, maxSteps):
         print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
         print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
 
-    return form
-
 def nonlinearPAutoRefine(form, maxSteps):
     threshold = 0.05
     maxRefs = 8
@@ -191,8 +176,6 @@ def nonlinearPAutoRefine(form, maxSteps):
         print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
         print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
 
-    return form
-
 def nonlinearHManualRefine(form, maxSteps, cellList):
     refinementNumber = 0
     mesh = form.solution().mesh()
@@ -207,8 +190,6 @@ def nonlinearHManualRefine(form, maxSteps, cellList):
     print("Energy error: %0.3f" % (energyError))
     print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
 
-    return form
-
 def nonlinearPManualRefine(form, maxSteps, cellList):
     refinementNumber = 0
     mesh = form.solution().mesh()
@@ -222,11 +203,4 @@ def nonlinearPManualRefine(form, maxSteps, cellList):
     globalDofCount = mesh.numGlobalDofs()
     print("Energy error: %0.3f" % (energyError))
     print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    return form
-
-def steadyNonlinearExport(form):
-    exporter = HDF5Exporter(form.solution().mesh(), "steadyNavierStokes", ".")
-    exporter.exportSolution(form.solution(),0)
-    return exporter
-
 
