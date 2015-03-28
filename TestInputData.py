@@ -114,10 +114,6 @@ class TestInputData(unittest.TestCase):
     def test_reynoldsInit(self):
         self.assertIsNotNone(reynolds)
 
-    """Test Reynold's prompt"""
-    def test_reynoldsPrompt(self):
-        pass
-
     """Test Reynold's store with a good value"""
     def test_reynoldsStoreGoodVal(self):
         success = reynolds.store(nStokesInputData, re)
@@ -140,10 +136,6 @@ class TestInputData(unittest.TestCase):
     """Test State's init"""
     def test_stateInit(self):
         self.assertIsNotNone(state)
-
-    """Test State's prompt"""
-    def test_statePrompt(self):
-        pass
 
     """Test State's store a good value"""
     def test_stateStoreGoodVal(self):
@@ -182,10 +174,6 @@ class TestInputData(unittest.TestCase):
     def test_meshDimensionsInit(self):
         self.assertIsNotNone(meshDims)
 
-    """Test MeshDimensions's prompt"""
-    def test_meshDimensionsPrompt(self):
-        pass
-
     """Test MeshDimensions's store a good value"""
     def test_meshDimensionsStoreGoodVal(self):
         success = meshDims.store(nStokesInputData, "1.0 x 1.0")
@@ -215,10 +203,6 @@ class TestInputData(unittest.TestCase):
     def test_elementsInit(self):
         self.assertIsNotNone(elements)
 
-    """Test Elements' prompt"""
-    def test_elementsPrompt(self):
-        pass
-
     """Test Elements' store good value"""
     def test_elementsStoreGoodVal(self):
         success = elements.store(nStokesInputData, "2 x 2")
@@ -247,10 +231,6 @@ class TestInputData(unittest.TestCase):
     """Test PolyOrder's init"""
     def test_polyOrderInit(self):
         self.assertIsNotNone(polyOrder)
-
-    """Test PolyOrder's prompt"""
-    def test_polyOrderPrompt(self):
-        pass
 
     """Test PolyOrder's store good value"""
     def test_polyOrderStoreGoodVal(self):
@@ -283,10 +263,6 @@ class TestInputData(unittest.TestCase):
     def test_inflowInit(self):
         self.assertIsNotNone(inflow)
 
-    """Test Inflow's prompt"""
-    def test_inflowPrompt(self):
-        pass
-
     """Test Inflow's store good value"""
     def test_inflowStoreGoodVal(self):
         pass
@@ -316,10 +292,6 @@ class TestInputData(unittest.TestCase):
     """Test Outflow's init"""
     def test_outflowInit(self):
         self.assertIsNotNone(outflow)
-
-    """Test Outflow's prompt"""
-    def test_outflowPrompt(self):
-        pass
 
     """Test Outflow's store good value"""
     def test_outflowStoreGoodVal(self):
@@ -352,10 +324,6 @@ class TestInputData(unittest.TestCase):
     """Test Walls's init"""
     def test_wallsInit(self):
         self.assertIsNotNone(walls)
-
-    """Test Walls's prompt"""
-    def test_wallsPrompt(self):
-        pass
 
     """Test Walls's store good value"""
     def test_wallsStoreGoodVal(self):
