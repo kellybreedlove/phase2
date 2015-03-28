@@ -1,6 +1,7 @@
 from Singleton import *
 from InflowParser import *
 from ParseFunction import *
+from SolveFormulation import *
 #import Solver
 
 # The memento doesn't care about any of the data, it just passes it around
@@ -52,9 +53,10 @@ class Reynolds: #only used for Navier-Stokes
             print("What Reynolds number?")
 	def store(self, inputData, datum):
 	    try:
-	        inputData.addVariable(int(datum))
+	        inputData.addVariable("reynolds",int(datum))
 	        return True
 	    except ValueError:
+	        print("Please enter an integer value.")
 	        return False
 	def hasNext(self):
 	    return True
@@ -62,16 +64,21 @@ class Reynolds: #only used for Navier-Stokes
 	    return State.Instance()
 
 @Singleton
-class State:
+class State: #transient not supported for Navier-Stokes
 	def __init__(self):
 	    self.type = "State"
 	def prompt(self):
 		print("Transient or steady state?")
 	def store(self, inputData, datum):
 	    if datum.lower() == "transient" or datum.lower() == "steady state":
-	        inputData.addVariable(datum.lower())
-	        return True
+	        if inputData.getVariable("stokes") == False and datum.lower() == "transient":
+	            print("Transient solves are not supported for Navier-Stokes")
+	            return False
+	        else:
+	            inputData.addVariable("transient", datum.lower())
+	            return True
 	    else:
+	        print('Please enter "transient" or "steady state"')
 	        return False
 	def hasNext(self):
 	    return True
@@ -89,9 +96,10 @@ class MeshDimensions:
 	def store(self, inputData, datum):
 		try:
 		    dims = stringToDims(datum)
-		    inputData.addVariable(dims)
+		    inputData.addVariable("meshDimensions", dims)
 		    return True
 		except ValueError:
+		    print('Please enter two floating point values separated by an "x", E.g., "1.0 x 2.0")')
 		    return False
 	def hasNext(self):
 		return True
@@ -109,20 +117,13 @@ class Elements:
 	def store(self, inputData, datum): #enough info to create mesh
 		try:
 		    numElements = stringToElements(datum)
-		    inputData.addVariable(numElements)
-		    if inputData.vars[0]:
-		        dims = inputData.vars[2]
-		    else:
-		        dims = inputData.vars[3]
+		    dims = inputData.getVariable("numElements")
 		    x0 = [0.,0.]
-		    #print(inputData.vars[0])
-		    #print(inputData.vars[1])
-		    #print(inputData.vars[2])
-		    #print(dims)
 		    meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
-		    inputData.addVariable(meshTopo)
+		    inputData.addVariable("mesh", meshTopo)
 		    return True
 		except ValueError:
+		    print('Please enter two integer values separated by an "x", E.g., "3 x 5"')
 		    return False
 	def hasNext(self):
 		return True
@@ -137,23 +138,17 @@ class PolyOrder:
 	     self.type = "PolyOrder"
 	def prompt(self):
 		print("What polynomial order? (1 to 9)")
-	def store(self, inputData, datum): #enough info to create NS form or initialize S solution
-	    try:
-	        order = int(datum)
-	    	if order <= 9 and order >= 1:
-			    inputData.addVariable(order)
-			    if not inputData.vars[0]:
-			        Re = inputData.vars[1]
-			        meshTopo = inputData.vars[5]
-			        inputData.form = NavierStokesVGPFormulation(meshTopo,Re,order,delta_k)
-			    else:
-			        meshTopo = inputData.vars[4]
-			        inputData.form.initializeSolution(meshTopo,order,delta_k)
+	def store(self, inputData, datum):
+		try:
+			order = int(datum)
+			if order <= 9 and order >= 1:
+			    inputData.addVariable("polyOrder",order)
 			    return True
-	    	else:
+			else:
 			    return False
-	    except ValueError:
-	    	return False
+		except ValueError:
+			print("Please enter an integer value 1 to 9")
+			return False
 	def hasNext(self):
 	    return True
 	def next(self):
@@ -182,15 +177,13 @@ class Inflow:
 	        	        i -= 2 #go back to last input
 	        	    if i < 1:
 	        	        return "undo"#already at last input, go back to PolyOrder
-	        	else:
-	        	    print("Sorry, input does not match expected format.")
-	        inputData.addVariable((numInflows, self.inflowRegions, self.inflowX, self.inflowY))
-	        i = 0
-	        while i < numInflows:
-	            inputData.form.addInflowCondition(self.inflowRegions[i], Function.vectorize(self.inflowX[i], self.inflowY[i])) #add inflow conditions
-	            i += 1
+	        inputData.addVariable("numInflows",numInflows)
+	        inputData.addVariable("inflowRegions", self.inflowRegions)
+	        inputData.addVariable("inflowX", self.inflowX)
+	        inputData.addVariable("inflowY", self.inflowY)
 	        return True
 	    except ValueError:
+	        print("Please enter an integer value")
 	        return False
 	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    if (i+2)%3 == 0:
@@ -205,6 +198,7 @@ class Inflow:
 	                self.inflowRegions.append(region)
 	                return True
 	            except ValueError:
+	                print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
 	                return False
 	    elif (i+1)%3 == 0:
 	        data = raw_input("For inflow condition " + str((i+1)/3) + ", what is the x component of the velocity?\n")
@@ -217,7 +211,8 @@ class Inflow:
 	                x = stringToFunction(data)
 	                self.inflowX.append(x)
 	                return True
-	            except ValueError:
+	            except ValueError as e:
+	                print(e)
 	                return False
 	    elif i%3 == 0:
 	        data = raw_input("For inflow condition " + str(i/3) + ", what is the y component of the velocity?\n")
@@ -230,7 +225,8 @@ class Inflow:
 	                y = stringToFunction(data)
 	                self.inflowY.append(y)
 	                return True
-	            except ValueError:
+	            except ValueError as e:
+	                print(e)
 	                return False
 	    else:
 	        return False
@@ -254,21 +250,17 @@ class Outflow:
 	        i = 1
 	        while i <= numOutflows:
 	        	x = self.obtainData(i)
-	        	if not str(x) == "False":
+	        	if not str(x) == "False":#either "True" or "undo"
 	        	    i += 1
 	        	    if str(x) == "undo":
 	        	        i -= 2 #go back to last input
 	        	    if i < 1:
 	        	        return "undo"#already at last input, go back to Inflow
-	        	else:
-	        	    print("Sorry, input does not match expected format.")
-	        inputData.addVariable((numOutflows, self.outflowRegions))
-	        i = 0
-	        while i < numOutflows:
-	            inputData.form.addOutflowCondition(self.outflowRegions[i])#add outflow conditions
-	            i += 1
+	        inputData.addVariable("numOutflows",numOutflows)
+	        inputData.addVariable("outflowRegions", self.outflowRegions)
 	        return True
 	    except ValueError:
+	        print("Please enter an integer value")
 	        return False
 	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    data = raw_input("For outflow condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
@@ -282,6 +274,7 @@ class Outflow:
 	            self.outflowRegions.append(region)
 	            return True
 	        except ValueError:
+	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
 	            return False
 	def hasNext(self):
 	    return True
@@ -311,12 +304,15 @@ class Walls:
 	        	        return "undo"#already at last input, go back to Outflow
 	        	else:
 	        	    print("Sorry, input does not match expected format.")
-	        inputData.addVariable((datum, self.wallRegions))
+	        inputData.addVariable("numWalls", datum)
+	        inputData.addVariable("wallRegions", self.wallRegions)
+	        inputData.setForm(solve(inputData.vars))
 	        return True
 	    except ValueError:
+	        print("Please enter and integer value")
 	        return False
 	def obtainData(self, i, inputData):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
-	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")')
+	    data = raw_input("For wall condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
 	    if data == "undo":
 	        return "undo"
 	    elif data.lower() == "exit" or data.lower() == "quit":
@@ -324,10 +320,10 @@ class Walls:
 	    else:
 	        try:
 	            region = stringToFilter(data.replace(" ", ""))
-	            inputData.form.addWallCondition(region)#add wall conditions
 	            self.wallRegions.append(region)
 	            return True
 	        except ValueError:
+	            print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
 	            return False
 	def hasNext(self):
 	    return False
