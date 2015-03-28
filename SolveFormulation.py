@@ -12,7 +12,9 @@ def solve(data):
 	if not stokes:
 	    Re = data["reynolds"]
 	transient = data["transient"]
-	meshTopo = data["mesh"]
+	dims = data["meshDimensions"]
+	numElements = data["numElements"]
+	x0 = [0.,0.]
 	polyOrder = data["polyOrder"]
 	numInflows = data["numInflows"]
 	inflowRegions = data["inflowRegions"]
@@ -22,7 +24,8 @@ def solve(data):
 	outflowRegions = data["outflowRegions"]
 	numWalls = data["numWalls"]
 	wallRegions = data["wallRegions"]
-	
+	meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements, x0)
+
 	
 	if stokes:
 	    if transient:

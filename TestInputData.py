@@ -10,7 +10,7 @@ dims = [1.0,1.0]
 numElements = [2,2]
 x0 = [0.,0.]
 meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
-polyOrder = 3
+polyOrderNum = 3
 delta_k = 1
 re = 1000.0
 transient = "transient"
@@ -30,7 +30,7 @@ stokes = True
 nStokes = False
 nStokesInputData = InputData(nStokes)
 stokesInputData = InputData(stokes)
-form = steadyLinearInit(dims, numElements, polyOrder)
+form = steadyLinearInit(dims, numElements, polyOrderNum)
 reynolds = Reynolds.Instance()
 state = State.Instance()
 meshDims = MeshDimensions.Instance()
@@ -224,7 +224,6 @@ class TestInputData(unittest.TestCase):
         success = elements.store(nStokesInputData, "2 x 2")
         self.assertTrue(success)
         self.assertEqual(numElements, nStokesInputData.getVariable("numElements"))
-        self.assertIsNotNone(nStokesInputData.getVariable("mesh"))
 
     """Test Elements' store bad value"""
     def test_elementsStoreBadVal(self):
@@ -232,7 +231,6 @@ class TestInputData(unittest.TestCase):
         self.assertFalse(success)
         success = elements.store(nStokesInputData, 0.)
         self.assertFalse(success)
-        self.assertIsNone(nStokesInputData.getVariable("mesh"))
 
     """Test Elements' hasNext"""
     def test_elementsHasNext(self):
@@ -254,17 +252,32 @@ class TestInputData(unittest.TestCase):
     def test_polyOrderPrompt(self):
         pass
 
-    """Test PolyOrder's store"""
-    def test_polyOrderStore(self):
-        pass
+    """Test PolyOrder's store good value"""
+    def test_polyOrderStoreGoodVal(self):
+        success = polyOrder.store(nStokesInputData, polyOrderNum)
+        self.assertTrue(success)
+        self.assertEqual(polyOrderNum, nStokesInputData.getVariable("polyOrder"))
+
+    """Test PolyOrder's store bad value"""
+    def test_polyOrderStoreBadVal(self):
+        success = polyOrder.store(nStokesInputData, "not an integer")
+        self.assertFalse(success)
+        success = polyOrder.store(nStokesInputData, 10)
+        self.assertFalse(success)
+        sucess = polyOrder.store(nStokesInputData, 5.0)
+        self.assertFalse(success)
 
     """Test PolyOrder's hasNext"""
     def test_polyOrderHasNext(self):
-        pass
+        self.assertTrue(polyOrder.hasNext())
 
     """Test PolyOrder's next"""
     def test_polyOrderNext(self):
-        pass
+        self.assertEqual(polyOrder.next(), inflow)
+
+    """Test PolyOrder's undo"""
+    def test_polyOrderUndo(self):
+        self.assertEqual(elements, polyOrder.undo())
 
     """Test Inflow's init"""
     def test_inflowInit(self):
@@ -274,17 +287,29 @@ class TestInputData(unittest.TestCase):
     def test_inflowPrompt(self):
         pass
 
-    """Test Inflow's store"""
-    def test_inflowStore(self):
+    """Test Inflow's store good value"""
+    def test_inflowStoreGoodVal(self):
+        pass
+
+    """Test Inflow's store bad value"""
+    def test_inflowStoreBadVal(self):
+        pass
+
+    """Test Inflow's obtainData"""
+    def test_inflowObtainData(self):
         pass
 
     """Test Inflow's hasNext"""
     def test_inflowHasNext(self):
-        pass
+        self.assertTrue(inflow.hasNext())
 
     """Test Inflow's next"""
     def test_inflowNext(self):
-        pass
+        self.assertEqual(inflow.next(), outflow)
+
+    """Test Inflow's undo"""
+    def test_inflowUndo(self):
+        self.assertEqual(polyOrder, inflow.undo())
 
     """Test Outflow's init"""
     def test_outflowInit(self):
@@ -294,17 +319,29 @@ class TestInputData(unittest.TestCase):
     def test_outflowPrompt(self):
         pass
 
-    """Test Outflow's store"""
-    def test_outflowStore(self):
+    """Test Outflow's store good value"""
+    def test_outflowStoreGoodVal(self):
+        pass
+
+    """Test Outflow's store bad value"""
+    def test_outflowStoreBadVal(self):
+        pass
+
+    """Test Outflow's obtaindata"""
+    def test_outflowObtainData(self):
         pass
 
     """Test Outflow's hasNext"""
     def test_outflowHasNext(self):
-        pass
+        self.assertTrue(outflow.hasNext())
 
     """Test Outflow's next"""
     def test_outflowNext(self):
-        pass
+        self.assertEqual(outflow.next(), walls)
+
+    """Test Outflow's undo"""
+    def test_outflowUndo(self):
+        self.assertEqual(inflow, outflow.undo())
 
     """Test Walls's init"""
     def test_wallsInit(self):
@@ -314,17 +351,25 @@ class TestInputData(unittest.TestCase):
     def test_wallsPrompt(self):
         pass
 
-    """Test Walls's store"""
-    def test_wallsStore(self):
+    """Test Walls's store good value"""
+    def test_wallsStoreGoodVal(self):
+        pass
+
+    """Test Walls's store bad value"""
+    def test_wallsStoreBadVal(self):
+        pass
+
+    """Test Walls's obtainData"""
+    def test_wallsObtainData(self):
         pass
 
     """Test Walls's hasNext"""
     def test_wallsHasNext(self):
-        pass
+        self.assertFalse(walls.hasNext())
 
-    """Test Walls's next"""
-    def test_wallsNext(self):
-        pass
+    """Test Walls's undo"""
+    def test_wallsUndo(self):
+        self.assertEqual(outflow, walls.undo())
 
     if __name__ == '__main__':
         unittest.main()
