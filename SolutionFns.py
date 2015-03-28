@@ -44,7 +44,7 @@ def steadyLinearSolve(form):
     print("Solve completed in %i minute, %i seconds." % (mins, secs))
     print("Energy error is %0.3f" % (energyError))
 
-# Begin Refine -----------------------------------------
+# Begin Refine -------------------------------------------------------------
 
 def steadyLinearHAutoRefine(form):
     print("Automatically refining in h..."),
@@ -66,7 +66,7 @@ def steadyLinearPAutoRefine(form):
 
 def linearHManualRefine(form,cellList):
     print("Manually refining in h..."),
-    #cellList = cellList.split()
+    #cellList = cellList.split()          may be necessary for user input, but not for testing
     #cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.hRefine(cellList)
@@ -77,8 +77,8 @@ def linearHManualRefine(form,cellList):
 
 def linearPManualRefine(form, cellList):
     print("Manually refining in p..."),
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.pRefine(cellList)
     elementCount = mesh.numActiveElements()
@@ -86,7 +86,7 @@ def linearPManualRefine(form, cellList):
     print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     steadyLinearSolve(form)
 
-# End Refine -------------------------------------------
+# End Refine ---------------------------------------------------------------
 
 def steadyLinearExport(form):
     exporter = HDF5Exporter(form.solution().mesh(), "steadyStokes", ".")

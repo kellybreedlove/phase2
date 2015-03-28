@@ -190,7 +190,6 @@ class TestSolutionFns(unittest.TestCase):
         self.assertAlmostEqual(fooEnergyError, energyError)
         self.assertAlmostEqual(0.745, energyError, 3)
 
-#------------------------------------------------------------------
 
     """Test steadyLinearHAutoRefine"""
     def test_steadyLinearHAutoRefine(self):
@@ -261,6 +260,7 @@ class TestSolutionFns(unittest.TestCase):
         self.assertAlmostEqual(fooEnergyError, energyError)
         self.assertAlmostEqual(0.700, energyError, 3)
 
+
     """Test steadyLinearHManualRefine"""
     def test_steadyLinearHManualRefine(self):
         form = steadyLinearInit(dims, numElements, polyOrder)
@@ -300,11 +300,45 @@ class TestSolutionFns(unittest.TestCase):
         self.assertAlmostEqual(fooEnergyError, energyError)
         self.assertAlmostEqual(0.660, energyError, 3)
 
+
     """Test steadyLinearPManualRefine"""
     def test_steadyLinearPManualRefine(self):
-        pass
+        form = steadyLinearInit(dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        steadyLinearSolve(form)
 
-    #------------------------------------------------------------------
+        foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo.initializeSolution(meshT,polyOrder,delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        foo.solve()
+
+        mesh = form.solution().mesh()
+        fooMesh = foo.solution().mesh()
+        cellIDs = mesh.getActiveCellIDs()
+        fooCellIDs = fooMesh.getActiveCellIDs()
+
+        linearPManualRefine(form, cellIDs)
+        fooMesh.pRefine(fooCellIDs)
+        foo.solve()
+
+        mesh = form.solution().mesh()
+        energyError = form.solution().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solution().energyErrorTotal()   
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+        
+        self.assertEqual(4, fooElementCount, elementCount)
+        self.assertEqual(934, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.700, energyError, 3)
 
 
     """Test transientLinearInit"""
