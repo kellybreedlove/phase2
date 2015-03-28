@@ -1,6 +1,8 @@
 from PyCamellia import *
 
-def steadyLinearInit(spaceDim, dims, numElements, polyOrder):
+spaceDim = 2 # always two because we aren't handling anything 3D
+
+def steadyLinearInit(dims, numElements, polyOrder):
     x0 = [0.,0.]
     meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
     delta_k = 1
