@@ -15,6 +15,11 @@ meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 polyOrder = 3
 delta_k = 1
 threshold = .05
+dt = 0.1
+transient = True
+totalTime = 2.0
+numTimeSteps = int(totalTime / dt)
+re = 1000.0
 
 topBoundary = SpatialFilter.matchingY(1.0)
 notTopBoundary = SpatialFilter.negatedFilter(topBoundary)
@@ -343,57 +348,309 @@ class TestSolutionFns(unittest.TestCase):
 
     """Test transientLinearInit"""
     def test_transientLinearInit(self):
-        pass
+        form = transientLinearInit(spaceDim, dims, numElements, polyOrder, dt)
+        foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu, transient, dt)
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo.initializeSolution(meshT,polyOrder,delta_k)
+        foo.addZeroMeanPressureCondition()
+        
+        form.solve()
+        mesh = form.solution().mesh()
+        energyError = form.solution().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        foo.solve()
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solution().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+        
+        self.assertIsNotNone(form)
+        self.assertAlmostEqual(4, fooElementCount, elementCount)
+        self.assertEqual(634, fooGlobalDofCount, globalDofCount)
+        self.assertEqual(0.000, fooEnergyError, energyError)
 
 
     """Test transientLinearSolve"""
-    def test_transientLienarSolve(self):
-        pass
+    def test_transientLinearSolve(self):
+        form = transientLinearInit(spaceDim, dims, numElements, polyOrder, dt)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        transientLinearSolve(form)
 
+        foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu, transient, dt)
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo.initializeSolution(meshT,polyOrder,delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        
+        for timeStepNumber in range(numTimeSteps):
+            foo.solve()
+            foo.takeTimeStep()
+        
+        mesh = form.solution().mesh()
+        energyError = form.solution().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solution().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
 
-    """Test transientLinearRefine"""
-    def test_transientLinearRefine(self):
-        pass
-
-
-    """Test transientLienarHRefine"""
-    def test_transientLinearHRefine(self):
-        pass
-
-
-    """Test transientLinearPRefine"""
-    def test_transientLinearPRefine(self):
-        pass
+        self.assertAlmostEqual(4, fooElementCount, elementCount)
+        self.assertEqual(634, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(4.805, energyError, 3)
 
 
     """Test steadyNonlinearInit"""
     def test_steadyNonlinearInit(self):
-        pass
+        form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo = NavierStokesVGPFormulation(meshT, re, polyOrder, delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        
+        maxSteps = 10
+        nonlinearThreshold = 1e-3
+        normOfIncrement = 1
+        stepNumber = 0
+        while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
+            form.solveAndAccumulate()
+            foo.solveAndAccumulate()
+            normOfIncrement = form.L2NormSolutionIncrement()
+            fooNormOfIncrement = foo.L2NormSolutionIncrement()
+            self.assertAlmostEqual(normOfIncrement, fooNormOfIncrement)
+            stepNumber += 1
+        
 
     """Test nonlinearSolve"""
     def test_nonlinearSolve(self):
-        pass
+        form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo = NavierStokesVGPFormulation(meshT, re, polyOrder, delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+
+        nonlinearSolve(form)
+        
+        maxSteps = 10
+        nonlinearThreshold = 1e-3
+        normOfIncrement = 1
+        stepNumber = 0
+        while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
+            foo.solveAndAccumulate()
+            normOfIncrement = foo.L2NormSolutionIncrement()
+            stepNumber += 1
+
+        mesh = form.solution().mesh()
+        energyError = form.solutionIncrement().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solutionIncrement().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+
+        self.assertAlmostEqual(4, fooElementCount, elementCount)
+        self.assertEqual(640, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.160, energyError, 3)
 
 
     """Test steadyNonlinearSolve"""
     def test_steadyNonlinearSolve(self):
-        pass
+        form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo = NavierStokesVGPFormulation(meshT, re, polyOrder, delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+
+        steadyNonlinearSolve(form)
+        
+        maxSteps = 10
+        nonlinearThreshold = 1e-3
+        normOfIncrement = 1
+        stepNumber = 0
+        while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
+            foo.solveAndAccumulate()
+            normOfIncrement = foo.L2NormSolutionIncrement()
+            stepNumber += 1
+
+        mesh = form.solution().mesh()
+        energyError = form.solutionIncrement().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solutionIncrement().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+
+        self.assertAlmostEqual(4, fooElementCount, elementCount)
+        self.assertEqual(640, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.160, energyError, 3)
 
 
-    """Test steadyNonlinearRefine"""
-    def test_steadyNonlinearRefine(self):
-        pass
+    """Test steadyNonlinearHAutoRefine"""
+    def test_steadyNonlinearHAutoRefine(self):
+        form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        steadyNonlinearSolve(form)
+
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo = NavierStokesVGPFormulation(meshT, re, polyOrder, delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        steadyNonlinearSolve(foo)
+        
+        nonlinearHAutoRefine(form)
+        foo.hRefine()
+        steadyNonlinearSolve(foo)
+
+        mesh = form.solution().mesh()
+        energyError = form.solutionIncrement().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solutionIncrement().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+        
+        self.assertEqual(16, fooElementCount, elementCount)
+        self.assertEqual(2432, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.164, energyError, 3)
 
 
-    """Test steadyNonlinearHRefine"""
-    def test_steadyNonlinearHRefine(self):
-        pass
+    """Test steadyNonlinearPAutoRefine"""
+    def test_steadyNonlinearPAutoRefine(self):
+        form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        steadyNonlinearSolve(form)
+
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo = NavierStokesVGPFormulation(meshT, re, polyOrder, delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        steadyNonlinearSolve(foo)
+        
+        nonlinearPAutoRefine(form)
+        foo.pRefine()
+        steadyNonlinearSolve(foo)
+
+        mesh = form.solution().mesh()
+        energyError = form.solutionIncrement().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solutionIncrement().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+        
+        self.assertEqual(4, fooElementCount, elementCount)
+        self.assertEqual(940, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.109, energyError, 3)
+       
+
+    """Test steadyNonlinearHManualRefine"""
+    def test_steadyNonlinearHManualRefine(self):
+        form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        steadyNonlinearSolve(form)
+
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo = NavierStokesVGPFormulation(meshT, re, polyOrder, delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        steadyNonlinearSolve(foo)
+        
+        mesh = form.solution().mesh()
+        fooMesh = foo.solution().mesh()
+        cellIDs = mesh.getActiveCellIDs()
+        fooCellIDs = fooMesh.getActiveCellIDs()
+
+        nonlinearHManualRefine(form, cellIDs)
+        fooMesh.hRefine(fooCellIDs)
+        steadyNonlinearSolve(foo)
+
+        mesh = form.solution().mesh()
+        energyError = form.solutionIncrement().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solutionIncrement().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+        
+        self.assertEqual(16, fooElementCount, elementCount)
+        self.assertEqual(2432, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.164, energyError, 3)
 
 
-    """Test steadyNonlinearPRefine"""
-    def test_steadyNonlinearPRefine(self):
-        pass
+    """Test steadyNonlinearPManualRefine"""
+    def test_steadyNonlinearPManualRefine(self):
+        form = steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        steadyNonlinearSolve(form)
 
+        meshT = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
+        foo = NavierStokesVGPFormulation(meshT, re, polyOrder, delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        steadyNonlinearSolve(foo)
+        
+        mesh = form.solution().mesh()
+        fooMesh = foo.solution().mesh()
+        cellIDs = mesh.getActiveCellIDs()
+        fooCellIDs = fooMesh.getActiveCellIDs()
+
+        nonlinearPManualRefine(form, cellIDs)
+        fooMesh.pRefine(fooCellIDs)
+        steadyNonlinearSolve(foo)
+
+        mesh = form.solution().mesh()
+        energyError = form.solutionIncrement().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solutionIncrement().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+        
+        self.assertEqual(4, fooElementCount, elementCount)
+        self.assertEqual(940, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.109, energyError, 3)
+       
 
     if __name__ == '__main__':
         unittest.main()
