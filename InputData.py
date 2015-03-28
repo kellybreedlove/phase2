@@ -41,7 +41,7 @@ class InputData:
         try: 
             return self.vars[string]
         except:
-            print("InputData does not contain %s", string)
+            print("InputData does not contain %s" % string)
     def createMemento(self):
         return Memento(self.vars) # shove it all into one list to hold onto
     def setMemento(self, memento):
@@ -81,13 +81,13 @@ class State: #transient not supported for Navier-Stokes
                 datumL = datum.lower()
                 if datumL == "transient" or datumL == "steady state":
                     if datumL == "steady state":
-                        inputData.addVariable("steady state", datumL)
+                        inputData.addVariable("transient", False) # steady state
                         return True
                     elif (not inputData.getVariable("stokes")) and datumL == "transient":
                         print("Transient solves are not supported for Navier-Stokes")
                         return False
                     else:
-                        inputData.addVariable("transient", datumL)
+                        inputData.addVariable("transient", True)
                         return True
                 else:
                     print('Please enter "transient" or "steady state"')
