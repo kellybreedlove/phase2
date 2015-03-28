@@ -81,26 +81,3 @@ def setYBoundary(inputstr):
 
 def reject(msg):
     raise ValueError(msg)
- 
- 
- 
- 
-
-
-def stringToDims(inputstr):
-    if not "x" in inputstr:
-        reject()
-    else:
-        x = float(inputstr[:inputstr.index("x")])
-        y = float(inputstr[inputstr.index("x")+1:])
-        return [x,y]
-
-
-
-def stringToElements(inputstr):
-    if not "x" in inputstr:
-        reject()
-    else:
-        x = int(inputstr[:inputstr.index("x")])
-        y = int(inputstr[inputstr.index("x")+1:])
-        return [x,y]
