@@ -1,6 +1,8 @@
 from Singleton import *
 from InputData import *
 from Refine import *
+from RefineP import *
+import pickle
 #from PyCamellia import *
 
 class Solver:
@@ -78,12 +80,7 @@ class StokesState:
 		else:
 			x = self.inputState.store(context.inputData, datum)
 			if not str(x) == "False":
-				if str(x).lower() == "undo":
-					self.inputState = self.inputState.undo()
-					return self
-				elif str(x).lower() == "exit" or str(x).lower() == "quit":
-					quit()
-				elif self.inputState.hasNext():
+				if self.inputState.hasNext():
 					self.inputState = self.inputState.next()
 					return self
 				else:
@@ -107,12 +104,7 @@ class NavierStokesState:
 		else:
 			x = self.inputState.store(context.inputData, datum)
 			if not str(x) == "False":
-				if str(x).lower() == "undo":
-					self.inputState = self.inputState.undo()
-					return self
-				elif str(x).lower() == "exit" or str(x).lower() == "quit":
-					quit()
-				elif self.inputState.hasNext():
+				if self.inputState.hasNext():
 					self.inputState = self.inputState.next()
 					return self
 				else:
@@ -187,7 +179,9 @@ class RefineState:
 	def prompt(self):
 		print("What sort of refinement would you like to make? (h or p)")
 	def act(self, command, context):
-		if command.lower() == "h":
+		if command.lower() == "undo":
+		    return PostSolveState.Instance()
+		elif command.lower() == "h":
 		    return hRefine.Instance()
 		elif command.lower() == "p":
 		    return pRefine.Instance()
@@ -234,7 +228,7 @@ class SaveState:
 	def act(self, command, context):
 		print("Saving..."),
 		
-		context.inputData.getform().save(command + "Form")
+		context.inputData.getForm().save(command + "Form")
 		memento = context.inputData.createMemento()
 		file = open(command, 'wb')
 		pickle.dump(memento, file)

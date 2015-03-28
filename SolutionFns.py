@@ -43,26 +43,32 @@ def steadyLinearSolve(form):
     secs = (end - start) % 60
     print("Solve completed in %i minute, %i seconds." % (mins, secs))
     print("Energy error is %0.3f" % (energyError))
+    
+    return form
 
 # Begin Refine -------------------------------------------------------------
 
 def steadyLinearHAutoRefine(form):
-    print("Automatically refining in h..."),
+    print("Automatically refining in h...")
     form.hRefine()
     mesh = form.solution().mesh();
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
     print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     steadyLinearSolve(form)
+    
+    return form
 
 def steadyLinearPAutoRefine(form):
-    print("Automatically refining in p..."),
+    print("Automatically refining in p...")
     form.pRefine()
     mesh = form.solution().mesh();
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
     print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     steadyLinearSolve(form)
+    
+    return form
 
 def linearHManualRefine(form,cellList):
     print("Manually refining in h..."),
@@ -76,7 +82,7 @@ def linearHManualRefine(form,cellList):
     steadyLinearSolve(form)
 
 def linearPManualRefine(form, cellList):
-    print("Manually refining in p..."),
+    print("Manually refining in p...")
     #cellList = cellList.split()          may be necessary for user input, but not for testing
     #cellList = map(int, cellList)
     mesh = form.solution().mesh();
@@ -143,6 +149,8 @@ def steadyNonlinearSolve(form, maxSteps):
     globalDofCount = mesh.numGlobalDofs()
     print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
+    
+    return form
 
 def nonlinearHAutoRefine(form, maxSteps):
     threshold = 0.05
@@ -159,6 +167,8 @@ def nonlinearHAutoRefine(form, maxSteps):
         globalDofCount = mesh.numGlobalDofs()
         print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
         print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+        
+    return form
 
 def nonlinearPAutoRefine(form, maxSteps):
     threshold = 0.05
@@ -175,6 +185,8 @@ def nonlinearPAutoRefine(form, maxSteps):
         globalDofCount = mesh.numGlobalDofs()
         print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
         print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    
+    return form
 
 def nonlinearHManualRefine(form, maxSteps, cellList):
     refinementNumber = 0
@@ -189,6 +201,8 @@ def nonlinearHManualRefine(form, maxSteps, cellList):
     globalDofCount = mesh.numGlobalDofs()
     print("Energy error: %0.3f" % (energyError))
     print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    
+    return form
 
 def nonlinearPManualRefine(form, maxSteps, cellList):
     refinementNumber = 0
@@ -203,4 +217,6 @@ def nonlinearPManualRefine(form, maxSteps, cellList):
     globalDofCount = mesh.numGlobalDofs()
     print("Energy error: %0.3f" % (energyError))
     print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    
+    return form
 
