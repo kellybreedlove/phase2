@@ -46,6 +46,8 @@ class TestPlotter(unittest.TestCase):
         elementCount = mesh.numActiveElements()
         globalDofCount = mesh.numGlobalDofs()
 
+        #form.pRefine()
+
         u1_soln = Function.solution(form.u(1),form.solution())
         activeCellIDs = mesh.getActiveCellIDs()
 
@@ -53,6 +55,8 @@ class TestPlotter(unittest.TestCase):
         v = []
         for cellID in activeCellIDs:
             (values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
             p.append(points)
             v.append(values)
 
