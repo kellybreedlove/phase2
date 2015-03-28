@@ -1,5 +1,5 @@
 from PyCamellia import *
-from InflowParser import *
+from ConditionParser import *
 import unittest
 
 Points = [0.,1.,2.,-1.,-2.]

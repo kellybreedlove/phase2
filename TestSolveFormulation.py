@@ -1,7 +1,18 @@
-from InflowParser import *
+from ConditionParser import *
 from ParseFunction import *
 from InputData import *
 from SolveFormulation import *
+
+
+class TestSolveFormulation(unittest.TestCase):
+    
+    """Test Some Stuff"""
+    def test_Stuff(self):
+        pass
+
+    if __name__ == '__main__':
+        unittest.main()
+
 
 data = InputData(True)
 data.addVariable("transient", True)
@@ -17,3 +28,7 @@ data.addVariable("numWalls",  1)
 data.addVariable("wallRegions",  [stringToFilter("y>9")])
 
 print solve(data.vars)
+
+
+
+
