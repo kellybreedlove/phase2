@@ -175,9 +175,9 @@ class Inflow:
 	def prompt(self):
 		print("How many inflow conditions?")
 	def store(self, inputData, datum): #returns True (proceed to Outflow), False (wrong input, try again), or "undo" (go bak to PolyOrder)
-	    self.inflowRegions = []
-	    self.inflowX = []
-	    self.inflowY = []
+	    self.Regions = []
+	    self.X = []
+	    self.Y = []
 	    if str(type(datum)) == int:
 	        numOutflows = int(datum)
 	    else:
@@ -193,13 +193,13 @@ class Inflow:
 	            if i < 1:
 	                return "undo"#already at last input, go back to PolyOrder
 	    inputData.addVariable("numInflows",numInflows)
-	    inputData.addVariable("inflowRegions", self.inflowRegions)
-	    inputData.addVariable("inflowX", self.inflowX)
-	    inputData.addVariable("inflowY", self.inflowY)
+	    inputData.addVariable("inflowRegions", self.Regions)
+	    inputData.addVariable("inflowX", self.X)
+	    inputData.addVariable("inflowY", self.Y)
 	    return True
 	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
 	    if (i+2)%3 == 0:
-	        data = promptInflowRegion(i)
+	        data = promptFlowRegion(i, "in")
 	        if data.lower() == "undo":
 	            return "undo"
 	        elif data.lower() == "exit" or data.lower() == "quit":
@@ -213,33 +213,9 @@ class Inflow:
 	                print('Please enter the constraints on x, if any, followed by the restraints on y,\nif any, separated by a comma (E.g. "x=0.5, y > 3")')
 	                return False
 	    elif (i+1)%3 == 0:
-	        data = promptInflowX(i)
-	        if data.lower() == "undo":
-	            return "undo"
-	        elif data.lower() == "exit" or data.lower() == "quit":
-	            quit()
-	        else:
-	            try:
-	                x = stringToFunction(data)
-	                self.inflowX.append(x)
-	                return True
-	            except ValueError as e:
-	                print(e)
-	                return False
+	        return getFunction(promptInflowFun((i+1)/3, "x"),self.X)
 	    elif i%3 == 0:
-	        data = promptInflowY(i)
-	        if data.lower() == "undo":
-	            return "undo"
-	        elif data.lower() == "exit" or data.lower() == "quit":
-	            quit()
-	        else:
-	            try:
-	                y = stringToFunction(data)
-	                self.inflowY.append(y)
-	                return True
-	            except ValueError as e:
-	                print(e)
-	                return False
+	        return getFunction(promptInflowFun(i/3, "y"),self.Y)
 	    else:
 	        return False
 	def hasNext(self):
@@ -249,17 +225,27 @@ class Inflow:
 	def undo(self):
 	    return PolyOrder.Instance()
 	    
-def promptInflowRegion(i):
-    data = raw_input("For inflow condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
+def promptFlowRegion(i, direction):
+    data = raw_input("For " + direction + "flow condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
     return data
 	    
-def promptInflowX(i):
-    data = raw_input("For inflow condition " + str((i+1)/3) + ", what is the x component of the velocity?\n")
+def promptInflowFun(i,var):
+    data = raw_input("For inflow condition " + str(i) + ", what is the " + str(var) + " component of the velocity?\n")
     return data
-    
-def promptInflowY(i):
-    data = raw_input("For inflow condition " + str(i/3) + ", what is the y component of the velocity?\n")
-    return data 
+
+def getFunction(data, store):
+    if data.lower() == "undo":
+        return "undo"
+    elif data.lower() == "exit" or data.lower() == "quit":
+        quit()
+    else:
+        try:
+            y = stringToFunction(data)
+            store.append(y)
+            return True
+        except ValueError as e:
+            print(e)
+            return False
     	    
 @Singleton
 class Outflow:
@@ -288,7 +274,7 @@ class Outflow:
 	    return True
 	    
 	def obtainData(self, i):#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
-	    data = raw_input("For outflow condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
+	    data = promptFlowRegion(i, "out")
 	    if data.lower() == "undo":
 	            return "undo"
 	    elif data.lower() == "exit" or data.lower() == "quit":
