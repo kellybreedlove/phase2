@@ -234,7 +234,7 @@ class SaveState:
 	def act(self, command, context):
 		print("Saving..."),
 		
-		form.save(commant + "Form")
+		context.inputData.getform().save(command + "Form")
 		memento = context.inputData.createMemento()
 		file = open(command, 'wb')
 		pickle.dump(memento, file)

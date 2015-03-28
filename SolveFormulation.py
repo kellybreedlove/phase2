@@ -41,7 +41,6 @@ def solve(data):
 	
 	form.addZeroMeanPressureCondition()
 	
-	
 	i = 0
 	while i < numInflows:
 	    inflowFunction = Function.vectorize(inflowX[i], inflowY[i])
@@ -50,16 +49,16 @@ def solve(data):
 	    else:
 	        form.addInflowCondition(inflowRegions[i], inflowFunction)
 	    i += 1
+	    
 	i = 0
 	while i < numOutflows:
 	    form.addOutflowCondition(outflowRegions[i])
-	    i += 1
-	i = 0
-	while i < numWalls:
-	    form.addWallCondition(wallRegions[i])
-	    i += 1
+	    i += 1  
+	i = 1
+	for i in wallRegions:
+	    form.addWallCondition(i)
 	    
 	form.solve()
 	print("Solving...")
 	#print("Solve completed in __ minutes, __ seconds")
-	return form
+	return form 
