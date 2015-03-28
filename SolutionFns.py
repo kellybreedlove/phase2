@@ -49,6 +49,8 @@ def steadyLinearSolve(form):
     return form
 
 def steadyLinearHAutoRefine(form):
+    refinementNumber = 0
+    energyError = form.solution().energyErrorTotal()
     mesh = form.solution().mesh();
     threshold = .05
     while energyError > threshold and refinementNumber <= 8:
@@ -63,6 +65,8 @@ def steadyLinearHAutoRefine(form):
     return form
 
 def steadyLinearPAutoRefine(form):
+    refinementNumber = 0
+    energyError = form.solution().energyErrorTotal()
     mesh = form.solution().mesh();
     threshold = .05
     while energyError > threshold and refinementNumber <= 8:
@@ -72,8 +76,8 @@ def steadyLinearPAutoRefine(form):
         refinementNumber += 1
         elementCount = mesh.numActiveElements()
         globalDofCount = mesh.numGlobalDofs()
-        print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-        print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
+    print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     return form
 
 def linearHManualRefine(form,cellList):

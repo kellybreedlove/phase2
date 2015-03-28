@@ -1,4 +1,5 @@
 from PyCamellia import *
+from SolutionFns import *
 
 def solve(data):
 	spaceDim = 2

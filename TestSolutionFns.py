@@ -14,6 +14,7 @@ x0 = [0.,0.]
 meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 polyOrder = 3
 delta_k = 1
+threshold = .05
 
 topBoundary = SpatialFilter.matchingY(1.0)
 notTopBoundary = SpatialFilter.negatedFilter(topBoundary)
@@ -32,7 +33,7 @@ class TestSolutionFns(unittest.TestCase):
         pass
 
     """Test steadyLinearInit"""
-    def test_steadyLindearInit(self):
+    def test_steadyLinearInit(self):
         form = steadyLinearInit(dims, numElements, polyOrder)
         foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         foo.initializeSolution(meshTopo,polyOrder,delta_k)
@@ -162,16 +163,111 @@ class TestSolutionFns(unittest.TestCase):
 
     """Test steadyLinearSolve"""
     def test_steadyLinearSolve(self):
-        pass
+        form = steadyLinearInit(dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        steadyLinearSolve(form)
+
+        foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
+        foo.initializeSolution(meshTopo,polyOrder,delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        foo.solve()
+        
+        mesh = form.solution().mesh()
+        energyError = form.solution().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solution().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+
+        self.assertEqual(4, fooElementCount, elementCount)
+        self.assertEqual(634, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.745, energyError, 3)
 
 
-    """Test steadyLinearRefine"""
-    def test_steadyLinearRefine(self):
-        pass
+    """Test steadyLinearHAutoRefine"""
+    def test_steadyLinearHAutoRefine(self):
+        form = steadyLinearInit(dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        steadyLinearSolve(form)
 
-    """Test steadyLinearHRefine"""
-    def test_steadyLinearHRefine(self):
-        pass
+        foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
+        foo.initializeSolution(meshTopo,polyOrder,delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        foo.solve()
+        
+        steadyLinearHAutoRefine(form)
+
+        refinementNumber = 0
+        energyError = foo.solution().energyErrorTotal()   
+        mesh = form.solution().mesh();
+        while energyError > threshold and refinementNumber <= 8:
+            form.hRefine()
+            form.solve()
+            energyError = foo.solution().energyErrorTotal()
+            refinementNumber += 1
+        
+        mesh = form.solution().mesh()
+        energyError = form.solution().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solution().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+
+        self.assertEqual(70, fooElementCount, elementCount)
+        self.assertEqual(10038, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.049, energyError, 3)
+
+
+    """Test steadyLinearHManualRefine"""
+    def test_steadyLinearHManualRefine(self):
+        form = steadyLinearInit(dims, numElements, polyOrder)
+        addWall(form, notTopBoundary)
+        addInflow(form, topBoundary, topVelocity)
+        steadyLinearSolve(form)
+
+        foo = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
+        foo.initializeSolution(meshTopo,polyOrder,delta_k)
+        foo.addZeroMeanPressureCondition()
+        foo.addWallCondition(notTopBoundary)
+        foo.addInflowCondition(topBoundary,topVelocity)
+        foo.solve()
+
+        linearHManualRefine(form)
+
+        
+        
+
+
+        mesh = form.solution().mesh()
+        energyError = form.solution().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solution().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+
+        self.assertEqual(70, fooElementCount, elementCount)
+        self.assertEqual(10038, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.049, energyError, 3)
+        
+        
 
 
     """Test steadyLinearPRefine"""
@@ -179,19 +275,10 @@ class TestSolutionFns(unittest.TestCase):
         pass
 
 
-    """Test steadyLinearExport"""
-    def test_steadyLinearExport(self):
-        pass
-
-
     """Test transientLinearInit"""
     def test_transientLinearInit(self):
         pass
 
-
-    """Test transientLinearExport"""
-    def test_transientLinearExport(self):
-        pass
 
     """Test transientLinearSolve"""
     def test_transientLienarSolve(self):
@@ -239,11 +326,6 @@ class TestSolutionFns(unittest.TestCase):
 
     """Test steadyNonlinearPRefine"""
     def test_steadyNonlinearPRefine(self):
-        pass
-
-
-    """Test steadyNonlinearExport"""
-    def test_steadyNonlinearExport(self):
         pass
 
 

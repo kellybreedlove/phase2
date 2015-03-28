@@ -13,8 +13,8 @@ meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
 polyOrderNum = 3
 delta_k = 1
 re = 1000.0
-transient = "transient"
-steadyState = "steady state"
+transient = True
+steadyState = False
 
 topBoundary = SpatialFilter.matchingY(1.0)
 notTopBoundary = SpatialFilter.negatedFilter(topBoundary)
@@ -74,7 +74,7 @@ class TestInputData(unittest.TestCase):
     """Test InputData's addVariable & getVariable"""
     def test_inputDataAddVariable(self):
         inputData = InputData(stokes)
-        inputData.addVariable(transient, transient)
+        inputData.addVariable("transient", transient)
         self.assertEqual(stokes, inputData.getVariable("stokes"))
         self.assertEqual(transient, inputData.getVariable("transient"))
 
@@ -147,17 +147,17 @@ class TestInputData(unittest.TestCase):
 
     """Test State's store a good value"""
     def test_stateStoreGoodVal(self):
-        success = state.store(nStokesInputData, steadyState)
+        success = state.store(nStokesInputData, "steady state")
         self.assertTrue(success)
-        self.assertEqual(steadyState, nStokesInputData.getVariable("steady state"))
+        self.assertEqual(steadyState, nStokesInputData.getVariable("transient"))
         
         stokesInputData = InputData(stokes)
-        success = state.store(stokesInputData, transient)
+        success = state.store(stokesInputData, "transient")
         self.assertTrue(success)
         self.assertEqual(transient, stokesInputData.getVariable("transient"))
-        success = state.store(stokesInputData, steadyState)
+        success = state.store(stokesInputData, "steady state")
         self.assertTrue(success)
-        self.assertEqual(steadyState, stokesInputData.getVariable("steady state"))
+        self.assertEqual(steadyState, stokesInputData.getVariable("transient"))
 
     """Test State's store a bad value"""
     def test_stateStoreBadVal(self):
