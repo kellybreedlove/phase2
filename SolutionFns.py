@@ -48,15 +48,8 @@ def steadyLinearSolve(form):
 
 def steadyLinearHAutoRefine(form):
     print("Automatically refining in h..."),
-    refinementNumber = 0
-    energyError = form.solution().energyErrorTotal()
+    form.hRefine()
     mesh = form.solution().mesh();
-    threshold = .05
-    while energyError > threshold and refinementNumber <= 8:
-        form.hRefine()
-        form.solve()
-        refinementNumber += 1
-        energyError = form.solution().energyErrorTotal()
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
     print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
@@ -64,43 +57,34 @@ def steadyLinearHAutoRefine(form):
 
 def steadyLinearPAutoRefine(form):
     print("Automatically refining in p..."),
-    refinementNumber = 0
-    energyError = form.solution().energyErrorTotal()
+    form.pRefine()
     mesh = form.solution().mesh();
-    threshold = .05
-    while energyError > threshold and refinementNumber <= 8:
-        form.pRefine()
-        form.solve()
-        refinementNumber += 1
-        energyError = form.solution().energyErrorTotal()
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
     print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     steadyLinearSolve(form)
 
 def linearHManualRefine(form,cellList):
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    print("Manually refining in h..."),
+    #cellList = cellList.split()
+    #cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.hRefine(cellList)
-    form.solve()
-    energyError = form.solution().energyErrorTotal()
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
-    print("Energy error: %0.3f" % (energyError))
-    print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyLinearSolve(form)
 
 def linearPManualRefine(form, cellList):
+    print("Manually refining in p..."),
     cellList = cellList.split()
     cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.pRefine(cellList)
-    form.solve()
-    energyError = form.solution().energyErrorTotal()
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
-    print("Energy error: %0.3f" % (energyError))
-    print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyLinearSolve(form)
 
 # End Refine -------------------------------------------
 
