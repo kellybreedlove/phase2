@@ -69,7 +69,7 @@ class State: #transient not supported for Navier-Stokes
 		print("Transient or steady state?")
 	def store(self, inputData, datum):
             try:
-                datumL = datum.lower()
+                datumL = datum.lower().strip()
                 if datumL == "transient" or datumL == "steady state":
                     if datumL == "steady state":
                         inputData.addVariable("transient", False) # steady state
@@ -165,7 +165,7 @@ class Inflow:
 	     self.type = "Inflow"
 	def prompt(self):
 		print("How many inflow conditions?")
-	def store(self, inputData, datum): #returns True (proceed to Outflow), False (wrong input, try again), or "undo" (go bak to PolyOrder)
+	def store(self, inputData, datum): #returns True (proceed to Outflow) or False (wrong input, try again)
 	    self.Regions = []
 	    self.X = []
 	    self.Y = []
@@ -182,7 +182,7 @@ class Inflow:
 	            if str(x) == "undo":
 	                i -= 2 #go back to last input
 	            if i < 1:
-	                return "undo"#already at last input, go back to PolyOrder
+	                return False #already at last input, restart at Inflow
 	    inputData.addVariable("numInflows",numInflows)
 	    inputData.addVariable("inflowRegions", self.Regions)
 	    inputData.addVariable("inflowX", self.X)
@@ -210,7 +210,7 @@ class Outflow:
 	     self.type = "Outflow"
 	def prompt(self):
 		print("How many outflow conditions?")
-	def store(self, inputData, datum): #returns True (proceed to Walls), False (wrong input, try again), or "undo" (go bak to Inflow)
+	def store(self, inputData, datum): #returns True (proceed to Walls) or False (wrong input, try again)
 	    self.Regions = []
 	    try:
 	        numOutflows = int(datum)
@@ -225,7 +225,7 @@ class Outflow:
 	            if str(x) == "undo":
 	                i -= 2 #go back to last input
 	            if i < 1:
-	                return "undo"#already at last input, go back to Inflow
+	                return False #already at last input, restart at Outflow
 	    inputData.addVariable("numOutflows",numOutflows)
 	    inputData.addVariable("outflowRegions", self.Regions)
 	    return True
@@ -242,7 +242,7 @@ class Walls:
 	    self.type = "Walls"
 	def prompt(self):
 		print("How many wall conditions?")
-	def store(self, inputData, datum):#returns True (proceed), False (wrong input, try again), or "undo" (go bak to Outflow)
+	def store(self, inputData, datum):#returns True (proceed), False (wrong input, try again)
 	    self.wallRegions =  []
 	    try:
 	        numWalls = int(datum)
@@ -251,13 +251,13 @@ class Walls:
 	        return False
 	    i = 1
 	    while i <= numWalls:
-	    	x = getFilter(promptRegion(i, "wall"), self.wallRegions)#returns True (proceed to next input needed), False (wrong input, try again), or "undo" (go back to last input)
+	    	x = getFilter(promptRegion(i, "wall"), self.wallRegions)#returns True (proceed to next input needed) or False (wrong input, try again)
 	    	if not str(x) == "False":
 	    	    i += 1
 	    	    if str(x) == "undo":
 	    	        i -= 2 #go back to last input
 	    	    if i < 1:
-	    	        return "undo"#already at last input, go back to Outflow
+	    	        return False #already at last input, restart at Walls
 	    	else:
 	    	    return False
 	    inputData.addVariable("numWalls", datum)
@@ -275,7 +275,7 @@ Some methods for retreiving data input
 
    
 def promptRegion(i, inoutwall):
-    data = raw_input("For " + inoutwall + " condition " + str((i+2)/3) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
+    data = raw_input("For " + inoutwall + " condition " + str(i) + ', what region of space? (E.g. "x=0.5, y > 3")\n')
     return data
     
 def getFilter(data, flowRegions): #returns True, False, or undo
