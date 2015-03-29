@@ -3,6 +3,13 @@ from time import *
 
 spaceDim = 2 # always two because we aren't handling anything 3D
 
+"""
+A class of functions to be used for creating and solving formulations
+more conveniently. This also allows testing and adjustments to be made 
+to the creation and solving of formulations without breaking the user interface.
+A few funcitons are unused because they turned out to be trivial (addWall, addInflow,
+addOutflow).
+"""
 def steadyLinearInit(dims, numElements, polyOrder):
     x0 = [0.,0.]
     meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
@@ -16,12 +23,15 @@ def steadyLinearInit(dims, numElements, polyOrder):
 
     return form
 
+# unused
 def addWall(form, newWall):
     form.addWallCondition(newWall)
 
+# unused
 def addInflow(form, newInflow, newVelocity):
     form.addInflowCondition(newInflow, newVelocity)
 
+# unused
 def addOutflow(form, newOutflow):
     form.addOutflowCondition(newOutflow)
 
@@ -70,7 +80,7 @@ def steadyLinearPAutoRefine(form):
 
 def linearHManualRefine(form,cellList):
     print("Manually refining in h..."),
-    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = cellList.split()
     #cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.hRefine(cellList)
@@ -82,7 +92,7 @@ def linearHManualRefine(form,cellList):
 
 def linearPManualRefine(form, cellList):
     print("Manually refining in p...")
-    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = cellList.split()
     #cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.pRefine(cellList)
@@ -188,7 +198,7 @@ def nonlinearPAutoRefine(form):
 
 def nonlinearHManualRefine(form, cellList):
     print("Manually refining in h..."),
-    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = cellList.split()
     #cellList = map(int, cellList)
     mesh = form.solution().mesh()
     mesh.hRefine(cellList)
@@ -200,7 +210,7 @@ def nonlinearHManualRefine(form, cellList):
 
 def nonlinearPManualRefine(form, cellList):
     print("Manually refining in p..."),
-    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = cellList.split()
     #cellList = map(int, cellList)
     mesh = form.solution().mesh()
     mesh.pRefine(cellList)

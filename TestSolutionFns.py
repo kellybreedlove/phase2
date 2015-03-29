@@ -3,7 +3,7 @@ from SolutionFns import *
 import unittest
 
 """
-A whole bunch of variable so that the tests are not cluttered
+A whole bunch of variable so that the tests are not as cluttered
 """
 spaceDim = 2
 useConformingTraces = True
@@ -31,11 +31,15 @@ ramp = (1-H_right) * H_left + (1./rampWidth) * (1-H_left) * x + (1./rampWidth) *
 zero = Function.constant(0)
 topVelocity = Function.vectorize(ramp,zero)
 
-class TestSolutionFns(unittest.TestCase):
 
-    """Test Some Stuff"""
-    def test_Stuff(self):
-        pass
+"""
+Test each function in SolutionFns.
+form is the formulation being operated on by SolutionFns functions.
+foo is the formulation being operated on by PyCamellia functions.
+Note: Always recreate the mesh otherwise the mesh will be affected when more than
+one refinement test is run.
+"""
+class TestSolutionFns(unittest.TestCase):
 
     """Test steadyLinearInit"""
     def test_steadyLinearInit(self):
