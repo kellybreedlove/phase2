@@ -80,8 +80,8 @@ def steadyLinearPAutoRefine(form):
 
 def linearHManualRefine(form,cellList):
     print("Manually refining in h..."),
-    #cellList = cellList.split()
-    #cellList = map(int, cellList)
+    cellList = cellList.split()
+    cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.hRefine(cellList)
     elementCount = mesh.numActiveElements()
@@ -92,8 +92,8 @@ def linearHManualRefine(form,cellList):
 
 def linearPManualRefine(form, cellList):
     print("Manually refining in p...")
-    #cellList = cellList.split()
-    #cellList = map(int, cellList)
+    cellList = cellList.split()
+    cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.pRefine(cellList)
     elementCount = mesh.numActiveElements()
@@ -198,8 +198,8 @@ def nonlinearPAutoRefine(form):
 
 def nonlinearHManualRefine(form, cellList):
     print("Manually refining in h..."),
-    #cellList = cellList.split()
-    #cellList = map(int, cellList)
+    cellList = cellList.split()
+    cellList = map(int, cellList)
     mesh = form.solution().mesh()
     mesh.hRefine(cellList)
     elementCount = mesh.numActiveElements()
@@ -210,8 +210,8 @@ def nonlinearHManualRefine(form, cellList):
 
 def nonlinearPManualRefine(form, cellList):
     print("Manually refining in p..."),
-    #cellList = cellList.split()
-    #cellList = map(int, cellList)
+    cellList = cellList.split()
+    cellList = map(int, cellList)
     mesh = form.solution().mesh()
     mesh.pRefine(cellList)
     elementCount = mesh.numActiveElements()
