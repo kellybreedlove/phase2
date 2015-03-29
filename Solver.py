@@ -228,15 +228,17 @@ class LoadState:
 			    file = open(command)
 			    memento = pickle.load(file)
 			    file.close()
+			    if context.inputData is None: # load at start
+				    context.inputData = InputData(True)
 			    context.inputData.setMemento(memento)
 			
 			    polyOrder = context.inputData.getVariable("polyOrder")
 			    spaceDim = 2
 			    if not context.inputData.getVariable("stokes"):
 			        reynolds = context.inputData.getVariable("reynolds")
-			        form = NavierStokesVGPForumlation(command, spaceDim, reynolds, polyOrder)
+			        form = NavierStokesVGPFormulation(command, spaceDim, reynolds, polyOrder)
 			    else:
-				useConformingTraces = True
+				useConformingTraces = False
 				mu = 1.0
 				form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
 				form.initializeSolution(command, polyOrder)
