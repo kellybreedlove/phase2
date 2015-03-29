@@ -44,7 +44,6 @@ class TestSolveFormulation(unittest.TestCase):
         data = InputData(True)
         data.addVariable("transient", True)
         populateInputData(data)
-        meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements, x0)
 
         form = solve(data)
 
@@ -54,7 +53,22 @@ class TestSolveFormulation(unittest.TestCase):
         foo.addInflowCondition(inflowRegion, timeRamp*inflowFunction)
         foo.addOutflowCondition(outflowRegion)
         foo.addWallCondition(wallRegion)
-        transientLinearSolve(form)
+        transientLinearSolve(foo)
+
+        mesh = form.solution().mesh()
+        energyError = form.solution().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solution().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+
+        self.assertAlmostEqual(4, fooElementCount, elementCount)
+        self.assertEqual(202, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(28.320, energyError, 3)
                 
     
     """Test Solve Stokes Steady"""
@@ -71,7 +85,22 @@ class TestSolveFormulation(unittest.TestCase):
         foo.addInflowCondition(inflowRegion, inflowFunction)
         foo.addOutflowCondition(outflowRegion)
         foo.addWallCondition(wallRegion)
-        steadyLinearSolve(form)
+        steadyLinearSolve(foo)
+
+        mesh = form.solution().mesh()
+        energyError = form.solution().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solution().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+
+        self.assertAlmostEqual(4, fooElementCount, elementCount)
+        self.assertEqual(202, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.0, energyError, 3)
 
     
     """Test Solve NavierStokes Steady"""
@@ -89,7 +118,22 @@ class TestSolveFormulation(unittest.TestCase):
         foo.addInflowCondition(inflowRegion, inflowFunction)
         foo.addOutflowCondition(outflowRegion)
         foo.addWallCondition(wallRegion)
-        steadyNonlinearSolve(form)
+        steadyNonlinearSolve(foo)
+
+        mesh = form.solution().mesh()
+        energyError = form.solutionIncrement().energyErrorTotal()
+        elementCount = mesh.numActiveElements()
+        globalDofCount = mesh.numGlobalDofs()
+        
+        fooMesh = foo.solution().mesh()
+        fooEnergyError = foo.solutionIncrement().energyErrorTotal()
+        fooElementCount = fooMesh.numActiveElements()
+        fooGlobalDofCount = fooMesh.numGlobalDofs()
+
+        self.assertAlmostEqual(4, fooElementCount, elementCount)
+        self.assertEqual(208, fooGlobalDofCount, globalDofCount)
+        self.assertAlmostEqual(fooEnergyError, energyError)
+        self.assertAlmostEqual(0.0, energyError, 3)
 
 
     if __name__ == '__main__':
