@@ -25,6 +25,9 @@ def plotError(cellIds,perCellError, mesh, title=""):
     meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
     meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
     #make the actual mesh plot
+    print(array(meshX))
+    print(array(meshY))
+    print(array(perCellError))
     plt.pcolormesh(array(meshX), array(meshY), array(perCellError), edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
