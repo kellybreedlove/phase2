@@ -35,6 +35,7 @@ def plotMesh(cellIds, mesh,title):
     plt.yticks(meshY) #plot the ticks on the y axis with all y points
     plt.xlim(0, meshX[len(meshX)-1]) #limit the x axis to the maximum mesh dimension
     plt.ylim(0, meshY[len(meshY)-1]) #limit the y axis to the minimum mesh dimension
+    plt.title(title)
     plt.show() #show the plot
     
     
