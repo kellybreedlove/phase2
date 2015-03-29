@@ -21,7 +21,6 @@ def plotError(cellIds,perCellError, mesh, title=""):
     #Runs through the percellerror array and creates a two-dimensional array out of the given values      
     for i in range(0,len(yCoor)-1):       
         errorVals.append((array(perCellError)[0:len(xCoor)-1]).tolist())
-    print(errorVals)
     #Sorts the given lists and removes the duplicates
     xCoor = sorted(list(set(xCoor))) 
     yCoor = sorted(list(set(yCoor))) 
@@ -60,7 +59,7 @@ def plotMesh(cellIds, mesh,title=""):
     meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
     meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
     #make the actual mesh plot
-    print(colA)
+    
     plt.pcolormesh(array(meshX), array(meshY), colA, edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
