@@ -173,6 +173,7 @@ def nonlinearHAutoRefine(form):
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs() 
     print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyNonlinearSolve(form)
     return form
 
 def nonlinearPAutoRefine(form):
@@ -183,6 +184,7 @@ def nonlinearPAutoRefine(form):
     globalDofCount = mesh.numGlobalDofs()
     print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     steadyNonlinearSolve(form)
+    return form
 
 def nonlinearHManualRefine(form, cellList):
     print("Manually refining in h..."),
