@@ -37,6 +37,9 @@ class InitState:
 			return CreateState.Instance()
 		elif command.lower() == "load":
 			return LoadState.Instance()
+		elif command.lower() == "undo":
+			print("Unable to undo.")
+			return self
 		elif command.lower() == "exit" or command.lower() == "quit":
 			quit()
 		else:
@@ -197,7 +200,7 @@ class PlotState:
 			#refine
 		else:
 			print("Sorry, input does not match any known commands.")
-			print("Please select h or p auto or manual.")
+			print("Please select  u1, u2, p, stream function, mesh, or error.")
 			return self
 
 @Singleton
