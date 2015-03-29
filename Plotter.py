@@ -7,38 +7,40 @@ import itertools
 debug = False
 
 def plotError(cellIds,perCellError, mesh, title=""):
-    
-    xCoor = []
-    yCoor = []
-    currentCell = []
-    errorVals = []
+    print("Operation not supported")
+    ##### For some reason matplotlib does not like the type of values returned by perCellError. I tried to manipulate them and 
+    ##### put them into lists but it still complains. Printing out the array makes it look exactly like it should, a two-dim array,
+    ##### so I don't really know why this is happening.
+    #xCoor = []
+    #yCoor = []
+    #currentCell = []
+    #errorVals = []
     #Runs through the activecellid's getting the current cell's vertices and adding the correct points to the two arrays
-    for cellID in cellIds:
-        currentCell = mesh.verticesForCell(cellID)
-        for vert in currentCell:
-           xCoor.append(vert[0]) 
-           yCoor.append(vert[1])
+    #for cellID in cellIds:
+    #    currentCell = mesh.verticesForCell(cellID)
+    #    for vert in currentCell:
+    #       xCoor.append(vert[0]) 
+    #       yCoor.append(vert[1])
     #Runs through the percellerror array and creates a two-dimensional array out of the given values      
-    for i in range(0,len(yCoor)-1):       
-        errorVals.append((array(perCellError)[0:len(xCoor)-1]).tolist())
+    #for i in range(0,len(yCoor)-1):       
+    #    errorVals.append((array(perCellError)[0:len(xCoor)-1]).tolist())
     #Sorts the given lists and removes the duplicates
-    xCoor = sorted(list(set(xCoor))) 
-    yCoor = sorted(list(set(yCoor))) 
+    #xCoor = sorted(list(set(xCoor))) 
+    #yCoor = sorted(list(set(yCoor))) 
     #Rounds the x and y vals to 3 places
-    xCoor = around(xCoor, decimals = 3) 
-    yCoor = around(yCoor, decimals = 3) 
+    #xCoor = around(xCoor, decimals = 3) 
+    #yCoor = around(yCoor, decimals = 3) 
     # Creates a pcolormesh using the two coor arrays and the errorvals
-    plt.pcolormesh(array(xCoor), array(yCoor), array(errorVals), edgecolors='k', linewidths=2, 
-#                       cmap='bwr', vmin=min(errorVals), vmax=max(errorVals))
-                        cmap='bwr', vmin='-100', vmax='100')
+    #plt.pcolormesh(array(xCoor), array(yCoor), errorVals, edgecolors='k', linewidths=2, 
+    #                   cmap='bwr', vmin=min(errorVals), vmax=max(errorVals)) 
 
-    plt.xticks(xCoor) 
-    plt.yticks(yCoor) 
-    plt.xlim(0, xCoor[len(xCoor)-1]) 
-    plt.ylim(0, yCoor[len(yCoor)-1]) 
-    plt.title(title)
-    plt.colorbar()
-    plt.show() 
+    #plt.xticks(xCoor) 
+    #plt.yticks(yCoor) 
+    #plt.xlim(0, xCoor[len(xCoor)-1]) 
+    #plt.ylim(0, yCoor[len(yCoor)-1]) 
+    #plt.title(title)
+    #plt.colorbar()
+    #plt.show() 
     
 
 def plotMesh(cellIds, mesh,title=""): 

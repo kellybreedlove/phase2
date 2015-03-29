@@ -11,6 +11,11 @@ from TestSolver import *
 from CapturingUtil import *
 import unittest
 
+"""
+In order to run TestSolutionFns, be sure to change DEBUG to True
+in SolutionFns, or else some tests will fail
+"""
+
 testSuite = unittest.makeSuite(TestConditionParser)
 testSuite.addTest(unittest.makeSuite(TestInputData))
 testSuite.addTest(unittest.makeSuite(TestParseFunction))
