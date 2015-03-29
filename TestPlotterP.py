@@ -1,7 +1,7 @@
 from PyCamellia import *
 from Plotter import *
 import unittest
-
+from itertools import chain, combinations 
 
 spaceDim = 2
 useConformingTraces = True
