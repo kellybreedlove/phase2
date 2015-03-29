@@ -16,8 +16,8 @@ def plotError(cellIds,perCellError, mesh, title=""):
     for cellID in cellIds:
         currentCell = mesh.verticesForCell(cellID)
         for vert in currentCell:
-           meshX.append(vert[0]) 
-           meshY.append(vert[1])
+           xCoor.append(vert[0]) 
+           yCoor.append(vert[1])
     #Runs through the percellerror array and creates a two-dimensional array out of the given values      
     for i in range(0,len(meshY)-1):       
         errorVals.append(array(perCellError)[0:len(meshX)-1])
