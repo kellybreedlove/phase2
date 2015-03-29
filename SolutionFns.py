@@ -1,6 +1,7 @@
 from PyCamellia import *
 from time import *
 
+DEBUG = False # IMPORTANT, needs to be True in order to run tests
 spaceDim = 2 # always two because we aren't handling anything 3D
 
 """
@@ -80,8 +81,9 @@ def steadyLinearPAutoRefine(form):
 
 def linearHManualRefine(form,cellList):
     print("Manually refining in h..."),
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    if not DEBUG:
+        cellList = cellList.split()
+        cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.hRefine(cellList)
     elementCount = mesh.numActiveElements()
@@ -92,8 +94,9 @@ def linearHManualRefine(form,cellList):
 
 def linearPManualRefine(form, cellList):
     print("Manually refining in p...")
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    if not DEBUG:
+        cellList = cellList.split()
+        cellList = map(int, cellList)
     mesh = form.solution().mesh();
     mesh.pRefine(cellList)
     elementCount = mesh.numActiveElements()
@@ -198,8 +201,9 @@ def nonlinearPAutoRefine(form):
 
 def nonlinearHManualRefine(form, cellList):
     print("Manually refining in h..."),
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    if not DEBUG:
+        cellList = cellList.split()
+        cellList = map(int, cellList)
     mesh = form.solution().mesh()
     mesh.hRefine(cellList)
     elementCount = mesh.numActiveElements()
@@ -210,8 +214,9 @@ def nonlinearHManualRefine(form, cellList):
 
 def nonlinearPManualRefine(form, cellList):
     print("Manually refining in p..."),
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    if not DEBUG:
+        cellList = cellList.split()
+        cellList = map(int, cellList)
     mesh = form.solution().mesh()
     mesh.pRefine(cellList)
     elementCount = mesh.numActiveElements()
