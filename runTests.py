@@ -8,7 +8,7 @@ from TestPlotterStream import *
 from TestRefine import *
 from TestSolutionFns import *
 from TestSolveFormulation import *
-#from TestSolver import *
+from TestSolver import *
 import unittest
 
 testSuite = unittest.makeSuite(TestConditionParser)
@@ -21,7 +21,7 @@ testSuite.addTest(unittest.makeSuite(TestPlotterStream))
 testSuite.addTest(unittest.makeSuite(TestRefine))
 testSuite.addTest(unittest.makeSuite(TestSolutionFns)) # done
 testSuite.addTest(unittest.makeSuite(TestSolveFormulation)) # done
-#testSuite.addTest(unittest.makeSuite(TestSolver))
+testSuite.addTest(unittest.makeSuite(TestSolver)) # done
 
 testRunner = unittest.TextTestRunner()
 testRunner.run(testSuite)
