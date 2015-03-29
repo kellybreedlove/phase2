@@ -1,6 +1,3 @@
-
-    
-
 import matplotlib.pyplot as  plt
 import matplotlib.colors as col
 from PyCamellia import *
@@ -9,7 +6,8 @@ import itertools
 
 debug = False
 
-def plotError(perCellError, mesh)
+def plotError(perCellError, mesh):
+    return
     
 
 def plotMesh(cellIds, mesh): 
