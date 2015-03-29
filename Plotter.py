@@ -6,7 +6,7 @@ import itertools
 
 debug = False
 
-def plotError(perCellError, mesh, title=""):
+def plotError(cellIds,perCellError, mesh, title=""):
     meshX = []
     meshY = []
     tempCell = []
