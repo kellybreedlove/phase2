@@ -15,8 +15,8 @@ refine = RefineState.Instance()
 load = LoadState.Instance()
 save = SaveState.Instance()
 
-href = hRefine.Instance()
-pref = pRefine.Instance()
+href = HRefine.Instance()
+pref = PRefine.Instance()
 
 walls = Walls.Instance()
 outflow = Outflow.Instance()
