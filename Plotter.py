@@ -37,6 +37,7 @@ def plotError(cellIds,perCellError, mesh, title=""):
     plt.xlim(0, meshX[len(meshX)-1]) 
     plt.ylim(0, meshY[len(meshY)-1]) 
     plt.title(title)
+    plt.colorbar()
     plt.show() 
     
 
@@ -68,6 +69,7 @@ def plotMesh(cellIds, mesh,title=""):
     plt.xlim(0, meshX[len(meshX)-1]) #limit the x axis to the maximum mesh dimension
     plt.ylim(0, meshY[len(meshY)-1]) #limit the y axis to the minimum mesh dimension
     plt.title(title)
+    plt.colorbar()
     plt.show() #show the plot
     
     
@@ -99,4 +101,5 @@ def plot(values,pointsArray, title=""):
     #the command line.
     plt.hexbin(xCoor,yCoor,mergedVals,cmap='bwr', vmin=min(mergedVals),vmax=max(mergedVals),mincnt=0)
     plt.title(title)
+    plt.colorbar()
     plt.show()
