@@ -230,19 +230,21 @@ class LoadState:
 			try:
 			    print("Loading..."),
 		
-			    file = open(command)
-			    memento = pickle.load(file)
-			    file.close()
+			    loadFile = open(command)
+			    memento = pickle.load(loadFile)
+			    loadFile.close()
 			    context.inputData.setMemento(memento)
 			
-			    form = None
 			    polyOrder = context.inputData.getVariable("polyOrder")
+			    spaceDim = 2
 			    if not context.inputData.getVariable("stokes"):
-			        spaceDim = 2
 			        reynolds = context.inputData.getVariable("reynolds")
-			        form = NavierStokesVGPForumlation(command + "Form", spaceDim, reynolds, polyOrder)
+			        form = NavierStokesVGPForumlation(command, spaceDim, reynolds, polyOrder)
 			    else:
-			        form.initializeSolution(command + "Form", polyOrder)
+				useConformingTraces = True
+				mu = 1.0
+				form = stokesVGPFormulation(spaceDim, useConformingTraces, mu)
+				form.initializeSolution(command, polyOrder)
 			    
 			    context.inputData.setForm(form)
 			
@@ -262,12 +264,23 @@ class SaveState:
 		print("What would you like to call the solution and mesh files?")
 	def act(self, command, context):
 		if command == "undo":
-		    return PostsolveState.Instance()
+		    return PostSolveState.Instance()
 		else:
 		    print("Saving..."),
+
 		    form = context.inputData.getForm()
-		    form.save(command + "Form")
+		    form.save(command)
+
 		    memento = context.inputData.createMemento()
+		    output = memento.get()
+		    if len(output) >= 9:
+			    del output["form"]
+			    del output["inflowRegions"]
+			    del output["inflowX"]
+			    del output["inflowY"]
+			    del output["outflowRegions"]
+			    del output["wallRegions"]
+
 		    saveFile = open(command, 'wb')
 		    pickle.dump(memento, saveFile)
 		    saveFile.close()
