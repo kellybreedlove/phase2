@@ -234,6 +234,7 @@ class LoadState:
 			    loadFile = open(command)
 			    memento = pickle.load(loadFile)
 			    loadFile.close()
+			    context.inputData = InputData(True)
 			    context.inputData.setMemento(memento)
 			
 			    polyOrder = context.inputData.getVariable("polyOrder")
