@@ -16,15 +16,15 @@ def plotError(cellIds,perCellError, mesh, title=""):
     for cellID in cellIds:
         currentCell = mesh.verticesForCell(cellID)
         for vert in currentCell:
-           meshX.append(vert[0]) 
-           meshY.append(vert[1])
+           xCoor.append(vert[0]) 
+           yCoor.append(vert[1])
     #Runs through the percellerror array and creates a two-dimensional array out of the given values      
-    for i in range(0,len(meshY)-1):       
-        errorVals.append(array(perCellError)[0:len(meshX)-1])
+    for i in range(0,len(yCoor)-1):       
+        errorVals.append((array(perCellError)[0:len(xCoor)-1]).tolist())
     print(errorVals)
     #Sorts the given lists and removes the duplicates
-    xCoor = sorted(list(set(meshX))) 
-    yCoor = sorted(list(set(meshY))) 
+    xCoor = sorted(list(set(xCoor))) 
+    yCoor = sorted(list(set(yCoor))) 
     #Rounds the x and y vals to 3 places
     xCoor = around(xCoor, decimals = 3) 
     yCoor = around(yCoor, decimals = 3) 
@@ -32,10 +32,10 @@ def plotError(cellIds,perCellError, mesh, title=""):
     plt.pcolormesh(array(xCoor), array(yCoor), errorVals, edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
-    plt.xticks(meshX) 
-    plt.yticks(meshY) 
-    plt.xlim(0, meshX[len(meshX)-1]) 
-    plt.ylim(0, meshY[len(meshY)-1]) 
+    plt.xticks(xCoor) 
+    plt.yticks(yCoor) 
+    plt.xlim(0, xCoor[len(xCoor)-1]) 
+    plt.ylim(0, yCoor[len(yCoor)-1]) 
     plt.title(title)
     plt.colorbar()
     plt.show() 
