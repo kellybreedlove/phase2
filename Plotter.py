@@ -20,7 +20,7 @@ def plotError(cellIds,perCellError, mesh, title=""):
         for vert in tempCell:
            meshX.append(vert[0]) #get the x value for the vertex
            meshY.append(vert[1])
-    for i in range(0,len(meshY)-1)       
+    for i in range(0,len(meshY)-1):       
         errorVals.append(array(perCellError)[0:len(meshX)-1])
     print(errorVals)
     #dummy color values for the plot as to be 0
