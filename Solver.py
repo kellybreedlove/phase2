@@ -177,6 +177,13 @@ class PlotState:
 			#plot
 		elif command.lower() == "stream function":
 			print("Solving for stream function...")
+			stream_soln = Function.solution(form.streamPhi(), form.solution())
+			for cellID in activeCellIDs:
+			    (values,points) = stream_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+			    p.append(points)
+			    v.append(values)
+			    plot(v, p)
+				
 			#solve
 			print("Plotting " + command + "...")
 			#refine
