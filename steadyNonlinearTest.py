@@ -25,9 +25,7 @@ form = addWall(form, notTopBoundary)
 form = addInflow(form, topBoundary, topVelocity)
 
 maxSteps = 10
-threshold = .01
-maxRefs = 3
 form = steadyNonlinearSolve(form, maxSteps)
-form = steadyNonlinearHRefine(form, threshold, maxRefs, maxSteps)
+form = steadyNonlinearHAutoRefine(form, maxSteps)
 exporter = steadyNonlinearExport(form)
 

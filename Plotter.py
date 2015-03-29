@@ -1,10 +1,13 @@
 
+    
+
 import matplotlib.pyplot as  plt
 import matplotlib.colors as col
 from PyCamellia import *
 from numpy import *
 import itertools
 
+debug = False
 
 def plotError(perCellError, mesh)
     
@@ -48,7 +51,16 @@ def plot(values,pointsArray):
         for point in points:
             xCoor.append(point[0])
             yCoor.append(point[1])
-     
-    plt.hexbin(xCoor,yCoor,mergedVals,cmap='bwr', vmin=min(mergedVals),vmax=max(mergedVals),mincnt=0)
     
+    i = 0
+
+    if debug:
+        for i,c in enumerate(mergedVals):        
+            print "("+str(xCoor[i])+","+str(yCoor[i])+") : "+str(mergedVals[i])
+        print i
+        print len(xCoor)
+        print len(yCoor)
+
+
+    plt.hexbin(xCoor,yCoor,mergedVals,cmap='bwr', vmin=min(mergedVals),vmax=max(mergedVals),mincnt=0)
     plt.show()
