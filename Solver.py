@@ -212,9 +212,9 @@ class RefineState:
 		if command.lower() == "undo":
 		    return PostSolveState.Instance()
 		elif command.lower() == "h":
-		    return hRefine.Instance()
+		    return HRefine.Instance()
 		elif command.lower() == "p":
-		    return pRefine.Instance()
+		    return PRefine.Instance()
 		else:
 			print("Sorry, input does not match any known commands.")
 			print("Please select h or p to refine.")
