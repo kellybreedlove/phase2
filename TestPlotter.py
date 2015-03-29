@@ -46,13 +46,9 @@ class TestPlotter(unittest.TestCase):
         elementCount = mesh.numActiveElements()
         globalDofCount = mesh.numGlobalDofs()
 
-        CellIDs = []
-        for i in range(0,mesh.numElements()):
-            CellIDs.append(i)
 
-        #print CellIDs
-
-        plotMesh(CellIDs,mesh,"Mesh")
+        activeCellIDs = mesh.getActiveCellIDs()
+        plotMesh(activeCellIDs,mesh,"Mesh")
     
     """Test plot Mesh Refine"""
     def test_plotRefineMesh(self):
@@ -72,13 +68,8 @@ class TestPlotter(unittest.TestCase):
 
         mesh.hRefine([0])
 
-        CellIDs = []
-        for i in range(0,mesh.numElements()):
-            CellIDs.append(i)
-
-        #print CellIDs
-
-        plotMesh(CellIDs,mesh,"Refined Mesh")
+        activeCellIDs = mesh.getActiveCellIDs()
+        plotMesh(activeCellIDs,mesh,"Refined Mesh")
 
     """ Test Plot"""
     def test_plot_u1(self):
