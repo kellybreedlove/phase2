@@ -9,37 +9,40 @@ def solve(data):
 	delta_k = 1
 	dt = 0.1
 	
-	stokes = data["stokes"]
+	stokes = data.getVariable("stokes")
 	if not stokes:
-	    Re = data["reynolds"]
-	transient = data["transient"]
-	dims = data["meshDimensions"]
-	numElements = data["numElements"]
+	    Re = data.getVariable("reynolds")
+	transient = data.getVariable("transient")
+	dims = data.getVariable("meshDimensions")
+	numElements = data.getVariable("numElements")
 	x0 = [0.,0.]
-	polyOrder = data["polyOrder"]
-	numInflows = data["numInflows"]
-	inflowRegions = data["inflowRegions"]
-	inflowX = data["inflowX"]
-	inflowY = data["inflowY"]
-	numOutflows = data["numOutflows"]
-	outflowRegions = data["outflowRegions"]
-	numWalls = data["numWalls"]
-	wallRegions = data["wallRegions"]
+	polyOrder = data.getVariable("polyOrder")
+	numInflows = data.getVariable("numInflows")
+	inflowRegions = data.getVariable("inflowRegions")
+	inflowX = data.getVariable("inflowX")
+	inflowY = data.getVariable("inflowY")
+	numOutflows = data.getVariable("numOutflows")
+	outflowRegions = data.getVariable("outflowRegions")
+	numWalls = data.getVariable("numWalls")
+	wallRegions = data.getVariable("wallRegions")
 	meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements, x0)
 
-	
+
+	transientLinear = False
+	steadyLinear = False
+	steadyNonlinear = False
+
 	if stokes:
 	    if transient:
-	        form = StokesVGPFormulation(spaceDim,useConformingTraces,mu,transient,dt)
-	        form.initializeSolution(meshTopo,polyOrder,delta_k)
+	        transientLinear = True
+		form = transientLinearInit(spaceDim, dims, numElements, polyOrder, dt)
 	        timeRamp = TimeRamp.timeRamp(form.getTimeFunction(),1.0)
 	    else:
-	        form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
-	        form.initializeSolution(meshTopo,polyOrder,delta_k)
+		steadyLinear = True
+		form = steadyLinearInit(dims, numElements, polyOrder)
 	else:
-	    form = NavierStokesVGPFormulation(meshTopo,Re,polyOrder,delta_k)
-	
-	form.addZeroMeanPressureCondition()
+	    steadyNonlinear = True
+	    form = steadyNonlinearInit(spaceDim, Re, dims, numElements, polyOrder)
 	
 	i = 0
 	while i < numInflows:
@@ -57,8 +60,14 @@ def solve(data):
 	i = 1
 	for i in wallRegions:
 	    form.addWallCondition(i)
-	    
-	form.solve()
-	print("Solving...")
-	#print("Solve completed in __ minutes, __ seconds")
+	
+
+	if transientLinear:
+		transientLinearSolve(form)
+	elif steadyLinear:
+		steadyLinearSolve(form)
+	elif steadyNonlinear:
+		steadyNonlinearSolve(form)
+
+		
 	return form 

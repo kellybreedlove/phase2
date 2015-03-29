@@ -1,17 +1,21 @@
-from TestParseFunction import *
 from TestConditionParser import * 
 from TestInputData import *
+from TestParseFunction import * 
 from TestPlotter import *
+#from TestRefine import *
 from TestSolutionFns import *
 from TestSolveFormulation import *
+#from TestSolver import *
 import unittest
 
-testSuite = unittest.makeSuite(TestParseFunction)
+testSuite = unittest.makeSuite(TestConditionParser)
 testSuite.addTest(unittest.makeSuite(TestInputData))
-testSuite.addTest(unittest.makeSuite(TestSolveFormulation))
-#testSuite.addTest(unittest.makeSuite(TestSolutionFns))
+testSuite.addTest(unittest.makeSuite(TestParseFunction))
 #testSuite.addTest(unittest.makeSuite(TestPlotter))
-#testSuite.addTest(unittest.makeSuite(TestConditionParser))
+#testSuite.addTest(unittest.makeSuite(TestRefine))
+#testSuite.addTest(unittest.makeSuite(TestSolutionFns)) # done
+#testSuite.addTest(unittest.makeSuite(TestSolveFormulation)) # done
+#testSuite.addTest(unittest.makeSuite(TestSolver))
 
 testRunner = unittest.TextTestRunner()
 testRunner.run(testSuite)
