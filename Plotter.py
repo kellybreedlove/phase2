@@ -8,39 +8,36 @@ debug = False
 
 def plotError(cellIds,perCellError, mesh, title=""):
     
-    meshX = []
-    meshY = []
-    tempCell = []
+    xCoor = []
+    yCoor = []
+    currentCell = []
     errorVals = []
-    
-    #for each active cell
+    #Runs through the activecellid's getting the current cell's vertices and adding the correct points to the two arrays
     for cellID in cellIds:
-        tempCell = mesh.verticesForCell(cellID)
-        #for each separate vertex of the cell
-        for vert in tempCell:
-           meshX.append(vert[0]) #get the x value for the vertex
+        currentCell = mesh.verticesForCell(cellID)
+        for vert in currentCell:
+           meshX.append(vert[0]) 
            meshY.append(vert[1])
+    #Runs through the percellerror array and creates a two-dimensional array out of the given values      
     for i in range(0,len(meshY)-1):       
         errorVals.append(array(perCellError)[0:len(meshX)-1])
     print(errorVals)
-    #dummy color values for the plot as to be 0
-    meshX = sorted(list(set(meshX))) #sort and remove duplicates 
-    meshY = sorted(list(set(meshY))) #sort and remove duplicates
-    meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
-    meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
-    #make the actual mesh plot
-    print(array(meshX))
-    print(array(meshY))
-    print(array(perCellError))
-    plt.pcolormesh(array(meshX), array(meshY), errorVals, edgecolors='k', linewidths=2, 
+    #Sorts the given lists and removes the duplicates
+    xCoor = sorted(list(set(meshX))) 
+    yCoor = sorted(list(set(meshY))) 
+    #Rounds the x and y vals to 3 places
+    xCoor = around(xCoor, decimals = 3) 
+    yCoor = around(yCoor, decimals = 3) 
+    # Creates a pcolormesh using the two coor arrays and the errorvals
+    plt.pcolormesh(array(xCoor), array(yCoor), errorVals, edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
-    plt.xticks(meshX) #plot the ticks on the x axis with all x points
-    plt.yticks(meshY) #plot the ticks on the y axis with all y points
-    plt.xlim(0, meshX[len(meshX)-1]) #limit the x axis to the maximum mesh dimension
-    plt.ylim(0, meshY[len(meshY)-1]) #limit the y axis to the minimum mesh dimension
+    plt.xticks(meshX) 
+    plt.yticks(meshY) 
+    plt.xlim(0, meshX[len(meshX)-1]) 
+    plt.ylim(0, meshY[len(meshY)-1]) 
     plt.title(title)
-    plt.show() #show the plot
+    plt.show() 
     
 
 def plotMesh(cellIds, mesh,title=""): 
@@ -77,9 +74,13 @@ def plotMesh(cellIds, mesh,title=""):
     
     
 def plot(values,pointsArray, title=""):
+    # Creates the x and y coor arrays that will hold the xy coordinates to plot
     xCoor = []
     yCoor = []
+    # Turns the pargument into a usable list
     mergedVals = list(itertools.chain.from_iterable(values))
+    # Runs through the list of lists and puts the first coor from each list and puts it into the xCoor array
+    # Similarily but with the second coor for the yCoor array
     for points in pointsArray:
         for point in points:
             xCoor.append(point[0])
@@ -94,7 +95,8 @@ def plot(values,pointsArray, title=""):
         print len(xCoor)
         print len(yCoor)
 
-
+    #Makes a hexbin plot with the x and y coor with a cmap. Adds on the title given. It then shows plot, revealing it from 
+    #the command line.
     plt.hexbin(xCoor,yCoor,mergedVals,cmap='bwr', vmin=min(mergedVals),vmax=max(mergedVals),mincnt=0)
     plt.title(title)
     plt.show()
