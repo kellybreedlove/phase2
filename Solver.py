@@ -1,6 +1,8 @@
 from Singleton import *
 from InputData import *
 from Refine import *
+from RefineP import *
+import pickle
 from Plotter import *
 #from PyCamellia import *
 
@@ -77,12 +79,7 @@ class StokesState:
 		else:
 			x = self.inputState.store(context.inputData, datum)
 			if not str(x) == "False":
-				if str(x).lower() == "undo":
-					self.inputState = self.inputState.undo()
-					return self
-				elif str(x).lower() == "exit" or str(x).lower() == "quit":
-					quit()
-				elif self.inputState.hasNext():
+				if self.inputState.hasNext():
 					self.inputState = self.inputState.next()
 					return self
 				else:
@@ -106,12 +103,7 @@ class NavierStokesState:
 		else:
 			x = self.inputState.store(context.inputData, datum)
 			if not str(x) == "False":
-				if str(x).lower() == "undo":
-					self.inputState = self.inputState.undo()
-					return self
-				elif str(x).lower() == "exit" or str(x).lower() == "quit":
-					quit()
-				elif self.inputState.hasNext():
+				if self.inputState.hasNext():
 					self.inputState = self.inputState.next()
 					return self
 				else:
@@ -146,45 +138,42 @@ class PlotState:
 		print("What would you like to plot?")
 		print("Possible choices are: u1, u2, p, stream function, mesh, and error.")
 	def act(self, command, context):
-		combos = combinations([-1.,1.,0.,.5,-.5,.25,-.25,.75,-.75,.8,-.8,.1,-.1,.2,-.2,.3,-.3,.4,-.4,.6,-.6,.7,-.7,.8,-.8,.9,-.9,.15,-.15,.35,-.35,.45,-.45,.55,-.55,.65,-.65,.85,-.85,.95,-.95,.125,-.125,.175,-.175,.225,-.225,.275,-.275,.325,-.325,.375,-.375,.425,-.425,.475,-.475,.525,-.525,.575,-.575,.625,-.625,.675,-.675,.725,-.725,.825,-.825,.875,-.875,.925,-.925,.975,-.975,.33,-.33,.66,-.66],2))
+		combos = combinations([-1.,1.,0.,.5,-.5,.25,-.25,.75,-.75,.8,-.8,.1,-.1,.2,-.2,.3,-.3,.4,-.4,.6,-.6,.7,-.7,.8,-.8,.9,-.9,.15,-.15,.35,-.35,.45,-.45,.55,-.55,.65,-.65,.85,-.85,.95,-.95,.125,-.125,.175,-.175,.225,-.225,.275,-.275,.325,-.325,.375,-.375,.425,-.425,.475,-.475,.525,-.525,.575,-.575,.625,-.625,.675,-.675,.725,-.725,.825,-.825,.875,-.875,.925,-.925,.975,-.975,.33,-.33,.66,-.66],2)
 		refCellVertexPoints = []
 		p = []
 		v = []
 		for e in combos:
-    			refCellVertexPoints.append(list(e))
+			refCellVertexPoints.append(list(e))
 		form = context.inputData.getForm()
 		mesh = form.solution().mesh()
 		activeCellIDs = mesh.getActiveCellIDs()
 		if command.lower() == "u1":
 			print("Plotting " + command + "...")
 			u1_soln = Function.solution(form.u(1),form.solution())
-			 for cellID in activeCellIDs:
-            			(values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
-            			p.append(points)
-            			v.append(values)
-
-        		plot(v, p)
+			for cellID in activeCellIDs:
+			    (values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+			    p.append(points)
+			    v.append(values)
+				plot(v, p)
 			
 			#plot
 		elif command.lower() == "u2":
 			print("Plotting " + command + "...")
 			u2_soln = Function.solution(form.u(2),form.solution())
-			 for cellID in activeCellIDs:
-            			(values,points) = u2_soln.getCellValues(mesh,cellID,refCellVertexPoints)
-            			p.append(points)
-            			v.append(values)
-
-        		plot(v, p)
+			for cellID in activeCellIDs:
+			    (values,points) = u2_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+			    p.append(points)
+			    v.append(values)
+				plot(v, p)
 			#plot
 		elif command.lower() == "p":
 			print("Plotting " + command + "...")
 			p_soln = Function.solution(form.p(),form.solution())
-			 for cellID in activeCellIDs:
-            			(values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
-            			p.append(points)
-            			v.append(values)
-
-        		plot(v, p)
+			for cellID in activeCellIDs:
+			    (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+			    p.append(points)
+			    v.append(values)
+				plot(v, p)
 			#plot
 		elif command.lower() == "stream function":
 			print("Solving for stream function...")
@@ -207,7 +196,9 @@ class RefineState:
 	def prompt(self):
 		print("What sort of refinement would you like to make? (h or p)")
 	def act(self, command, context):
-		if command.lower() == "h":
+		if command.lower() == "undo":
+		    return PostSolveState.Instance()
+		elif command.lower() == "h":
 		    return hRefine.Instance()
 		elif command.lower() == "p":
 		    return pRefine.Instance()
@@ -221,28 +212,34 @@ class LoadState:
 	def prompt(self):
 		self.filename = input("What solution would you like to load?")
 	def act(self, command, context):
-		print("Loading..."),
 		
-		file = open(self.filename)
-		memento = pickle.load(file)
-		file.close()
-		context.inputData.setMemento(memento)
 
-		form = None
-		polyOrder = context.inputData.getVariable("polyOrder")
-		if not context.inputData.getVariable("stokes"):
-			spaceDim = 2
-			reynolds = context.inputData.getVariable("reynolds")
-			form = NavierStokesVGPForumlation(command + "Form", spaceDim, reynolds, polyOrder)
-		else:
-			form.initializeSolution(command + "Form", polyOrder)
-		context.inputData.setForm(form)
-
-		mesh = form.solution().mesh()
-		elementCount = mesh.numActiveElements()
-		globalDofCount = mesh.numGlobalDofs()
-		print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (elementCount, globalDofCount))
-		return PostSolveState.Instance()
+		try:
+			print("Loading..."),
+		
+			file = open(self.filename)
+			memento = pickle.load(file)
+			file.close()
+			context.inputData.setMemento(memento)
+			
+			form = None
+			polyOrder = context.inputData.getVariable("polyOrder")
+			if not context.inputData.getVariable("stokes"):
+				spaceDim = 2
+				reynolds = context.inputData.getVariable("reynolds")
+				form = NavierStokesVGPForumlation(command + "Form", spaceDim, reynolds, polyOrder)
+			else:
+				form.initializeSolution(command + "Form", polyOrder)
+			context.inputData.setForm(form)
+			
+			mesh = form.solution().mesh()
+			elementCount = mesh.numActiveElements()
+			globalDofCount = mesh.numGlobalDofs()
+			print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (elementCount, globalDofCount))
+			return PostSolveState.Instance()
+		except (OSError, IOError):
+			print("No solution was found with the name \"%s\"" % command)
+			return LoadState.Instance()
 
 
 @Singleton
@@ -251,8 +248,7 @@ class SaveState:
 		print("What would you like to call the solution and mesh files?")
 	def act(self, command, context):
 		print("Saving..."),
-		
-		form.save(commant + "Form")
+		context.inputData.getForm().save(command + "Form")
 		memento = context.inputData.createMemento()
 		file = open(command, 'wb')
 		pickle.dump(memento, file)

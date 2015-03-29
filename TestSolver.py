@@ -25,22 +25,22 @@ state = State.Instance()
 class TestSolver(unittest.TestCase):
 
 
-    """Test InitState"""
-    def test_InitState(self):
+    """Test InitState's Act"""
+    def test_InitStateAct(self):
         self.assertEqual(init.act("create", phase2),create)
         self.assertEqual(init.act("load", phase2),load)
         self.assertEqual(init.act("other", phase2),init)
         
-    """Test CreateState"""
-    def test_CreateState(self):
+    """Test CreateState's Act"""
+    def test_CreateStateAct(self):
         self.assertEqual(create.act("create", phase2),create)
         self.assertEqual(create.act("navier-stokes", phase2),nstokes)
         self.assertEqual(create.act("undo", phase2),init)
         self.assertEqual(create.act("other", phase2),create)
         self.assertEqual(create.act("stokes", phase2),stokes)
 
-    """Test StokesState"""
-    def test_StokesState(self):
+    """Test StokesState's Act"""
+    def test_StokesStateAct(self):
         self.assertEqual(stokes.act("undo", phase2),create)
         self.assertEqual(stokes.act("transient", phase2),stokes)
         self.assertEqual(stokes.inputState, mesh)
@@ -50,8 +50,8 @@ class TestSolver(unittest.TestCase):
         self.assertEqual(stokes.act("other", phase2),stokes)
         self.assertEqual(stokes.inputState, outflow)
         
-    """Test NavierStokesState"""
-    def test_NavierStokesState(self):
+    """Test NavierStokesState's Act"""
+    def test_NavierStokesStateAct(self):
         self.assertEqual(nstokes.act("undo", phase2),create)
         self.assertEqual(nstokes.act("800", phase2),nstokes)
         self.assertEqual(nstokes.inputState, state)
@@ -61,19 +61,31 @@ class TestSolver(unittest.TestCase):
         self.assertEqual(nstokes.act("other", phase2), nstokes)
         self.assertEqual(nstokes.inputState, outflow)
 
-    """Test PostSolveState"""
-    def test_PostSolveState(self):
+    """Test PostSolveState's Act"""
+    def test_PostSolveStateAct(self):
         self.assertEqual(post.act("plot", phase2), plot)
         self.assertEqual(post.act("refine", phase2), refine)
         self.assertEqual(post.act("save", phase2), save)
         self.assertEqual(post.act("load", phase2), load)
         self.assertEqual(post.act("other", phase2), post)
         
-    """Test RefineState"""
-    def test_RefineState(self):
+    """Test PlotState's Act"""
+    def test_PlotStateAct(self):
+        pass
+
+    """Test RefineState's Act"""
+    def test_RefineStateAct(self):
         self.assertEqual(refine.act("h", phase2), href)
         self.assertEqual(refine.act("p", phase2), pref)
         self.assertEqual(refine.act("other", phase2), refine)
+
+    """Test LoadState's Act"""
+    def test_LoadStateAct(self):
+        self.assertEqual(load.act("filename", phase2), post)
+
+    """Test SaveState's Act"""
+    def test_SaveStateAct(self):
+        self.assertEqual(save.act("filename", phase2), post)
 
 
     if __name__ == '__main__':
