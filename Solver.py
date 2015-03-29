@@ -4,7 +4,6 @@ from Refine import *
 from RefineP import *
 import pickle
 from Plotter import *
-#from PyCamellia import *
 
 class Solver:
 	def __init__(self):
@@ -210,7 +209,7 @@ class RefineState:
 @Singleton
 class LoadState:
 	def prompt(self):
-		self.filename = input("What solution would you like to load?")
+		print("What solution would you like to load?")
 	def act(self, command, context):
 		if command == "undo":
 		    return PostSolveState.Instance()
@@ -218,7 +217,7 @@ class LoadState:
 			try:
 			    print("Loading..."),
 		
-			    file = open(self.filename)
+			    file = open(command)
 			    memento = pickle.load(file)
 			    file.close()
 			    context.inputData.setMemento(memento)
@@ -253,7 +252,8 @@ class SaveState:
 		    return PostsolveState.Instance()
 		else:
 		    print("Saving..."),
-		    context.inputData.getForm().save(command + "Form")
+		    form = context.inputData.getForm()
+		    form.save(command + "Form")
 		    memento = context.inputData.createMemento()
 		    file = open(command, 'wb')
 		    pickle.dump(memento, file)
