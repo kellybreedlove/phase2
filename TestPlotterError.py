@@ -40,7 +40,7 @@ class TestPlotterError(unittest.TestCase):
         elementCount = mesh.numActiveElements()
         globalDofCount = mesh.numGlobalDofs()
 
-        ceError = form.solution.energyErrorPerCell()
+        ceError = form.solution().energyErrorPerCell()
         plotError(ceError,mesh)
         form = None
     
@@ -62,7 +62,7 @@ class TestPlotterError(unittest.TestCase):
 
         form.pRefine()
 
-        ceError = form.solution.energyErrorPerCell()
+        ceError = form.solution().energyErrorPerCell()
         plotError(ceError,mesh)
 
         form = None
@@ -85,7 +85,7 @@ class TestPlotterError(unittest.TestCase):
 
         form.hRefine()
 
-        ceError = form.solution.energyErrorPerCell()
+        ceError = form.solution().energyErrorPerCell()
         plotError(ceError,mesh)   
 
         form = None
@@ -108,7 +108,7 @@ class TestPlotterError(unittest.TestCase):
 
         mesh.pRefine([3,1])
 
-        ceError = form.solution.energyErrorPerCell()
+        ceError = form.solution().energyErrorPerCell()
         plotError(ceError,mesh) 
 
         form = None
@@ -132,7 +132,7 @@ class TestPlotterError(unittest.TestCase):
 
         mesh.hRefine([0,1])
 
-        ceError = form.solution.energyErrorPerCell()
+        ceError = form.solution().energyErrorPerCell()
         plotError(ceError,mesh) 
 
         form = None

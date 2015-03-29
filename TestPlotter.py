@@ -27,7 +27,7 @@ refCellVertexPoints = [[-1.,-1.],[1.,-1.],[1.,1.],[-1.,1.]];
 
 class TestPlotter(unittest.TestCase):
 
-        """Test plotMesh"""
+    """Test plotMesh"""
     def test_plotMesh(self):
         print "Plot_Mesh"
         form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
