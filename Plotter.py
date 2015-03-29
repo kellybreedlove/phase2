@@ -6,10 +6,10 @@ import itertools
 
 debug = False
 
-def plotError(perCellError, mesh):
+def plotError(perCellError, mesh, title):
     pass
 
-def plotMesh(cellIds, mesh): 
+def plotMesh(cellIds, mesh,title): 
     meshX = []
     meshY = []
     tempCell = []
