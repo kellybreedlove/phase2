@@ -40,8 +40,10 @@ class TestPlotterError(unittest.TestCase):
         elementCount = mesh.numActiveElements()
         globalDofCount = mesh.numGlobalDofs()
 
+        activeCellIDs = mesh.getActiveCellIDs()
+
         ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"Plot Energy Error")
+        plotError(activeCellIDs,ceError,mesh,"Plot Energy Error")
         form = None
     
     """ Test Plot with p auto refine"""
@@ -62,8 +64,10 @@ class TestPlotterError(unittest.TestCase):
 
         form.pRefine()
 
+        activeCellIDs = mesh.getActiveCellIDs()
+
         ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"P Auto Refine Energy Error")
+        plotError(activeCellIDs,ceError,mesh,"P Auto Refine Energy Error")
 
         form = None
 
@@ -85,8 +89,10 @@ class TestPlotterError(unittest.TestCase):
 
         form.hRefine()
 
+        activeCellIDs = mesh.getActiveCellIDs()
+
         ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"H Auto Refine Energy Error")   
+        plotError(activeCellIDs,ceError,mesh,"H Auto Refine Energy Error")   
 
         form = None
 
@@ -108,8 +114,10 @@ class TestPlotterError(unittest.TestCase):
 
         mesh.pRefine([3,1])
 
+        activeCellIDs = mesh.getActiveCellIDs()
+
         ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"P Manual Refine Energy Error") 
+        plotError(activeCellIDs,ceError,mesh,"P Manual Refine Energy Error") 
 
         form = None
 
@@ -132,7 +140,9 @@ class TestPlotterError(unittest.TestCase):
 
         mesh.hRefine([0,1])
 
+        activeCellIDs = mesh.getActiveCellIDs()
+
         ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"H Manual Refine Energy Error") 
+        plotError(activeCellIDs,ceError,mesh,"H Manual Refine Energy Error") 
 
         form = None

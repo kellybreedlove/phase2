@@ -154,7 +154,7 @@ class PlotState:
 			    (values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-			    plot(v, p)
+			    plot(v, p,"u1")
 			
 			#plot
 		elif command.lower() == "u2":
@@ -164,7 +164,7 @@ class PlotState:
 			    (values,points) = u2_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-			    plot(v, p)
+			    plot(v, p,"u2")
 			#plot
 		elif command.lower() == "p":
 			print("Plotting " + command + "...")
@@ -173,7 +173,7 @@ class PlotState:
 			    (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-			    plot(v, p)
+			    plot(v, p,"p")
 			#plot
 		elif command.lower() == "stream function":
 			print("Solving for stream function...")
@@ -182,7 +182,7 @@ class PlotState:
 			    (values,points) = stream_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-			    plot(v, p)
+			    plot(v, p, "Stream Function")
 				
 			#solve
 			print("Plotting " + command + "...")
