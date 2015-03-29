@@ -201,7 +201,7 @@ class PlotState:
 			#refine
 		else:
 			print("Sorry, input does not match any known commands.")
-			print("Please select h or p auto or manual.")
+			print("Please select  u1, u2, p, stream function, mesh, or error.")
 			return self
 
 @Singleton
