@@ -30,7 +30,7 @@ def plotError(cellIds,perCellError, mesh, title=""):
     yCoor = around(yCoor, decimals = 3) 
     # Creates a pcolormesh using the two coor arrays and the errorvals
     plt.pcolormesh(array(xCoor), array(yCoor), errorVals, edgecolors='k', linewidths=2, 
-                       cmap='bwr', vmin=min(errorVals), vmax=max(errorVals) 
+                       cmap='bwr', vmin=min(errorVals), vmax=max(errorVals)) 
 
     plt.xticks(xCoor) 
     plt.yticks(yCoor) 
