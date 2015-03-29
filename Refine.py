@@ -23,6 +23,7 @@ class hRefine:
         else:
             try:
                 elements = parseElements(command)
+                print elements
                 form = context.inputData.getForm()
                 if context.inputData.getVariable("stokes"): #stokes is linear
                     form = linearHManualRefine(form, elements)

@@ -773,7 +773,7 @@ def parenMult(toFunction):
                         if(toFunction[k] == '-') and len(parenStack) == 0:
                             if(k == 0 or (toFunction[k-1] == '(' or toFunction[k-1] == '+' or toFunction[k-1] == '-' or toFunction[k-1] == '*' or toFunction[k-1] == '/' or toFunction[k-1] == '^')):
                                 k -= 1                               
-                                break
+                            break
 
                         curr = toFunction[k]
                         if curr == ')':
