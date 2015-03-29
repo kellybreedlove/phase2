@@ -11,6 +11,8 @@ def plotError(cellIds,perCellError, mesh, title=""):
     meshX = []
     meshY = []
     tempCell = []
+    errorVals = []
+    
     #for each active cell
     for cellID in cellIds:
         tempCell = mesh.verticesForCell(cellID)
@@ -18,7 +20,9 @@ def plotError(cellIds,perCellError, mesh, title=""):
         for vert in tempCell:
            meshX.append(vert[0]) #get the x value for the vertex
            meshY.append(vert[1])
-           
+    for i in range(0,len(meshY)-1)       
+        errorVals.append(array(perCellError)[0:len(meshX)-1])
+    print(errorVals)
     #dummy color values for the plot as to be 0
     meshX = sorted(list(set(meshX))) #sort and remove duplicates 
     meshY = sorted(list(set(meshY))) #sort and remove duplicates
@@ -28,7 +32,7 @@ def plotError(cellIds,perCellError, mesh, title=""):
     print(array(meshX))
     print(array(meshY))
     print(array(perCellError))
-    plt.pcolormesh(array(meshX), array(meshY), array(perCellError), edgecolors='k', linewidths=2, 
+    plt.pcolormesh(array(meshX), array(meshY), errorVals, edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
     plt.xticks(meshX) #plot the ticks on the x axis with all x points
@@ -58,6 +62,7 @@ def plotMesh(cellIds, mesh,title=""):
     meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
     meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
     #make the actual mesh plot
+    print(colA)
     plt.pcolormesh(array(meshX), array(meshY), colA, edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
