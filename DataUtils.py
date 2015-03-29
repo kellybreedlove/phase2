@@ -33,4 +33,21 @@ def populateInputData(data):
     data.addVariable("numWalls",  1)
     data.addVariable("wallRegions",  [wallRegion])
 
-def generateFor
+def generateFormStokesTransient():
+    data = InputData(True)
+    data.addVariable("transient", True)
+    populateInputData(data)
+    return solve(data)
+
+def generateFormStokesSteady():
+    data = InputData(True)
+    data.addVariable("transient", False)
+    populateInputData(data)
+    return solve(data)
+
+def generateFormNavierStokesSteady():
+    data = InputData(False)
+    data.addVariable("reynolds", re)
+    data.addVariable("transient", False)
+    populateInputData(data)
+    return solve(data)
