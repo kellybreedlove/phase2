@@ -1,6 +1,7 @@
 from PyCamellia import *
 from Solver import *
 from InputData import *
+from DataUtils import *
 import unittest
 
 phase2 = Solver()
@@ -85,10 +86,26 @@ class TestSolver(unittest.TestCase):
 
     """Test LoadState's Act"""
     def test_LoadStateAct(self):
+        self.test_SaveStateAct()
         self.assertEqual(load.act("filename", phase2), post)
 
     """Test SaveState's Act"""
     def test_SaveStateAct(self):
+        phase2.inputData = InputData(True)
+        phase2.inputData.setForm(generateForm("steady"))
+        phase2.inputData.addVariable("transient", False)
+        phase2.inputData.addVariable("meshDimensions", dims)
+        phase2.inputData.addVariable("numElements", numElements)
+        phase2.inputData.addVariable("polyOrder",  polyOrder)
+        phase2.inputData.addVariable("numInflows",  1)
+        phase2.inputData.addVariable("inflowRegions",  [inflowRegion])
+        phase2.inputData.addVariable("inflowX",  [inflowX])
+        phase2.inputData.addVariable("inflowY",  [inflowY])
+        phase2.inputData.addVariable("numOutflows",  1)
+        phase2.inputData.addVariable("outflowRegions",  [outflowRegion])
+        phase2.inputData.addVariable("numWalls",  1)
+        phase2.inputData.addVariable("wallRegions",  [wallRegion])
+
         self.assertEqual(save.act("filename", phase2), post)
 
 

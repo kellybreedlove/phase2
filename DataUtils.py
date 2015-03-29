@@ -1,5 +1,6 @@
 from InputData import *
 from SolveFormulation import *
+from PyCamellia import *
 import pickle
 import copy
 
@@ -89,3 +90,19 @@ if __name__ == '__main__':
     saveFile = open("testPickle", 'wb')
     pickle.dump(memento, saveFile)
     saveFile.close()
+
+
+    loadFile = open("testPickle")
+    memento = pickle.load(loadFile)
+    loadFile.close()
+    data.setMemento(memento)
+			
+    polyOrder = data.getVariable("polyOrder")
+    if not data.getVariable("stokes"):
+        spaceDim = 2
+        reynolds = context.inputData.getVariable("reynolds")
+        form = NavierStokesVGPForumlation("testSave", spaceDim, reynolds, polyOrder)
+    else:
+        form.initializeSolution("testSave", polyOrder)
+			    
+    data.setForm(form)
