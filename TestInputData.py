@@ -3,7 +3,9 @@ from InputData import *
 import SolutionFns
 import unittest
 
-
+"""
+Lots of variables to be used throughout for consistency
+"""
 useConformingTraces = True
 mu = 1.0
 dims = [1.0,1.0]
@@ -40,11 +42,12 @@ inflow = Inflow.Instance()
 outflow = Outflow.Instance()
 walls = Walls.Instance()
 
-class TestInputData(unittest.TestCase):
 
-    """Test Some Stuff"""
-    def test_Stuff(self):
-        pass
+"""
+This class tests InputData's functions and Memento, as well as the 
+nested state classes that are within InputData and their functions
+"""
+class TestInputData(unittest.TestCase):
 
     """Test Memento's get & set"""
     def test_mementoGetSet(self):
@@ -58,6 +61,9 @@ class TestInputData(unittest.TestCase):
         dataMap = memento.get()
         self.assertIn(nStokes, dataMap)
         self.assertNotIn(stokes, dataMap)
+
+
+
 
     """Test InputData's init"""
     def test_inputDataInit(self):
@@ -110,6 +116,9 @@ class TestInputData(unittest.TestCase):
         self.assertIn("mesh", dataMap)
         self.assertIn("polyOrder", dataMap)
 
+
+
+
     """Test Reynold's init"""
     def test_reynoldsInit(self):
         self.assertIsNotNone(reynolds)
@@ -132,6 +141,9 @@ class TestInputData(unittest.TestCase):
     """Test Reynold's next"""
     def test_reynoldsNext(self):
         self.assertEqual(reynolds.next(), state)
+
+
+
 
     """Test State's init"""
     def test_stateInit(self):
@@ -170,6 +182,9 @@ class TestInputData(unittest.TestCase):
     def test_stateUndo(self):
         self.assertEqual(reynolds, state.undo())
 
+
+
+
     """Test MeshDimensions's init"""
     def test_meshDimensionsInit(self):
         self.assertIsNotNone(meshDims)
@@ -199,6 +214,10 @@ class TestInputData(unittest.TestCase):
     def test_meshDimensionsUndo(self):
         self.assertEqual(state, meshDims.undo())
 
+
+
+
+
     """Test Elements' init"""
     def test_elementsInit(self):
         self.assertIsNotNone(elements)
@@ -227,6 +246,10 @@ class TestInputData(unittest.TestCase):
     """Test Elements' undo"""
     def test_elementsUndo(self):
         self.assertEqual(meshDims, elements.undo())
+
+
+
+
 
     """Test PolyOrder's init"""
     def test_polyOrderInit(self):
@@ -259,6 +282,10 @@ class TestInputData(unittest.TestCase):
     def test_polyOrderUndo(self):
         self.assertEqual(elements, polyOrder.undo())
 
+
+
+
+
     """Test Inflow's init"""
     def test_inflowInit(self):
         self.assertIsNotNone(inflow)
@@ -280,6 +307,7 @@ class TestInputData(unittest.TestCase):
     """Test Inflow's undo"""
     def test_inflowUndo(self):
         self.assertEqual(polyOrder, inflow.undo())
+
 
 
 
@@ -309,6 +337,7 @@ class TestInputData(unittest.TestCase):
 
 
 
+
     """Test Walls's init"""
     def test_wallsInit(self):
         self.assertIsNotNone(walls)
@@ -328,6 +357,8 @@ class TestInputData(unittest.TestCase):
         self.assertEqual(outflow, walls.undo())
 
         
+
+
         
     """Test getFunction"""
     def test_getFunction(self):
