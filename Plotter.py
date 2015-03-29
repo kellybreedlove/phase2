@@ -20,7 +20,7 @@ def plotError(cellIds,perCellError, mesh, title=""):
            yCoor.append(vert[1])
     #Runs through the percellerror array and creates a two-dimensional array out of the given values      
     for i in range(0,len(yCoor)-1):       
-        errorVals.append(array(perCellError)[0:len(xCoor)-1])
+        errorVals.append((array(perCellError)[0:len(xCoor)-1]).tolist())
     print(errorVals)
     #Sorts the given lists and removes the duplicates
     xCoor = sorted(list(set(xCoor))) 
