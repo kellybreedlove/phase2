@@ -2,8 +2,9 @@ import matplotlib.pyplot as  plt
 import matplotlib.colors as col
 from PyCamellia import *
 from numpy import *
+import itertools
 
-
+debug = False
 
 
 def plotMesh(pointsArray): #fo real
@@ -27,11 +28,18 @@ def plot(values,pointsArray):
     mergedVals = list(itertools.chain.from_iterable(values))
     for points in pointsArray:
         for point in points:
-            xCoor.append(points[0])
-            yCoor.append(points[1])
-     
-          
-    print(mergedVals)
+            xCoor.append(point[0])
+            yCoor.append(point[1])
+    
+    i = 0
+
+    if debug:
+        for i,c in enumerate(mergedVals):        
+            print "("+str(xCoor[i])+","+str(yCoor[i])+") : "+str(mergedVals[i])
+        print i
+        print len(xCoor)
+        print len(yCoor)
+
     plt.scatter(array(xCoor),array(yCoor),array(mergedVals),cmap='bwr', vmin=-100,vmax=100)
     plt.show()
     

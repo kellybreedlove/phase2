@@ -1,4 +1,4 @@
-from TestFunctionParser import *
+from TestParseFunction import *
 from TestConditionParser import * 
 from TestInputData import *
 from TestPlotter import *
