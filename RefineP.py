@@ -14,8 +14,7 @@ class pRefine:
             if context.inputData.getVariable("stokes"): #stokes is linear
                 form = steadyLinearPAutoRefine(form)
             else: #Navier-Stokes is nonlinear
-                maxSteps = 20
-                form = nonlinearPAutoRefine(form, maxSteps)
+                form = nonlinearPAutoRefine(form)
             mesh = form.solution().mesh()
             numActiveElements = mesh.numActiveElements()
             dof = mesh.numGlobalDofs()
@@ -28,7 +27,7 @@ class pRefine:
                 if context.inputData.getVariable("stokes"): #stokes is linear
                     form = linearPManualRefine(form, elements)
                 else:
-                    form = linearPManualRefine(form, elements)
+                    form = nonlinearPManualRefine(form, elements)
                 return PostSolveState.Instance()
             except ValueError:
                 print('Please enter integer values, separated by commas to indicate active elements, or "auto".')

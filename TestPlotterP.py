@@ -40,11 +40,19 @@ class TestPlotterP(unittest.TestCase):
         elementCount = mesh.numActiveElements()
         globalDofCount = mesh.numGlobalDofs()
 
-        cpOrder = []
-        for i in range(0,mesh.numElements()):
-            cpOrder.append(mesh.cellPolyOrder(i))
+        p_soln = Function.solution(form.p(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
-        plotP(cpOrder,mesh)
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p)
         form = None
     
     """ Test Plot with p auto refine"""
@@ -65,11 +73,19 @@ class TestPlotterP(unittest.TestCase):
 
         form.pRefine()
 
-        cpOrder = []
-        for i in range(0,mesh.numElements()):
-            cpOrder.append(mesh.cellPolyOrder(i))
+        p_soln = Function.solution(form.p(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
-        plotP(cpOrder,mesh)
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p)
         form = None
 
     """ Test Plot with h auto refine"""
@@ -90,11 +106,19 @@ class TestPlotterP(unittest.TestCase):
 
         form.hRefine()
 
-        cpOrder = []
-        for i in range(0,mesh.numElements()):
-            cpOrder.append(mesh.cellPolyOrder(i))
+        p_soln = Function.solution(form.p(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
-        plotP(cpOrder,mesh)
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p)
         form = None  
 
     """ Test Plot with p manual refine"""
@@ -115,11 +139,19 @@ class TestPlotterP(unittest.TestCase):
 
         mesh.pRefine([3,1])
 
-        cpOrder = []
-        for i in range(0,mesh.numElements()):
-            cpOrder.append(mesh.cellPolyOrder(i))
+        p_soln = Function.solution(form.p(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
-        plotP(cpOrder,mesh)
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p)
         form = None
 
     """ Test Plot with h manual refine"""
@@ -141,9 +173,17 @@ class TestPlotterP(unittest.TestCase):
 
         mesh.hRefine([0,1])
 
-        cpOrder = []
-        for i in range(0,mesh.numElements()):
-            cpOrder.append(mesh.cellPolyOrder(i))
+        p_soln = Function.solution(form.p(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
-        plotP(cpOrder,mesh)
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p)
         form = None

@@ -4,6 +4,7 @@ from Refine import *
 from RefineP import *
 import pickle
 from Plotter import *
+from itertools import chain, combinations
 
 class Solver:
 	def __init__(self):
