@@ -286,7 +286,7 @@ class SaveState:
 		    saveFile.close()
 		
 		    print("saved.")
-		    return PostsolveState.Instance()
+		    return PostSolveState.Instance()
 
 #run solver
 if __name__ == '__main__':
