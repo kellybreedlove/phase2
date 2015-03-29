@@ -3,6 +3,7 @@ from ConditionParser import *
 from ParseFunction import *
 from SolveFormulation import *
 import re
+import copy
 
 # The memento doesn't care about any of the data, it just passes it around
 class Memento:
@@ -38,7 +39,6 @@ class InputData:
         except:
             print("InputData does not contain %s" % string)
     def createMemento(self):
-        del self.vars["form"] # can't pickle swigPy objects, save seperately
         return Memento(self.vars)
     def setMemento(self, memento):
         self.vars = memento.get()
@@ -184,7 +184,7 @@ class Inflow:
 	                i -= 2 #go back to last input
 	            if i < 1:
 	                return False #already at last input, restart at Inflow
-	    inputData.addVariable("numInflows",numInflows)
+	    inputData.addVariable("numInflows", numInflows)
 	    inputData.addVariable("inflowRegions", self.Regions)
 	    inputData.addVariable("inflowX", self.X)
 	    inputData.addVariable("inflowY", self.Y)

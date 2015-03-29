@@ -1,6 +1,7 @@
 from InputData import *
 from SolveFormulation import *
 import pickle
+import copy
 
 spaceDim = 2
 useConformingTraces = True
@@ -74,14 +75,16 @@ if __name__ == '__main__':
 
     memento = data.createMemento()
 
-    dataMap = memento.get()
-    del dataMap["inflowRegions"]
-    del dataMap["inflowX"]
-    del dataMap["inflowY"]
-    del dataMap["outflowRegions"]
-    del dataMap["wallRegions"]
-    for x in dataMap:
-        print x, ' : ', dataMap[x]
+    output = memento.get()
+   
+    del output["form"]
+    del output["inflowRegions"]
+    del output["inflowX"]
+    del output["inflowY"]
+    del output["outflowRegions"]
+    del output["wallRegions"]
+    for x in output:
+        print x, ' : ', output[x]
 
     saveFile = open("testPickle", 'wb')
     pickle.dump(memento, saveFile)
