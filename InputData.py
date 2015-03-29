@@ -262,7 +262,7 @@ class Walls:
 	    	    return False
 	    inputData.addVariable("numWalls", datum)
 	    inputData.addVariable("wallRegions", self.wallRegions)
-	    inputData.setForm(solve(inputData.vars))
+	    inputData.setForm(solve(inputData))
 	    return True
 	def hasNext(self):
 	    return False

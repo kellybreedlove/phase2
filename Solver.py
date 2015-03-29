@@ -154,7 +154,7 @@ class PlotState:
 			    (values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-				plot(v, p)
+			    plot(v, p)
 			
 			#plot
 		elif command.lower() == "u2":
@@ -164,7 +164,7 @@ class PlotState:
 			    (values,points) = u2_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-				plot(v, p)
+			    plot(v, p)
 			#plot
 		elif command.lower() == "p":
 			print("Plotting " + command + "...")
@@ -173,7 +173,7 @@ class PlotState:
 			    (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-				plot(v, p)
+			    plot(v, p)
 			#plot
 		elif command.lower() == "stream function":
 			print("Solving for stream function...")
@@ -212,34 +212,36 @@ class LoadState:
 	def prompt(self):
 		self.filename = input("What solution would you like to load?")
 	def act(self, command, context):
+		if command == "undo":
+		    return PostSolveState.Instance()
+		else:
+			try:
+			    print("Loading..."),
 		
-
-		try:
-			print("Loading..."),
-		
-			file = open(self.filename)
-			memento = pickle.load(file)
-			file.close()
-			context.inputData.setMemento(memento)
+			    file = open(self.filename)
+			    memento = pickle.load(file)
+			    file.close()
+			    context.inputData.setMemento(memento)
 			
-			form = None
-			polyOrder = context.inputData.getVariable("polyOrder")
-			if not context.inputData.getVariable("stokes"):
-				spaceDim = 2
-				reynolds = context.inputData.getVariable("reynolds")
-				form = NavierStokesVGPForumlation(command + "Form", spaceDim, reynolds, polyOrder)
-			else:
-				form.initializeSolution(command + "Form", polyOrder)
-			context.inputData.setForm(form)
+			    form = None
+			    polyOrder = context.inputData.getVariable("polyOrder")
+			    if not context.inputData.getVariable("stokes"):
+			        spaceDim = 2
+			        reynolds = context.inputData.getVariable("reynolds")
+			        form = NavierStokesVGPForumlation(command + "Form", spaceDim, reynolds, polyOrder)
+			    else:
+			        form.initializeSolution(command + "Form", polyOrder)
+			    
+			    context.inputData.setForm(form)
 			
-			mesh = form.solution().mesh()
-			elementCount = mesh.numActiveElements()
-			globalDofCount = mesh.numGlobalDofs()
-			print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (elementCount, globalDofCount))
-			return PostSolveState.Instance()
-		except (OSError, IOError):
-			print("No solution was found with the name \"%s\"" % command)
-			return LoadState.Instance()
+			    mesh = form.solution().mesh()
+			    elementCount = mesh.numActiveElements()
+			    globalDofCount = mesh.numGlobalDofs()
+			    print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (elementCount, globalDofCount))
+			    return PostSolveState.Instance()
+			except (OSError, IOError):
+			    print("No solution was found with the name \"%s\"" % command)
+			    return LoadState.Instance()
 
 
 @Singleton
@@ -247,15 +249,18 @@ class SaveState:
 	def prompt(self):
 		print("What would you like to call the solution and mesh files?")
 	def act(self, command, context):
-		print("Saving..."),
-		context.inputData.getForm().save(command + "Form")
-		memento = context.inputData.createMemento()
-		file = open(command, 'wb')
-		pickle.dump(memento, file)
-		file.close()
+		if command == "undo":
+		    return PostsolveState.Instance()
+		else:
+		    print("Saving..."),
+		    context.inputData.getForm().save(command + "Form")
+		    memento = context.inputData.createMemento()
+		    file = open(command, 'wb')
+		    pickle.dump(memento, file)
+		    file.close()
 		
-		print("saved.")
-		return PostsolveState.Instance()
+		    print("saved.")
+		    return PostsolveState.Instance()
 
 #run solver
 if __name__ == '__main__':
