@@ -57,7 +57,7 @@ class TestPlotterP(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "Plot p")
         form = None
     
     """ Test Plot with p auto refine"""
@@ -90,7 +90,7 @@ class TestPlotterP(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "P Auto Refine p")
         form = None
 
     """ Test Plot with h auto refine"""
@@ -123,7 +123,7 @@ class TestPlotterP(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Auto Refine p")
         form = None  
 
     """ Test Plot with p manual refine"""
@@ -156,7 +156,7 @@ class TestPlotterP(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "P Manual Refine p")
         form = None
 
     """ Test Plot with h manual refine"""
@@ -190,5 +190,5 @@ class TestPlotterP(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Manual Refine p")
         form = None

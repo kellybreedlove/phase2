@@ -1,7 +1,7 @@
 from PyCamellia import *
 from Plotter import *
 import unittest
-
+from itertools import chain, combinations
 
 spaceDim = 2
 useConformingTraces = True
@@ -21,12 +21,15 @@ ramp = (1-H_right) * H_left + (1./rampWidth) * (1-H_left) * x + (1./rampWidth) *
 zero = Function.constant(0)
 topVelocity = Function.vectorize(ramp,zero)
 refinementNumber = 0
-refCellVertexPoints = [[-1.,-1.],[1.,-1.],[1.,1.],[-1.,1.]];
+combos = combinations([-1.,1.,0.,.5,-.5,.25,-.25,.75,-.75,.8,-.8,.1,-.1,.2,-.2,.3,-.3,.4,-.4,.6,-.6,.7,-.7,.8,-.8,.9,-.9,.15,-.15,.35,-.35,.45,-.45,.55,-.55,.65,-.65,.85,-.85,.95,-.95,.125,-.125,.175,-.175,.225,-.225,.275,-.275,.325,-.325,.375,-.375,.425,-.425,.475,-.475,.525,-.525,.575,-.575,.625,-.625,.675,-.675,.725,-.725,.825,-.825,.875,-.875,.925,-.925,.975,-.975,.33,-.33,.66,-.66],2)
+refCellVertexPoints = [];
+for e in combos:
+    refCellVertexPoints.append(list(e))
 
-class TestPlotterError(unittest.TestCase):
+class TestPlotterStream(unittest.TestCase):
     """ Test Plot"""
-    def test_plot_energyError(self):
-        print "Plot_energyError"
+    def test_plot_streamPhi(self):
+        print "Plot_streamPhi"
         form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
         form.initializeSolution(meshTopo,polyOrder,delta_k)
@@ -40,13 +43,24 @@ class TestPlotterError(unittest.TestCase):
         elementCount = mesh.numActiveElements()
         globalDofCount = mesh.numGlobalDofs()
 
-        ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"Plot Energy Error")
+        streamPhi_soln = Function.solution(form.streamPhi(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
+
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = streamPhi_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p,"Plot streamPhi")
         form = None
     
     """ Test Plot with p auto refine"""
-    def test_plotPAutoRefine_energyError(self): 
-        print "pAutoRefine_energyError"
+    def test_plotPAutoRefine_streamPhi(self): 
+        print "pAutoRefine_streamPhi"
         form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
         form.initializeSolution(meshTopo,polyOrder,delta_k)
@@ -62,14 +76,24 @@ class TestPlotterError(unittest.TestCase):
 
         form.pRefine()
 
-        ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"P Auto Refine Energy Error")
+        streamPhi_soln = Function.solution(form.streamPhi(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = streamPhi_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p,"P Auto Refine streamPhi")
         form = None
 
     """ Test Plot with h auto refine"""
-    def test_plothAutoRefine_energyError(self):    
-        print "hAutoRefine_energyError"
+    def test_plothAutoRefine_streamPhi(self):    
+        print "hAutoRefine_streamPhi"
         form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
         form.initializeSolution(meshTopo,polyOrder,delta_k)
@@ -85,14 +109,24 @@ class TestPlotterError(unittest.TestCase):
 
         form.hRefine()
 
-        ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"H Auto Refine Energy Error")   
+        streamPhi_soln = Function.solution(form.streamPhi(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
-        form = None
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = streamPhi_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p,"H Auto Refine streamPhi")
+        form = None 
 
     """ Test Plot with p manual refine"""
-    def test_plotpManualRefine_energyError(self): 
-        print "pManualRefine_energyError"
+    def test_plotpManualRefine_streamPhi(self): 
+        print "pManualRefine_streamPhi"
         form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
         form.initializeSolution(meshTopo,polyOrder,delta_k)
@@ -108,15 +142,25 @@ class TestPlotterError(unittest.TestCase):
 
         mesh.pRefine([3,1])
 
-        ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"P Manual Refine Energy Error") 
+        streamPhi_soln = Function.solution(form.streamPhi(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = streamPhi_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p,"P Manual Refine streamPhi")
         form = None
 
     """ Test Plot with h manual refine"""
-    def test_plothManualRefine_energyError(self): 
+    def test_plothManualRefine_streamPhi(self): 
         #return
-        print "hManualRefine_energyError"
+        print "hManualRefine_streamPhi"
         form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
         form.initializeSolution(meshTopo,polyOrder,delta_k)
@@ -132,7 +176,17 @@ class TestPlotterError(unittest.TestCase):
 
         mesh.hRefine([0,1])
 
-        ceError = form.solution().energyErrorPerCell()
-        plotError(ceError,mesh,"H Manual Refine Energy Error") 
+        streamPhi_soln = Function.solution(form.streamPhi(),form.solution())
+        activeCellIDs = mesh.getActiveCellIDs()
 
+        p = []
+        v = []
+        for cellID in activeCellIDs:
+            (values,points) = streamPhi_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+        
+
+            p.append(points)
+            v.append(values)
+
+        plot(v, p,"H Manual Refine streamPhi")
         form = None

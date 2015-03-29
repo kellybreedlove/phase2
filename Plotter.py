@@ -6,10 +6,10 @@ import itertools
 
 debug = False
 
-def plotError(perCellError, mesh):
+def plotError(perCellError, mesh,title=""):
     pass
 
-def plotMesh(cellIds, mesh): 
+def plotMesh(cellIds, mesh,title=""): 
     meshX = []
     meshY = []
     tempCell = []
@@ -31,6 +31,7 @@ def plotMesh(cellIds, mesh):
     plt.pcolormesh(array(meshX), array(meshY), colA, edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
+    plt.title(title)
     plt.xticks(meshX) #plot the ticks on the x axis with all x points
     plt.yticks(meshY) #plot the ticks on the y axis with all y points
     plt.xlim(0, meshX[len(meshX)-1]) #limit the x axis to the maximum mesh dimension
@@ -40,7 +41,7 @@ def plotMesh(cellIds, mesh):
     
     
     
-def plot(values,pointsArray):
+def plot(values,pointsArray,title=""):
     xCoor = []
     yCoor = []
     mergedVals = list(itertools.chain.from_iterable(values))
@@ -58,6 +59,6 @@ def plot(values,pointsArray):
         print len(xCoor)
         print len(yCoor)
 
-
+    plt.title(title)
     plt.hexbin(xCoor,yCoor,mergedVals,cmap='bwr', vmin=min(mergedVals),vmax=max(mergedVals),mincnt=0)
     plt.show()

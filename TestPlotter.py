@@ -52,7 +52,7 @@ class TestPlotter(unittest.TestCase):
 
         #print CellIDs
 
-        plotMesh(CellIDs,mesh)
+        plotMesh(CellIDs,mesh,"Mesh")
     
     """Test plot Mesh Refine"""
     def test_plotRefineMesh(self):
@@ -78,7 +78,7 @@ class TestPlotter(unittest.TestCase):
 
         #print CellIDs
 
-        plotMesh(CellIDs,mesh)
+        plotMesh(CellIDs,mesh,"Refined Mesh")
 
     """ Test Plot"""
     def test_plot_u1(self):
@@ -108,7 +108,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "Plot u1")
         form = None
     
     """ Test Plot with p auto refine"""
@@ -141,7 +141,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "P Auto Refine u1")
 
         form = None
 
@@ -175,7 +175,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Auto Refine u1")
 
         form = None
 
@@ -213,7 +213,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "P Manual Refine u1")
 
         form = None
 
@@ -252,7 +252,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Manual Refine u1")
 
         form = None
 
@@ -284,7 +284,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p,"Plot u2")
         form = None
     
     """ Test Plot with p auto refine"""
@@ -317,7 +317,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p,"P Auto Refine u2")
 
         form = None
 
@@ -351,7 +351,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Auto Refine u2")
 
         form = None
 
@@ -389,7 +389,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p,"P Manual Refine u2")
 
         form = None
 
@@ -428,7 +428,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Manual Refine u2")
 
         form = None
 
