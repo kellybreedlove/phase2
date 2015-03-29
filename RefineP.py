@@ -1,4 +1,4 @@
-#from Singleton import *
+from Singleton import *
 from Solver import *
 from SolutionFns import *
 

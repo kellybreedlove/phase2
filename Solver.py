@@ -1,7 +1,6 @@
 from Singleton import *
 from InputData import *
 from RefineStates import *
-from RefineP import *
 import pickle
 from Plotter import *
 from itertools import chain, combinations
