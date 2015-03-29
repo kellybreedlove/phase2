@@ -8,9 +8,6 @@ debug = False
 
 def plotError(perCellError, mesh):
     pass
-    
-def plotP(cpOrder, mesh):
-    pass
 
 def plotMesh(cellIds, mesh): 
     meshX = []

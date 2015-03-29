@@ -14,8 +14,7 @@ class hRefine:
             if context.inputData.getVariable("stokes"): #stokes is linear
                 form = steadyLinearHAutoRefine(form)
             else: #Navier-Stokes is nonlinear
-                maxSteps = 20
-                form = nonlinearHAutoRefine(form, maxSteps)
+                form = nonlinearHAutoRefine(form)
             mesh = form.solution().mesh()
             numActiveElements = mesh.numActiveElements()
             dof = mesh.numGlobalDofs()
