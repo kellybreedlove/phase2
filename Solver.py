@@ -245,7 +245,7 @@ class LoadState:
 			    else:
 				useConformingTraces = False
 				mu = 1.0
-				form = stokesVGPFormulation(spaceDim, useConformingTraces, mu)
+				form = StokesVGPFormulation(spaceDim, useConformingTraces, mu)
 				form.initializeSolution(command, polyOrder)
 			    
 			    context.inputData.setForm(form)
