@@ -25,6 +25,10 @@ state = State.Instance()
 class TestSolver(unittest.TestCase):
 
 
+    """Test Solver Init"""
+    def test_solver(self):
+        pass
+
     """Test InitState's Act"""
     def test_InitStateAct(self):
         self.assertEqual(init.act("create", phase2),create)

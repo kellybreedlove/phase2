@@ -1,5 +1,6 @@
 from InputData import *
 from SolveFormulation import *
+import pickle
 
 spaceDim = 2
 useConformingTraces = True
@@ -33,6 +34,15 @@ def populateInputData(data):
     data.addVariable("numWalls",  1)
     data.addVariable("wallRegions",  [wallRegion])
 
+# nStokes, transient, or steady
+def generateForm(kind):
+    if kind == "nStokes":
+        return generateFormNavierStokesSteady()
+    if kind == "transient":
+        return generateFormStokesTransient()
+    if kind == "steady":
+        return generateFormStokesSteady()
+        
 def generateFormStokesTransient():
     data = InputData(True)
     data.addVariable("transient", True)
@@ -51,3 +61,28 @@ def generateFormNavierStokesSteady():
     data.addVariable("transient", False)
     populateInputData(data)
     return solve(data)
+
+
+if __name__ == '__main__':
+    form = generateForm("steady")
+    form.save("testSave")
+
+    data = InputData(True)
+    data.addVariable("transient", False)
+    data.addVariable("form", form)
+    populateInputData(data)
+
+    memento = data.createMemento()
+
+    dataMap = memento.get()
+    del dataMap["inflowRegions"]
+    del dataMap["inflowX"]
+    del dataMap["inflowY"]
+    del dataMap["outflowRegions"]
+    del dataMap["wallRegions"]
+    for x in dataMap:
+        print x, ' : ', dataMap[x]
+
+    saveFile = open("testPickle", 'wb')
+    pickle.dump(memento, saveFile)
+    saveFile.close()

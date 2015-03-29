@@ -38,6 +38,7 @@ class InputData:
         except:
             print("InputData does not contain %s" % string)
     def createMemento(self):
+        del self.vars["form"] # can't pickle swigPy objects, save seperately
         return Memento(self.vars)
     def setMemento(self, memento):
         self.vars = memento.get()

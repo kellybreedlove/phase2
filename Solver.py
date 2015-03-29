@@ -255,9 +255,9 @@ class SaveState:
 		    form = context.inputData.getForm()
 		    form.save(command + "Form")
 		    memento = context.inputData.createMemento()
-		    file = open(command, 'wb')
-		    pickle.dump(memento, file)
-		    file.close()
+		    saveFile = open(command, 'wb')
+		    pickle.dump(memento, saveFile)
+		    saveFile.close()
 		
 		    print("saved.")
 		    return PostsolveState.Instance()
