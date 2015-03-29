@@ -3,7 +3,7 @@ from Solver import *
 from SolutionFns import *
 
 @Singleton
-class hRefine:
+class HRefine:
     def prompt(self):
        print("Which elements? You can specify active element numbers (0,1,2,5,8,9,10,...) or auto.")
     def act(self, command, context):
@@ -36,7 +36,7 @@ class hRefine:
 
 
 @Singleton
-class pRefine:
+class PRefine:
     def prompt(self):
         print("Which elements? You can specify active element numbers (0,1,2,5,8,9,10,...) or auto.")
     def act(self, command, context):
