@@ -58,6 +58,7 @@ def plotMesh(cellIds, mesh,title=""):
     meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
     meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
     #make the actual mesh plot
+    print(colA)
     plt.pcolormesh(array(meshX), array(meshY), colA, edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
