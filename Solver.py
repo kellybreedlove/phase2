@@ -194,7 +194,7 @@ class PlotState:
 			#refine
 		elif command.lower() == "error":
 			print("Plotting " + command + "...")
-			plotError(activeCellIDs,perCellError,mesh,"Error')
+			plotError(activeCellIDs,perCellError,mesh,"Error")
 			#refine
 		else:
 			print("Sorry, input does not match any known commands.")
