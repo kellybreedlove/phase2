@@ -7,7 +7,8 @@ import itertools
 debug = False
 
 def plotError(perCellError, mesh):
-    pass
+    return
+    
 
 def plotMesh(cellIds, mesh): 
     meshX = []
