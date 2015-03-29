@@ -154,7 +154,6 @@ class PlotState:
 			    (values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-
 				plot(v, p)
 			
 			#plot
@@ -165,7 +164,6 @@ class PlotState:
 			    (values,points) = u2_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-
 				plot(v, p)
 			#plot
 		elif command.lower() == "p":
@@ -175,7 +173,6 @@ class PlotState:
 			    (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-
 				plot(v, p)
 			#plot
 		elif command.lower() == "stream function":
@@ -215,28 +212,34 @@ class LoadState:
 	def prompt(self):
 		self.filename = input("What solution would you like to load?")
 	def act(self, command, context):
-		print("Loading..."),
 		
-		file = open(self.filename)
-		memento = pickle.load(file)
-		file.close()
-		context.inputData.setMemento(memento)
 
-		form = None
-		polyOrder = context.inputData.getVariable("polyOrder")
-		if not context.inputData.getVariable("stokes"):
-			spaceDim = 2
-			reynolds = context.inputData.getVariable("reynolds")
-			form = NavierStokesVGPForumlation(command + "Form", spaceDim, reynolds, polyOrder)
-		else:
-			form.initializeSolution(command + "Form", polyOrder)
-		context.inputData.setForm(form)
-
-		mesh = form.solution().mesh()
-		elementCount = mesh.numActiveElements()
-		globalDofCount = mesh.numGlobalDofs()
-		print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (elementCount, globalDofCount))
-		return PostSolveState.Instance()
+		try:
+			print("Loading..."),
+		
+			file = open(self.filename)
+			memento = pickle.load(file)
+			file.close()
+			context.inputData.setMemento(memento)
+			
+			form = None
+			polyOrder = context.inputData.getVariable("polyOrder")
+			if not context.inputData.getVariable("stokes"):
+				spaceDim = 2
+				reynolds = context.inputData.getVariable("reynolds")
+				form = NavierStokesVGPForumlation(command + "Form", spaceDim, reynolds, polyOrder)
+			else:
+				form.initializeSolution(command + "Form", polyOrder)
+			context.inputData.setForm(form)
+			
+			mesh = form.solution().mesh()
+			elementCount = mesh.numActiveElements()
+			globalDofCount = mesh.numGlobalDofs()
+			print ("...loaded. Mesh has %s elements and %s degrees of freedom" % (elementCount, globalDofCount))
+			return PostSolveState.Instance()
+		except (OSError, IOError):
+			print("No solution was found with the name \"%s\"" % command)
+			return LoadState.Instance()
 
 
 @Singleton
