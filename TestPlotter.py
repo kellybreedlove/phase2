@@ -1,7 +1,7 @@
 from PyCamellia import *
 from Plotter import *
 import unittest
-
+from itertools import chain, combinations
 
 spaceDim = 2
 useConformingTraces = True
@@ -21,7 +21,10 @@ ramp = (1-H_right) * H_left + (1./rampWidth) * (1-H_left) * x + (1./rampWidth) *
 zero = Function.constant(0)
 topVelocity = Function.vectorize(ramp,zero)
 refinementNumber = 0
-refCellVertexPoints = [[-1.,-1.],[1.,-1.],[1.,1.],[-1.,1.]];
+combos = combinations([-1.,1.,0.,.5,-.5,.25,-.25,.75,-.75,.8,-.8,.1,-.1,.2,-.2,.3,-.3,.4,-.4,.6,-.6,.7,-.7,.8,-.8,.9,-.9,.15,-.15,.35,-.35,.45,-.45,.55,-.55,.65,-.65,.85,-.85,.95,-.95,.125,-.125,.175,-.175,.225,-.225,.275,-.275,.325,-.325,.375,-.375,.425,-.425,.475,-.475,.525,-.525,.575,-.575,.625,-.625,.675,-.675,.725,-.725,.825,-.825,.875,-.875,.925,-.925,.975,-.975,.33,-.33,.66,-.66],2)
+refCellVertexPoints = []
+for e in combos:
+    refCellVertexPoints.append(list(e))
 
 
 
@@ -49,7 +52,7 @@ class TestPlotter(unittest.TestCase):
 
         #print CellIDs
 
-        plotMesh(CellIDs,mesh)
+        plotMesh(CellIDs,mesh,"Mesh")
     
     """Test plot Mesh Refine"""
     def test_plotRefineMesh(self):
@@ -75,7 +78,7 @@ class TestPlotter(unittest.TestCase):
 
         #print CellIDs
 
-        plotMesh(CellIDs,mesh)
+        plotMesh(CellIDs,mesh,"Refined Mesh")
 
     """ Test Plot"""
     def test_plot_u1(self):
@@ -105,7 +108,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "Plot u1")
         form = None
     
     """ Test Plot with p auto refine"""
@@ -138,7 +141,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "P Auto Refine u1")
 
         form = None
 
@@ -172,7 +175,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Auto Refine u1")
 
         form = None
 
@@ -210,7 +213,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "P Manual Refine u1")
 
         form = None
 
@@ -249,7 +252,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Manual Refine u1")
 
         form = None
 
@@ -281,7 +284,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p,"Plot u2")
         form = None
     
     """ Test Plot with p auto refine"""
@@ -314,7 +317,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p,"P Auto Refine u2")
 
         form = None
 
@@ -348,7 +351,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Auto Refine u2")
 
         form = None
 
@@ -386,7 +389,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p,"P Manual Refine u2")
 
         form = None
 
@@ -425,7 +428,7 @@ class TestPlotter(unittest.TestCase):
             p.append(points)
             v.append(values)
 
-        plot(v, p)
+        plot(v, p, "H Manual Refine u2")
 
         form = None
 
