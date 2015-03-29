@@ -40,7 +40,7 @@ def plotMesh(cellIds, mesh):
     
     
     
-def plot(values,pointsArray):
+def plot(values,pointsArray, title):
     xCoor = []
     yCoor = []
     mergedVals = list(itertools.chain.from_iterable(values))
@@ -60,4 +60,5 @@ def plot(values,pointsArray):
 
 
     plt.hexbin(xCoor,yCoor,mergedVals,cmap='bwr', vmin=min(mergedVals),vmax=max(mergedVals),mincnt=0)
+    plt.title(title)
     plt.show()
