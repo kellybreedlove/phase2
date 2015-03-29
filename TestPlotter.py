@@ -103,7 +103,7 @@ class TestPlotter(unittest.TestCase):
         form = None
     
     """ Test Plot with p auto refine"""
-    def test_plotPAutoRefine_u1(self): 
+    def test_plotpAutoRefine_u1(self): 
         print "pAutoRefine_u1"
         form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
         meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
