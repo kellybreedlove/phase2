@@ -3,13 +3,13 @@ from InputData import *
 from Refine import *
 from RefineP import *
 import pickle
+from Plotter import *
 #from PyCamellia import *
 
 class Solver:
 	def __init__(self):
 		self.commands = []
 		self.state = InitState.Instance()
-		self.previous = None
 		self.inputData = None # initally null until some input is known
 		#self.state = StokesState.Instance() #FOR TESTING
 	def readCommand(self, userinput):
@@ -37,7 +37,6 @@ class InitState:
 			print("Before we solve, I need to ask you some setup questions.")
 			return CreateState.Instance()
 		elif command.lower() == "load":
-			context.previous = InitState.Instance()
 			return LoadState.Instance()
 		elif command.lower() == "exit" or command.lower() == "quit":
 			quit()
@@ -124,7 +123,6 @@ class PostSolveState:
 		elif command.lower() == "refine":
 			return RefineState.Instance()
 		elif command.lower() == "save":
-			context.previous = PostSolveState.Instance()
 			return SaveState.Instance()
 		elif command.lower() == "load":
 			return LoadState.Instance()
@@ -140,34 +138,56 @@ class PlotState:
 		print("What would you like to plot?")
 		print("Possible choices are: u1, u2, p, stream function, mesh, and error.")
 	def act(self, command, context):
-		#combos = combinations([-1.,1.,0.,.5,-.5,.25,-.25,.75,-.75,.8,-.8,.1,-.1,.2,-.2,.3,-.3,.4,-.4,.6,-.6,.7,-.7,.8,-.8,.9,-.9,.15,-.15,.35,-.35,.45,-.45,.55,-.55,.65,-.65,.85,-.85,.95,-.95,.125,-.125,.175,-.175,.225,-.225,.275,-.275,.325,-.325,.375,-.375,.425,-.425,.475,-.475,.525,-.525,.575,-.575,.625,-.625,.675,-.675,.725,-.725,.825,-.825,.875,-.875,.925,-.925,.975,-.975,.33,-.33,.66,-.66],2))
+		combos = combinations([-1.,1.,0.,.5,-.5,.25,-.25,.75,-.75,.8,-.8,.1,-.1,.2,-.2,.3,-.3,.4,-.4,.6,-.6,.7,-.7,.8,-.8,.9,-.9,.15,-.15,.35,-.35,.45,-.45,.55,-.55,.65,-.65,.85,-.85,.95,-.95,.125,-.125,.175,-.175,.225,-.225,.275,-.275,.325,-.325,.375,-.375,.425,-.425,.475,-.475,.525,-.525,.575,-.575,.625,-.625,.675,-.675,.725,-.725,.825,-.825,.875,-.875,.925,-.925,.975,-.975,.33,-.33,.66,-.66],2))
 		refCellVertexPoints = []
+		p = []
+		v = []
 		for e in combos:
     			refCellVertexPoints.append(list(e))
 		form = context.inputData.getForm()
 		mesh = form.solution().mesh()
 		activeCellIDs = mesh.getActiveCellIDs()
 		if command.lower() == "u1":
-			print("Ploting " + command + "...")
+			print("Plotting " + command + "...")
 			u1_soln = Function.solution(form.u(1),form.solution())
+			 for cellID in activeCellIDs:
+            			(values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+            			p.append(points)
+            			v.append(values)
+
+        		plot(v, p)
 			
 			#plot
 		elif command.lower() == "u2":
-			print("Ploting " + command + "...")
+			print("Plotting " + command + "...")
+			u2_soln = Function.solution(form.u(2),form.solution())
+			 for cellID in activeCellIDs:
+            			(values,points) = u2_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+            			p.append(points)
+            			v.append(values)
+
+        		plot(v, p)
 			#plot
 		elif command.lower() == "p":
-			print("Ploting " + command + "...")
+			print("Plotting " + command + "...")
+			p_soln = Function.solution(form.p(),form.solution())
+			 for cellID in activeCellIDs:
+            			(values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+            			p.append(points)
+            			v.append(values)
+
+        		plot(v, p)
 			#plot
 		elif command.lower() == "stream function":
 			print("Solving for stream function...")
 			#solve
-			print("Ploting " + command + "...")
+			print("Plotting " + command + "...")
 			#refine
 		elif command.lower() == "mesh":
-			print("Ploting " + command + "...")
+			print("Plotting " + command + "...")
 			#refine
 		elif command.lower() == "error":
-			print("Ploting " + command + "...")
+			print("Plotting " + command + "...")
 			#refine
 		else:
 			print("Sorry, input does not match any known commands.")
@@ -193,10 +213,8 @@ class RefineState:
 @Singleton
 class LoadState:
 	def prompt(self):
-		print("What solution would you like to load?")
+		self.filename = input("What solution would you like to load?")
 	def act(self, command, context):
-		if command == "undo":
-		    return context.previous
 		print("Loading..."),
 		
 		file = open(self.filename)
@@ -227,7 +245,6 @@ class SaveState:
 		print("What would you like to call the solution and mesh files?")
 	def act(self, command, context):
 		print("Saving..."),
-		
 		context.inputData.getForm().save(command + "Form")
 		memento = context.inputData.createMemento()
 		file = open(command, 'wb')

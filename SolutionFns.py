@@ -46,7 +46,7 @@ def steadyLinearSolve(form):
     
     return form
 
-# Begin Refine -------------------------------------------------------------
+# -------------------------------------------------------------
 
 def steadyLinearHAutoRefine(form):
     print("Automatically refining in h...")
@@ -92,7 +92,7 @@ def linearPManualRefine(form, cellList):
     print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
     steadyLinearSolve(form)
 
-# End Refine ---------------------------------------------------------------
+# ---------------------------------------------------------------
 
 def transientLinearInit(spaceDim, dims, numElements, polyOrder, dt):
     transient = True
@@ -108,48 +108,70 @@ def transientLinearInit(spaceDim, dims, numElements, polyOrder, dt):
 
     return form
 
-def transientLinearSolve(form, totalTime, dt):
-    exporter = HDF5Exporter(form.solution().mesh(), "transientStokes", ".")
+def transientLinearSolve(form):
+    print("Solving...")
+    start = time()
+
+    dt = 0.1
+    totalTime = 2.0
     numTimeSteps = int(totalTime / dt)    
     for timeStepNumber in range(numTimeSteps):
         form.solve()
-        exporter.exportSolution(form.solution(),form.getTime())
         form.takeTimeStep()
         print("Time step %i completed" % timeStepNumber)
+
+    mesh = form.solution().mesh()
+    energyError = form.solution().energyErrorTotal()
+    end = time()
+    mins = (end - start) / 60
+    secs = (end - start) % 60
+    print("Solve completed in %i minute, %i seconds." % (mins, secs))
+    print("Energy error is %0.3f" % (energyError))
+
+# ---------------------------------------------------------------
 
 def steadyNonlinearInit(spaceDim, re, dims, numElements, polyOrder):
     x0 = [0.,0.]
     meshTopo = MeshFactory.rectilinearMeshTopology(dims, numElements, x0)
     delta_k = 1
-
     form = NavierStokesVGPFormulation(meshTopo, re, polyOrder, delta_k)
-    
     form.addZeroMeanPressureCondition()
-    
     return form
 
-#define a local method that will do the nonlinear iteration:
-def nonlinearSolve(form, maxSteps):
-    nonlinearThreshold = 1e-3
+# helper method
+def nonlinearSolve(form):
+    maxSteps = 10
     normOfIncrement = 1
     stepNumber = 0
+    nonlinearThreshold = 1e-3
     while normOfIncrement > nonlinearThreshold and stepNumber < maxSteps:
         form.solveAndAccumulate()
         normOfIncrement = form.L2NormSolutionIncrement()
         print("L^2 norm of increment: %0.3f" % normOfIncrement)
         stepNumber += 1
-    return form
 
-def steadyNonlinearSolve(form, maxSteps):
-    refinementNumber = 0
-    form = nonlinearSolve(form, maxSteps)
+def steadyNonlinearSolve(form):
+    print("Solving...")
+    start = time()
+
+    nonlinearSolve(form)
+
     mesh = form.solution().mesh()
     energyError = form.solutionIncrement().energyErrorTotal()
+    end = time()
+    mins = (end - start) / 60
+    secs = (end - start) % 60
+    print("Solve completed in %i minute, %i seconds." % (mins, secs))
+    print("Energy error is %0.3f" % (energyError))
+
+# -------------------------------------------------------------
+
+def nonlinearHAutoRefine(form):
+    print("Automatically refining in h..."),
+    form.hRefine()
+    mesh = form.solution().mesh()
     elementCount = mesh.numActiveElements()
-    globalDofCount = mesh.numGlobalDofs()
-    print("Initial mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    print("Energy error after %i refinements: %0.3f" % (refinementNumber, energyError))
-    
+    globalDofCount = mesh.numGlobalDofs()  
     return form
 
 def nonlinearHAutoRefine(form, maxSteps):
@@ -190,33 +212,38 @@ def nonlinearPAutoRefine(form, maxSteps):
 
 def nonlinearHManualRefine(form, maxSteps, cellList):
     refinementNumber = 0
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyNonlinearSolve(form)
+
+def nonlinearPAutoRefine(form):
+    print("Automatically refining in p..."),
+    form.pRefine()
     mesh = form.solution().mesh()
-    energyError = form.solutionIncrement().energyErrorTotal()
-    cellList = cellList.split()
-    cellList = map(int, cellList)
+    elementCount = mesh.numActiveElements()
+    globalDofCount = mesh.numGlobalDofs()
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyNonlinearSolve(form)
+
+def nonlinearHManualRefine(form, cellList):
+    print("Manually refining in h..."),
+    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = map(int, cellList)
+    mesh = form.solution().mesh()
     mesh.hRefine(cellList)
-    form = nonlinearSolve(form, maxSteps)
-    energyError = form.solutionIncrement().energyErrorTotal()
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
-    print("Energy error: %0.3f" % (energyError))
-    print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyNonlinearSolve(form)
     return form
 
-def nonlinearPManualRefine(form, maxSteps, cellList):
-    refinementNumber = 0
+def nonlinearPManualRefine(form, cellList):
+    print("Manually refining in p..."),
+    #cellList = cellList.split()          may be necessary for user input, but not for testing
+    #cellList = map(int, cellList)
     mesh = form.solution().mesh()
-    energyError = form.solutionIncrement().energyErrorTotal()
-    cellList = cellList.split()
-    cellList = map(int, cellList)
     mesh.pRefine(cellList)
-    form = nonlinearSolve(form, maxSteps)
-    energyError = form.solutionIncrement().energyErrorTotal()
     elementCount = mesh.numActiveElements()
     globalDofCount = mesh.numGlobalDofs()
-    print("Energy error: %0.3f" % (energyError))
-    print("Mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
-    
+    print("New mesh has %i elements and %i degrees of freedom." % (elementCount, globalDofCount))
+    steadyNonlinearSolve(form)
     return form
-
