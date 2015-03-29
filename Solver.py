@@ -38,6 +38,9 @@ class InitState:
 			return CreateState.Instance()
 		elif command.lower() == "load":
 			return LoadState.Instance()
+		elif command.lower() == "undo":
+			print("Unable to undo.")
+			return self
 		elif command.lower() == "exit" or command.lower() == "quit":
 			quit()
 		else:
