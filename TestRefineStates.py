@@ -1,10 +1,11 @@
-from Refine import *
+from RefineStates import *
 from PyCamellia import *
 import unittest
 
-#########################  For testing States for Refine input
-#########################  Note that refine methods already tested
-#########################  in TestSolutionFns
+"""
+A class for testing Refine, which are the states that work on refinements.
+The actual function for doing the refinement is located in SolutionFns
+"""
 class TestRefine(unittest.TestCase):
     
     """Test Some Stuff"""

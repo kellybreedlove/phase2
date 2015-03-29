@@ -5,7 +5,7 @@ from TestPlotter import *
 from TestPlotterError import *
 from TestPlotterP import *
 from TestPlotterStream import *
-from TestRefine import *
+#from TestRefineStates import *
 from TestSolutionFns import *
 from TestSolveFormulation import *
 from TestSolver import *
@@ -18,7 +18,7 @@ testSuite.addTest(unittest.makeSuite(TestPlotter))
 testSuite.addTest(unittest.makeSuite(TestPlotterError))
 testSuite.addTest(unittest.makeSuite(TestPlotterP))
 testSuite.addTest(unittest.makeSuite(TestPlotterStream))
-testSuite.addTest(unittest.makeSuite(TestRefine))
+#testSuite.addTest(unittest.makeSuite(TestRefineStates))
 testSuite.addTest(unittest.makeSuite(TestSolutionFns)) # done
 testSuite.addTest(unittest.makeSuite(TestSolveFormulation)) # done
 testSuite.addTest(unittest.makeSuite(TestSolver)) # done
