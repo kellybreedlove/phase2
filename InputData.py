@@ -332,3 +332,11 @@ def stringToElements(inputstr):
         return [x,y]
     except:
         raise ValueError
+
+def parseElements(elements):
+    elementList = []
+    while "," in elements:
+        comma = elements.index(",")
+        elementList.append(int(elements[:comma]))
+        elements = elements[comma:]
+    return elements
