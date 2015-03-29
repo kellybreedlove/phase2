@@ -9,6 +9,7 @@ from TestRefineStates import *
 from TestSolutionFns import *
 from TestSolveFormulation import *
 from TestSolver import *
+from CapturingUtil import *
 import unittest
 
 testSuite = unittest.makeSuite(TestConditionParser)
@@ -24,4 +25,6 @@ testSuite.addTest(unittest.makeSuite(TestSolveFormulation)) # done
 testSuite.addTest(unittest.makeSuite(TestSolver)) # done
 
 testRunner = unittest.TextTestRunner()
-testRunner.run(testSuite)
+
+with Capturing() as output:
+    testRunner.run(testSuite)
