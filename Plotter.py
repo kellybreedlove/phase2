@@ -7,6 +7,7 @@ import itertools
 debug = False
 
 def plotError(cellIds,perCellError, mesh, title=""):
+    
     meshX = []
     meshY = []
     tempCell = []
@@ -24,7 +25,7 @@ def plotError(cellIds,perCellError, mesh, title=""):
     meshX = around(meshX, decimals = 3) #round all x values to 3 decimal places
     meshY = around(meshY, decimals = 3) #round all y values to 3 decimal places
     #make the actual mesh plot
-    plt.pcolormesh(array(meshX), array(meshY), perCellError, edgecolors='k', linewidths=2, 
+    plt.pcolormesh(array(meshX), array(meshY), array(perCellError), edgecolors='k', linewidths=2, 
                        cmap='bwr', vmin='-100', vmax='100') 
 
     plt.xticks(meshX) #plot the ticks on the x axis with all x points
