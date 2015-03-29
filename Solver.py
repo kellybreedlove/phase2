@@ -241,7 +241,7 @@ class LoadState:
 			        reynolds = context.inputData.getVariable("reynolds")
 			        form = NavierStokesVGPForumlation(command, spaceDim, reynolds, polyOrder)
 			    else:
-				useConformingTraces = True
+				useConformingTraces = False
 				mu = 1.0
 				form = stokesVGPFormulation(spaceDim, useConformingTraces, mu)
 				form.initializeSolution(command, polyOrder)
