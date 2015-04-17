@@ -160,7 +160,6 @@ class PlotState:
 			    p.append(points)
 			    v.append(values)
 			plot(v, p)
-			
 			#plot
 		elif command.lower() == "u2":
 			print("Plotting " + command + "...")
@@ -180,21 +179,20 @@ class PlotState:
 			    v.append(values)
 			plot(v, p)
 			#plot
-		elif command.lower() == "stream function":
+		elif command.lower() == "stream":
 			print("Solving for stream function...")
 			stream_soln = Function.solution(form.streamPhi(), form.solution())
 			for cellID in activeCellIDs:
 			    (values,points) = stream_soln.getCellValues(mesh,cellID,refCellVertexPoints)
 			    p.append(points)
 			    v.append(values)
-			plot(v, p)
-				
+			plot(v, p)	
 			#solve
 			print("Plotting " + command + "...")
 			#refine
 		elif command.lower() == "mesh":
 			print("Plotting " + command + "...")
-			plotMesh(activeCellIDs,mesh,"Mesh")
+			plotMesh(activeCellIDs,mesh,"Mesh")	
 			#refine
 		elif command.lower() == "error":
 			print("Operation not supported")
@@ -204,6 +202,8 @@ class PlotState:
 			print("Sorry, input does not match any known commands.")
 			print("Please select  u1, u2, p, stream function, mesh, or error.")
 			return self
+		return PostSolveState.Instance()
+
 		return PostSolveState.Instance()
 
 @Singleton

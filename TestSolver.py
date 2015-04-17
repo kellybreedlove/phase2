@@ -2,6 +2,8 @@ from PyCamellia import *
 from Solver import *
 from InputData import *
 from DataUtils import *
+from Refine import *
+from RefineP import *
 import unittest
 
 phase2 = Solver()
