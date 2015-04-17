@@ -16,7 +16,7 @@ def steadyLinearInit(dims, numElements, polyOrder):
     meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
     delta_k = 1
     mu = 1.0
-    useConformingTraces = True
+    useConformingTraces = False
     
     form = StokesVGPFormulation(spaceDim,useConformingTraces,mu)
     form.initializeSolution(meshTopo,polyOrder,delta_k)
@@ -113,7 +113,7 @@ def transientLinearInit(spaceDim, dims, numElements, polyOrder, dt):
     meshTopo = MeshFactory.rectilinearMeshTopology(dims,numElements,x0)
     delta_k = 1
     mu = 1.0
-    useConformingTraces = True
+    useConformingTraces = False
 
     form = StokesVGPFormulation(spaceDim, useConformingTraces, mu, transient, dt)    
     form.initializeSolution(meshTopo, polyOrder, delta_k)
