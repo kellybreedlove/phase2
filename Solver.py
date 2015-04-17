@@ -204,6 +204,7 @@ class PlotState:
 			print("Sorry, input does not match any known commands.")
 			print("Please select  u1, u2, p, stream function, mesh, or error.")
 			return self
+		return PostSolveState.Instance()
 
 @Singleton
 class RefineState:
