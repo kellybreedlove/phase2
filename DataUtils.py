@@ -101,7 +101,7 @@ if __name__ == '__main__':
     if not data.getVariable("stokes"):
         spaceDim = 2
         reynolds = context.inputData.getVariable("reynolds")
-        form = NavierStokesVGPForumlation("testSave", spaceDim, reynolds, polyOrder)
+        form = NavierStokesVGPFormulation("testSave", spaceDim, reynolds, polyOrder)
     else:
         form.initializeSolution("testSave", polyOrder)
 			    
