@@ -74,6 +74,18 @@ class TestParseFunction(unittest.TestCase):
         func = stringToFunction("2.+.6-x^2+y")
         answ = 2. + .6 - x**2 + y
         self.assertEqual(answ, func.evaluate(x, y))
+        
+    def test_RobertsInput(self):
+        """Test input from Dr. Roberts"""
+        func = stringToFunction("-3*(y-1)*(y-2)")
+        answ = -3*(y-1)*(y-2)
+        self.assertEqual(answ, func.evaluate(x, y))
+
+    def test_RobertsInput2(self):
+        """Test input from Dr. Roberts"""
+        func = stringToFunction("-3*y*y+9*y-6")
+        answ = -3*(y-1)*(y-2)
+        self.assertEqual(answ, func.evaluate(x, y))
 
     """Test ePowerOfTen"""
     def test_ePowerOfTen(self):
