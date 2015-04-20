@@ -6,6 +6,7 @@ from Plotter import *
 from PyCamellia import *
 from SolutionFns import *
 from itertools import chain, combinations
+import RobertsPlotter
 
 class Solver:
 	def __init__(self):
@@ -151,42 +152,49 @@ class PlotState:
 		form = context.inputData.getForm()
 		mesh = form.solution().mesh()
 		activeCellIDs = mesh.getActiveCellIDs()
-		perCellError = form.solution().energyErrorPerCell()
 		if command.lower() == "u1":
 			print("Plotting " + command + "...")
 			u1_soln = Function.solution(form.u(1),form.solution())
-			for cellID in activeCellIDs:
-			    (values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
-			    p.append(points)
-			    v.append(values)
-			plot(v, p)
+			RobertsPlotter.plotFunction(u1_soln,form.solution().mesh(),command)
+# 			for cellID in activeCellIDs:
+# 			    (values,points) = u1_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+# 			    p.append(points)
+# 			    v.append(values)
+# 			plot(v, p)
 			#plot
 		elif command.lower() == "u2":
 			print("Plotting " + command + "...")
 			u2_soln = Function.solution(form.u(2),form.solution())
-			for cellID in activeCellIDs:
-			    (values,points) = u2_soln.getCellValues(mesh,cellID,refCellVertexPoints)
-			    p.append(points)
-			    v.append(values)
-			plot(v, p)
+			RobertsPlotter.plotFunction(u2_soln,form.solution().mesh(),command)
+# 			for cellID in activeCellIDs:
+# 			    (values,points) = u2_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+# 			    p.append(points)
+# 			    v.append(values)
+# 			plot(v, p)
 			#plot
 		elif command.lower() == "p":
 			print("Plotting " + command + "...")
 			p_soln = Function.solution(form.p(),form.solution())
-			for cellID in activeCellIDs:
-			    (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
-			    p.append(points)
-			    v.append(values)
-			plot(v, p)
-			#plot
+			RobertsPlotter.plotFunction(p_soln,form.solution().mesh(),command)
+# 			for cellID in activeCellIDs:
+# 			    (values,points) = p_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+# 			    p.append(points)
+# 			    v.append(values)
+# 			plot(v, p)
+# 			#plot
 		elif command.lower() == "stream":
 			print("Solving for stream function...")
-			stream_soln = Function.solution(form.streamPhi(), form.solution())
-			for cellID in activeCellIDs:
-			    (values,points) = stream_soln.getCellValues(mesh,cellID,refCellVertexPoints)
-			    p.append(points)
-			    v.append(values)
-			plot(v, p)	
+			streamSolution = form.streamSolution()
+			streamSolution.solve()
+			streamFunction = Function.solution(form.streamPhi(), streamSolution)
+			print("Plotting " + command + "...")
+			RobertsPlotter.plotFunction(streamFunction,streamSolution.mesh(),command)
+# 			stream_soln = Function.solution(form.streamPhi(), form.solution())
+# 			for cellID in activeCellIDs:
+# 			    (values,points) = stream_soln.getCellValues(mesh,cellID,refCellVertexPoints)
+# 			    p.append(points)
+# 			    v.append(values)
+# 			plot(v, p)	
 			#solve
 			print("Plotting " + command + "...")
 			#refine
@@ -196,14 +204,13 @@ class PlotState:
 			#refine
 		elif command.lower() == "error":
 			print("Operation not supported")
+			#perCellError = form.solution().energyErrorPerCell()
 			#plotError(activeCellIDs,perCellError,mesh,"Error")
 			#refine
 		else:
 			print("Sorry, input does not match any known commands.")
 			print("Please select  u1, u2, p, stream function, mesh, or error.")
 			return self
-		return PostSolveState.Instance()
-
 		return PostSolveState.Instance()
 
 @Singleton
@@ -305,15 +312,13 @@ class LoadState:
 			    spaceDim = 2
 			    if not context.inputData.getVariable("stokes"):
 			        reynolds = context.inputData.getVariable("reynolds")
-			        form = NavierStokesVGPForumlation(command, spaceDim, reynolds, polyOrder)
+			        form = NavierStokesVGPFormulation(command, spaceDim, reynolds, polyOrder)
 			    else:
 				useConformingTraces = False
 				mu = 1.0
 				form = StokesVGPFormulation(spaceDim, useConformingTraces, mu)
 				form.initializeSolution(command, polyOrder)
-			    
 			    context.inputData.setForm(form)
-			
 			    mesh = form.solution().mesh()
 			    elementCount = mesh.numActiveElements()
 			    globalDofCount = mesh.numGlobalDofs()
@@ -333,10 +338,8 @@ class SaveState:
 		    return PostSolveState.Instance()
 		else:
 		    print("Saving..."),
-
 		    form = context.inputData.getForm()
 		    form.save(command)
-
 		    memento = context.inputData.createMemento()
 		    output = memento.get()
 		    if len(output) >= 9:
@@ -346,11 +349,9 @@ class SaveState:
 			    del output["inflowY"]
 			    del output["outflowRegions"]
 			    del output["wallRegions"]
-
 		    saveFile = open(command, 'wb')
 		    pickle.dump(memento, saveFile)
 		    saveFile.close()
-		
 		    print("saved.")
 		    return PostSolveState.Instance()
 
